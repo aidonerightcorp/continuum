@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "continuum"
-version = "1.1.0"
-description = "Unified self-improving agent engine for Hermes: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation."
+version = "1.2.0"
+description = "Unified self-improving agent engine for Hermes: 28 cybernetic engines (104 sub-engines), 160-axis TT-Cross configuration tuning, SAE/ELK latent probing, Nullspace activation steering, Sheaf & Conformal verification, and 9-target skill compilation."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"

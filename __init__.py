@@ -296,6 +296,71 @@ def _build_tool_definitions(
         rt.persist_status_snapshot()
         return json.dumps(out)
 
+    def _handle_probe_latent_state(args: dict[str, Any], **_: Any) -> str:
+        act_vec = args.get("activation_vector")
+        trace_txt = str(args.get("trace_text", "") or "")
+        inter_vec = args.get("intermediate_vector")
+        layer_acts = args.get("layer_activations")
+        pos_ex = args.get("positive_examples")
+        neg_ex = args.get("negative_examples")
+        cal_sc = args.get("calibration_scores")
+        concept = str(args.get("concept_name", "truthfulness") or "truthfulness")
+        topk = args.get("topk")
+        alpha = args.get("alpha")
+        exp_target = args.get("export_target")
+        exp_dim = args.get("export_dim")
+        out = rt.bus.probe_latent_state(
+            activation_vector=act_vec if isinstance(act_vec, list) else None,
+            trace_text=trace_txt,
+            intermediate_vector=inter_vec if isinstance(inter_vec, list) else None,
+            layer_activations=layer_acts if isinstance(layer_acts, list) else None,
+            positive_examples=pos_ex if isinstance(pos_ex, list) else None,
+            negative_examples=neg_ex if isinstance(neg_ex, list) else None,
+            calibration_scores=cal_sc if isinstance(cal_sc, list) else None,
+            concept_name=concept,
+            topk=int(topk) if topk is not None else None,
+            alpha=float(alpha) if alpha is not None else None,
+            export_target=str(exp_target) if exp_target else None,
+            export_dim=int(exp_dim) if exp_dim is not None else None,
+        )
+        rt.persist_status_snapshot()
+        return json.dumps(out)
+
+    def _handle_steer_nullspace_vector(args: dict[str, Any], **_: Any) -> str:
+        pos_acts = args.get("positive_activations")
+        neg_acts = args.get("negative_activations")
+        pos_prompt = str(args.get("positive_prompt", "") or "")
+        neg_prompt = str(args.get("negative_prompt", "") or "")
+        anchors = args.get("anchor_vectors")
+        res_vec = args.get("residual_vector")
+        eid = str(
+            args.get("engine_id", "nullspace_activation_steerer")
+            or "nullspace_activation_steerer"
+        )
+        strength = args.get("steering_strength")
+        feat_idx = args.get("feature_index")
+        dir_src = args.get("direction_source")
+        target = str(args.get("target", "rust") or "rust")
+        exp_dim = args.get("export_dim")
+        persist = bool(args.get("persist_weight_fold", False))
+        out = rt.bus.steer_nullspace_vector(
+            positive_activations=pos_acts if isinstance(pos_acts, list) else None,
+            negative_activations=neg_acts if isinstance(neg_acts, list) else None,
+            positive_prompt=pos_prompt,
+            negative_prompt=neg_prompt,
+            anchor_vectors=anchors if isinstance(anchors, list) else None,
+            residual_vector=res_vec if isinstance(res_vec, list) else None,
+            engine_id=eid,
+            steering_strength=float(strength) if strength is not None else None,
+            feature_index=int(feat_idx) if feat_idx is not None else None,
+            direction_source=str(dir_src) if dir_src else None,
+            target=target,
+            export_dim=int(exp_dim) if exp_dim is not None else None,
+            persist_weight_fold=persist,
+        )
+        rt.persist_status_snapshot()
+        return json.dumps(out)
+
     all_targets = [
         "rust",
         "glsl",
@@ -492,10 +557,10 @@ def _build_tool_definitions(
         ),
         (
             "continuum_manifold_status",
-            "Inspect live status, TT-Cross configuration tuning progress, and token/compute savings across all 24 engines.",
+            "Inspect live status, TT-Cross configuration tuning progress, and token/compute savings across all 28 engines.",
             {
                 "name": "continuum_manifold_status",
-                "description": "Return health, verified configuration counts, and efficiency metrics for Continuum's 24 engines.",
+                "description": "Return health, verified configuration counts, and efficiency metrics for Continuum's 28 engines.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -599,11 +664,108 @@ def _build_tool_definitions(
             },
             _handle_hyperlora_modulate,
         ),
+        (
+            "continuum_probe_latent_state",
+            "Probe residual activations or traces via Matryoshka Top-K SAE features, Crosscoder circuits, ELK layer divergence, and Split-Conformal truthfulness.",
+            {
+                "name": "continuum_probe_latent_state",
+                "description": "Run Matryoshka Top-K sparse feature decomposition, Crosscoder circuit tracing, internal concept/ELK layer-divergence probing, and Split-Conformal truthfulness calibration, with optional 9-runtime probe export.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "activation_vector": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "description": "Surface or residual activation vector to decompose and probe.",
+                        },
+                        "trace_text": {
+                            "type": "string",
+                            "description": "Optional trace or statement text embedded locally when activation_vector is omitted.",
+                        },
+                        "intermediate_vector": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "description": "Optional intermediate belief-layer activation vector for ELK layer-divergence detection.",
+                        },
+                        "layer_activations": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                            "description": "Optional multi-layer residual activations for sparse crosscoder circuit tracing.",
+                        },
+                        "positive_examples": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                        },
+                        "negative_examples": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                        },
+                        "calibration_scores": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                        },
+                        "concept_name": {"type": "string"},
+                        "topk": {"type": "integer"},
+                        "alpha": {"type": "number"},
+                        "export_target": {"type": "string", "enum": all_targets},
+                        "export_dim": {"type": "integer"},
+                    },
+                },
+            },
+            _handle_probe_latent_state,
+        ),
+        (
+            "continuum_steer_nullspace_vector",
+            "Compute a Contrastive or SAE activation steering vector projected into Null(A_anchor) (0.0 anchor drift), fold rank-1 LoRA-XS weights, and export across 9 runtimes.",
+            {
+                "name": "continuum_steer_nullspace_vector",
+                "description": "Extract a contrastive or monosemantic SAE steering vector projected strictly onto Null(A_anchor) with zero anchor subspace drift, zero-hook LoRA-XS weight folding, and 9-runtime portable export.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "positive_activations": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                        },
+                        "negative_activations": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                        },
+                        "positive_prompt": {"type": "string"},
+                        "negative_prompt": {"type": "string"},
+                        "anchor_vectors": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                            "description": "Protected anchor directions whose responses must experience 0.0 drift.",
+                        },
+                        "residual_vector": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                        },
+                        "engine_id": {"type": "string"},
+                        "steering_strength": {"type": "number"},
+                        "feature_index": {"type": "integer"},
+                        "direction_source": {
+                            "type": "string",
+                            "enum": [
+                                "hybrid_sae_contrastive",
+                                "contrastive_mass_mean",
+                                "sae_decoder_column",
+                            ],
+                        },
+                        "target": {"type": "string", "enum": all_targets},
+                        "export_dim": {"type": "integer"},
+                        "persist_weight_fold": {"type": "boolean"},
+                    },
+                },
+            },
+            _handle_steer_nullspace_vector,
+        ),
     ]
 
 
 def register(ctx: Any) -> ContinuumRuntime:
-    """Hermes v0.23.0+ entry point registering native providers, 15 tools, 4 hooks, /continuum, and skill."""
+    """Hermes v0.23.0+ entry point registering native providers, 17 tools, 4 hooks, /continuum, and skill."""
     rt = ContinuumRuntime()
     default_headroom = float(
         ctx.get_config(

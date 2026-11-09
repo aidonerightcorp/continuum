@@ -977,7 +977,7 @@ def test_spectral_diagnostics_morphism_coupling_and_evsi() -> None:
     )
 
 
-def test_all_fifteen_registered_tools_hooks_command_and_dashboard_api(
+def test_all_seventeen_registered_tools_hooks_command_and_dashboard_api(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     import continuum_core.storage as storage_mod
@@ -993,13 +993,13 @@ def test_all_fifteen_registered_tools_hooks_command_and_dashboard_api(
 
     ctx = _HarnessContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 15
+    assert len(ctx.tools) == 17
 
     ctx.hooks["on_session_start"](session_id="test_sess")
     ctx.hooks["pre_tool_call"]()
     status_txt = ctx.commands["continuum"]("status")
     step_txt = ctx.commands["continuum"]("step")
-    assert "24 engines (88 sub-engines)" in status_txt
+    assert "28 engines (104 sub-engines)" in status_txt
     assert "160 tunable params" in status_txt
     assert "9 targets" in status_txt
     assert "adaptation step" in step_txt
@@ -1061,9 +1061,40 @@ def test_all_fifteen_registered_tools_hooks_command_and_dashboard_api(
     assert hlora["anchor_drift"] == 0.0
     assert "#version 300 es" in hlora["artifact"]
 
+    latent_probe = json.loads(
+        ctx.tools["continuum_probe_latent_state"](
+            {
+                "activation_vector": [-0.9, -0.7, 0.1, -0.4, 0.2, -0.3, 0.0, -0.5],
+                "intermediate_vector": [0.9, 0.8, -0.1, 0.5, -0.2, 0.4, 0.0, 0.6],
+                "positive_examples": [[1.0, 0.8, 0.0, 0.5, -0.2, 0.3, 0.0, 0.5]],
+                "negative_examples": [[-1.0, -0.8, 0.0, -0.5, 0.2, -0.3, 0.0, -0.5]],
+                "concept_name": "truthfulness",
+                "export_target": "rust",
+                "export_dim": 4,
+            }
+        )
+    )
+    assert latent_probe["elk_divergence"]["elk_contradiction_detected"] is True
+    assert "#![no_std]" in latent_probe["portable_probe_artifact"]
+
+    steered = json.loads(
+        ctx.tools["continuum_steer_nullspace_vector"](
+            {
+                "positive_activations": [[0.8, 0.5, 0.9, 0.4, 0.2, 0.1, -0.3, 0.6]],
+                "negative_activations": [[-0.2, -0.4, -0.8, -0.3, -0.1, 0.0, 0.2, -0.5]],
+                "residual_vector": [0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "target": "rust",
+                "export_dim": 4,
+            }
+        )
+    )
+    assert steered["nullspace_anchor_drift"] == 0.0
+    assert steered["raw_anchor_drift"] > 0.1
+    assert "#![no_std]" in steered["artifact"]
+
     m_status = json.loads(
         ctx.tools["continuum_manifold_status"](
-            {"engine_id": "fluid_hypergrid_interpolator_engine"}
+            {"engine_id": "sparse_feature_dictionary"}
         )
     )
     assert "interpolated_engine_config" in m_status
@@ -1073,6 +1104,181 @@ def test_all_fifteen_registered_tools_hooks_command_and_dashboard_api(
 
     dash_status = dashboard_api.get_continuum_status()
     dash_engines = dashboard_api.get_continuum_engines()
-    assert dash_status["engine_count"] == 24
-    assert len(dash_engines["engines"]) == 24
+    assert dash_status["engine_count"] == 28
+    assert dash_status["sub_engine_count"] == 104
+    assert len(dash_engines["engines"]) == 28
     assert len(dash_engines["supported_targets"]) == 9
+
+
+# ─── 9. Mechanistic Interpretability (Engines 25-28): SAE, Crosscoder, ELK & Nullspace Steering ─
+
+
+def test_sparse_feature_dictionary_matryoshka_topk_jumprelu_and_auxk_revival() -> None:
+    bus = CyberneticWeightBus()
+    sae = bus.sae_engine
+    d_mat = sae.build_dictionary(8, 4, normalize_columns=True)
+    # Plant sparse ground-truth combination of dictionary columns 1 and 9
+    col_1 = [d_mat[r][1] for r in range(8)]
+    col_9 = [d_mat[r][9] for r in range(8)]
+    planted_h = [1.4 * c1 + 0.9 * c9 for c1, c9 in zip(col_1, col_9)]
+
+    for mode in ("matryoshka_topk", "jumprelu_topk", "soft_threshold"):
+        res = sae.encode_and_score(
+            planted_h,
+            dictionary=d_mat,
+            topk=4,
+            jumprelu_theta=0.1,
+            gating_mode=mode,
+        )
+        assert 1 <= res["l0_active_count"] <= 4
+        assert res["explained_variance_r2"] > 0.55
+        active_idxs = {f["feature_index"] for f in res["active_features"]}
+        assert 1 in active_idxs
+        assert all(f["monosemantic_selectivity"] >= 0.0 for f in res["active_features"])
+        # AuxK reviver never worsens reconstruction error
+        assert res["auxk_revival"]["post_auxk_mse"] <= res["reconstruction_mse"] + 1e-9
+        assert res["auxk_revival"]["dormant_latent_count"] >= 1
+
+
+def test_crosslayer_circuit_tracer_crosscoder_procrustes_and_causal_patching() -> None:
+    bus = CyberneticWeightBus()
+    layers = [
+        [0.9, 0.2, -0.4, 0.5, 0.1, -0.3, 0.6, 0.2],
+        [0.85, 0.25, -0.35, 0.55, 0.15, -0.25, 0.65, 0.25],
+        [0.8, 0.35, -0.25, 0.65, 0.2, -0.15, 0.75, 0.3],
+    ]
+    trace = bus.circuit_tracer_engine.trace_circuit(
+        layers,
+        shared_latents=12,
+        attribution_threshold=0.05,
+        l1_penalty=0.01,
+        align_procrustes=True,
+        target_direction=[1.0, 0.3, -0.2, 0.7, 0.1, -0.1, 0.8, 0.3],
+    )
+    assert trace["layer_count"] == 3
+    assert trace["procrustes_orthogonality_error"] < 1e-6
+    assert len(trace["shared_crosscoder_features"]) >= 1
+    assert any(f["persistent_across_depth"] for f in trace["shared_crosscoder_features"])
+    assert len(trace["transcoder_edges"]) >= 1
+
+
+def test_internal_state_prober_fisher_lda_elk_deception_and_rust_export() -> None:
+    bus = CyberneticWeightBus()
+    pos_cloud = [
+        [1.0, 0.8, 0.2, 0.6, -0.1, 0.4, 0.3, 0.7],
+        [0.9, 0.9, 0.1, 0.5, -0.2, 0.5, 0.2, 0.8],
+        [1.1, 0.7, 0.3, 0.7, 0.0, 0.3, 0.4, 0.6],
+    ]
+    neg_cloud = [
+        [-1.0, -0.8, -0.2, -0.6, 0.1, -0.4, -0.3, -0.7],
+        [-0.9, -0.9, -0.1, -0.5, 0.2, -0.5, -0.2, -0.8],
+        [-1.1, -0.7, -0.3, -0.7, 0.0, -0.3, -0.4, -0.6],
+    ]
+
+    # Case 1: Aligned truthful internal belief AND truthful surface state -> no ELK contradiction
+    honest = bus.probe_latent_state(
+        activation_vector=[0.95, 0.82, 0.18, 0.58, -0.12, 0.42, 0.28, 0.72],
+        intermediate_vector=[0.98, 0.85, 0.20, 0.60, -0.10, 0.40, 0.30, 0.70],
+        positive_examples=pos_cloud,
+        negative_examples=neg_cloud,
+        concept_name="truthfulness",
+        alpha=0.15,
+        export_target="rust",
+        export_dim=4,
+    )
+    assert honest["concept_probabilities"]["truthfulness"] > 0.75
+    assert honest["elk_divergence"]["elk_contradiction_detected"] is False
+    assert "truthfulness" in honest["conformal_truthfulness_set"]["prediction_set"]
+    assert honest["portable_probe_artifact"] is not None
+    assert "#![no_std]" in honest["portable_probe_artifact"]
+
+    # Case 2: Internal belief layer strongly truthful, surface output inverted -> ELK contradiction flagged!
+    deceptive = bus.probe_latent_state(
+        activation_vector=[-0.95, -0.82, -0.18, -0.58, 0.12, -0.42, -0.28, -0.72],
+        intermediate_vector=[0.98, 0.85, 0.20, 0.60, -0.10, 0.40, 0.30, 0.70],
+        positive_examples=pos_cloud,
+        negative_examples=neg_cloud,
+        concept_name="truthfulness",
+        alpha=0.15,
+    )
+    assert deceptive["elk_divergence"]["mid_layer_belief_prob"] > 0.75
+    assert deceptive["elk_divergence"]["surface_output_prob"] < 0.25
+    assert deceptive["elk_divergence"]["elk_contradiction_detected"] is True
+    assert deceptive["conformal_truthfulness_set"]["abstain"] is True
+
+    # Verify native rustc #![no_std] compilation of exported latent probe inside temporary directory
+    rustc_bin = _resolve_rustc()
+    assert rustc_bin is not None
+    with tempfile.TemporaryDirectory() as tmp_dir_str:
+        tdir = Path(tmp_dir_str)
+        rs_file = tdir / "probe_kernel.rs"
+        so_file = tdir / "libprobe_kernel.so"
+        rs_file.write_text(honest["portable_probe_artifact"], encoding="utf-8")
+        subprocess.run(
+            [
+                rustc_bin,
+                "-O",
+                "--crate-type",
+                "cdylib",
+                "-C",
+                "panic=abort",
+                str(rs_file),
+                "-o",
+                str(so_file),
+            ],
+            check=True,
+        )
+        lib = ctypes.CDLL(str(so_file))
+        lib.infer.argtypes = [
+            ctypes.POINTER(ctypes.c_float),
+            ctypes.POINTER(ctypes.c_float),
+            ctypes.POINTER(ctypes.c_float),
+        ]
+        c_x = (ctypes.c_float * 4)(0.95, 0.82, 0.18, 0.58)
+        c_z = (ctypes.c_float * 1)(0.0)
+        c_y = (ctypes.c_float * 4)()
+        lib.infer(c_x, c_z, c_y)
+        assert all(math.isfinite(float(c_y[i])) for i in range(4))
+
+
+@pytest.mark.parametrize(
+    "target",
+    ["rust", "glsl", "js", "python", "sql", "c99", "wasm", "wat", "wgsl"],
+)
+def test_nullspace_activation_steerer_zero_anchor_drift_and_all_nine_targets(
+    target: str,
+) -> None:
+    bus = CyberneticWeightBus()
+    # Positive vs negative activations deliberately overlap canonical anchor coordinates [0, 1] AND custom anchor [2]
+    pos_acts = [[0.9, 0.7, 0.8, 1.0, 0.6, -0.4, 0.5, 0.8]]
+    neg_acts = [[-0.9, -0.7, -0.8, -1.0, -0.6, 0.4, -0.5, -0.8]]
+    custom_anchor = [[0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+    residual_in = [0.2, -0.1, 0.3, 0.0, 0.1, 0.2, -0.2, 0.1]
+
+    res = bus.steer_nullspace_vector(
+        positive_activations=pos_acts,
+        negative_activations=neg_acts,
+        anchor_vectors=custom_anchor,
+        residual_vector=residual_in,
+        steering_strength=1.2,
+        direction_source="contrastive_mass_mean",
+        target=target,
+        export_dim=4,
+        persist_weight_fold=True,
+    )
+    # Naive contrastive steering pollutes anchors (> 0.2), whereas Null(A_anchor) projection gives exact 0.0 drift!
+    assert res["raw_anchor_drift"] > 0.2
+    assert res["nullspace_anchor_drift"] == 0.0
+    assert res["raw_numerical_nullspace_drift"] < 1e-12
+    assert res["folded_lora_xs_patch"]["engine_weight_anchor_drift"] == 0.0
+    assert res["retained_steering_norm_ratio"] > 0.3
+    assert res["steered_residual_vector"] is not None
+    # Anchor coordinates 0, 1, 2 in residual_in must remain untouched by v_perp!
+    for protected_dim in (0, 1, 2):
+        assert abs(res["steering_vector"][protected_dim]) < 1e-12
+        assert abs(res["steered_residual_vector"][protected_dim] - residual_in[protected_dim]) < 1e-12
+    assert isinstance(res["artifact"], str) and len(res["artifact"]) > 20
+
+    # Ensure zero binary artifacts exist anywhere in repository tree
+    for ext in ("*.wasm", "*.rlib", "*.so", "*.dylib"):
+        assert list(REPO_ROOT.rglob(ext)) == []

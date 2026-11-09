@@ -1,4 +1,4 @@
-"""24-Engine Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Surgical Edits, Sheaf, Conformal, HyperLoRA, Morphism, and EVSI."""
+"""28-Engine Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Surgical Edits, Sheaf, Conformal, HyperLoRA, Latent SAE Probing, and Nullspace Activation Steering."""
 
 from __future__ import annotations
 
@@ -23,6 +23,12 @@ from continuum_core.cybernetic_engines import (
 from continuum_core.grid_and_gates import (
     FluidHyperGrid,
     OperationCostLedger,
+)
+from continuum_core.latent_engines import (
+    CrosslayerCircuitTracerEngine,
+    InternalStateProberEngine,
+    NullspaceActivationSteererEngine,
+    SparseFeatureDictionaryEngine,
 )
 from continuum_core.linalg_backend import (
     Matrix,
@@ -75,7 +81,7 @@ class ParameterizedWeightSpaceEngine:
 
 
 class CyberneticWeightBus:
-    """Coordinates all 24 Functional Engines, 88 Sub-Engines, 5 Timescales, and 24x24 Sparse Jacobian."""
+    """Coordinates all 28 Functional Engines, 104 Sub-Engines, 5 Timescales, and 28x28 Sparse Jacobian."""
 
     def __init__(
         self,
@@ -89,7 +95,7 @@ class CyberneticWeightBus:
         self.hypergrid = FluidHyperGrid(self._spec, self.manifold, self.cost_ledger)
         self.compiler = CartridgeCompiler(self._spec, self.manifold)
 
-        # Cybernetic specialist operators backing the 24-engine taxonomy
+        # Cybernetic & mechanistic interpretability specialist operators backing the 28-engine taxonomy
         self.sheaf_engine = SheafConsensusTopologyEngine(self._spec, self.manifold)
         self.conformal_engine = ConformalCalibrationEngine(self._spec)
         self.causal_engine = CausalCounterfactualEngine(self._spec)
@@ -98,6 +104,12 @@ class CyberneticWeightBus:
         self.experimental_design_engine = ActiveExperimentalDesignEngine(self._spec)
         self.ib_engine = InformationBottleneckCompressionEngine(self._spec)
         self.self_healing_engine = AutonomicSelfHealingEngine(self._spec)
+        self.sae_engine = SparseFeatureDictionaryEngine(self._spec)
+        self.circuit_tracer_engine = CrosslayerCircuitTracerEngine(self._spec)
+        self.state_prober_engine = InternalStateProberEngine(
+            self._spec, self.manifold, self.conformal_engine
+        )
+        self.steerer_engine = NullspaceActivationSteererEngine(self._spec)
 
         self.engines: dict[str, ParameterizedWeightSpaceEngine] = {}
         self.engine_order: list[str] = []
@@ -834,8 +846,287 @@ class CyberneticWeightBus:
             "escalate_to_human": bool(gross_voi >= esc_thresh),
         }
 
+    def probe_latent_state(
+        self,
+        *,
+        activation_vector: Sequence[float] | None = None,
+        trace_text: str = "",
+        intermediate_vector: Sequence[float] | None = None,
+        layer_activations: Sequence[Sequence[float]] | None = None,
+        positive_examples: Sequence[Sequence[float]] | None = None,
+        negative_examples: Sequence[Sequence[float]] | None = None,
+        calibration_scores: Sequence[float] | None = None,
+        concept_name: str = "truthfulness",
+        topk: int | None = None,
+        alpha: float | None = None,
+        export_target: str | None = None,
+        export_dim: int | None = None,
+    ) -> dict[str, Any]:
+        """Run Matryoshka Top-K SAE decomposition, Crosscoder circuit tracing, ELK layer-divergence probing, and Conformal truthfulness calibration."""
+        l_cfg = self._spec.section("latent_interpretability")
+        default_d = int(l_cfg["default_latent_dim"])
+        stratum = "latent_interpretability_and_steering"
+
+        if activation_vector is not None and len(activation_vector) > 0:
+            h_vec = [float(v) for v in activation_vector]
+        else:
+            ref_dim = (
+                len(intermediate_vector)
+                if intermediate_vector is not None and len(intermediate_vector) > 0
+                else default_d
+            )
+            emb = self.manifold.embed_trace(
+                trace_text or concept_name, stratum=stratum
+            ).slice_prefix(max(ref_dim, self._spec.c_int("sixteen")))
+            h_vec = [float(v) for v in emb[:ref_dim]]
+
+        q_vec = self.manifold.embed_task(
+            f"probe latent state {concept_name} {trace_text}", stratum=stratum
+        )
+        sae_params = self.hypergrid.interpolate_fluid_config(
+            "sparse_feature_dictionary", q_vec
+        )["parameters"]
+        cc_params = self.hypergrid.interpolate_fluid_config(
+            "crosslayer_circuit_tracer", q_vec
+        )["parameters"]
+        probe_params = self.hypergrid.interpolate_fluid_config(
+            "internal_state_prober", q_vec
+        )["parameters"]
+
+        sae_res = self.sae_engine.encode_and_score(
+            h_vec,
+            topk=int(topk) if topk is not None else int(sae_params["topk_active_latents"]),
+            jumprelu_theta=float(sae_params["jumprelu_theta"]),
+            auxk_gain=float(sae_params["auxk_revival_gain"]),
+            expansion_factor=int(sae_params["dictionary_expansion_factor"]),
+            gating_mode=str(sae_params["gating_activation"]),
+            normalize_columns=bool(sae_params["normalize_decoder_columns"]),
+        )
+
+        if layer_activations is not None and len(layer_activations) > 0:
+            layers_to_trace: Sequence[Sequence[float]] = layer_activations
+        elif intermediate_vector is not None and len(intermediate_vector) > 0:
+            layers_to_trace = [intermediate_vector, h_vec]
+        else:
+            layers_to_trace = [h_vec]
+
+        probe_res = self.state_prober_engine.probe_state(
+            h_vec,
+            intermediate_vec=intermediate_vector,
+            positive_examples=positive_examples,
+            negative_examples=negative_examples,
+            calibration_scores=calibration_scores,
+            concept_name=concept_name,
+            fisher_shrinkage=float(probe_params["fisher_shrinkage_lambda"]),
+            elk_alert_floor=float(probe_params["elk_divergence_alert_floor"]),
+            alpha=float(alpha) if alpha is not None else float(probe_params["truthfulness_alpha"]),
+            estimator=str(probe_params["probe_estimator"]),
+        )
+
+        circuit_res = self.circuit_tracer_engine.trace_circuit(
+            layers_to_trace,
+            shared_latents=int(cc_params["crosscoder_shared_latents"]),
+            attribution_threshold=float(cc_params["attribution_threshold"]),
+            l1_penalty=float(cc_params["transcoder_l1_penalty"]),
+            align_procrustes=bool(cc_params["procrustes_align_layers"]),
+            target_direction=probe_res["probe_direction"],
+        )
+
+        portable_artifact: str | None = None
+        cartridge_id: str | None = None
+        if export_target:
+            d_op = (
+                max(1, min(len(h_vec), int(export_dim)))
+                if export_dim is not None
+                else min(len(h_vec), self._spec.c_int("eight"))
+            )
+            probe_row = [float(v) for v in probe_res["probe_direction"][:d_op]]
+            if len(probe_row) < d_op:
+                probe_row.extend([0.0 for _ in range(d_op - len(probe_row))])
+            op_rows: Matrix = [probe_row]
+            for feat in sae_res["active_features"]:
+                if len(op_rows) >= d_op:
+                    break
+                dec = [float(v) for v in feat["decoder_direction"][:d_op]]
+                if len(dec) < d_op:
+                    dec.extend([0.0 for _ in range(d_op - len(dec))])
+                op_rows.append(dec)
+            while len(op_rows) < d_op:
+                idx_r = len(op_rows)
+                op_rows.append([1.0 if c == idx_r else 0.0 for c in range(d_op)])
+
+            digest = hashlib.blake2s(
+                f"probe:{concept_name}:{probe_row}".encode("utf-8"),
+                digest_size=self._spec.c_int("four"),
+            ).hexdigest()
+            cartridge_id = f"latent_probe_{concept_name}_{digest}"
+            cart = self.compiler.from_linear_operator(cartridge_id, op_rows)
+            portable_artifact = self.compiler.lower_to_target(cart, export_target)
+
+        return {
+            "concept_name": concept_name,
+            "latent_dim": len(h_vec),
+            "active_monosemantic_features": sae_res["active_features"],
+            "sae_summary": {
+                "dictionary_size": sae_res["dictionary_size"],
+                "gating_mode": sae_res["gating_mode"],
+                "l0_active_count": sae_res["l0_active_count"],
+                "reconstruction_mse": sae_res["reconstruction_mse"],
+                "explained_variance_r2": sae_res["explained_variance_r2"],
+                "auxk_revival": sae_res["auxk_revival"],
+            },
+            "crosscoder_circuit": circuit_res,
+            "concept_probabilities": probe_res["concept_probabilities"],
+            "surface_margin": probe_res["surface_margin"],
+            "conformal_truthfulness_set": probe_res["conformal_truthfulness"],
+            "elk_divergence": probe_res["elk_divergence"],
+            "export_target": export_target,
+            "cartridge_id": cartridge_id,
+            "portable_probe_artifact": portable_artifact,
+        }
+
+    def steer_nullspace_vector(
+        self,
+        *,
+        positive_activations: Sequence[Sequence[float]] | None = None,
+        negative_activations: Sequence[Sequence[float]] | None = None,
+        positive_prompt: str = "",
+        negative_prompt: str = "",
+        anchor_vectors: Sequence[Sequence[float]] | None = None,
+        residual_vector: Sequence[float] | None = None,
+        engine_id: str = "nullspace_activation_steerer",
+        steering_strength: float | None = None,
+        feature_index: int | None = None,
+        direction_source: str | None = None,
+        target: str = "rust",
+        export_dim: int | None = None,
+        persist_weight_fold: bool = False,
+    ) -> dict[str, Any]:
+        """Compute Contrastive/SAE steering vector in Null(A_anchor) (0.0 anchor drift), fold rank-1 LoRA-XS patch, and lower to 9 runtimes."""
+        eng = self.engines[engine_id]
+        rows = len(eng.weights)
+        cols = len(eng.weights[0])
+        stratum = "latent_interpretability_and_steering"
+
+        q_vec = self.manifold.embed_task(
+            f"steer nullspace {positive_prompt} vs {negative_prompt} {engine_id}",
+            stratum=stratum,
+        )
+        steer_params = self.hypergrid.interpolate_fluid_config(
+            "nullspace_activation_steerer", q_vec
+        )["parameters"]
+        sae_params = self.hypergrid.interpolate_fluid_config(
+            "sparse_feature_dictionary", q_vec
+        )["parameters"]
+
+        if positive_activations and len(positive_activations) > 0:
+            pos_acts: Sequence[Sequence[float]] = positive_activations
+        else:
+            p_emb = self.manifold.embed_trace(
+                positive_prompt or "verified aligned truthful behavior", stratum=stratum
+            ).slice_prefix(max(cols, self._spec.c_int("sixteen")))[:cols]
+            pos_acts = [p_emb]
+
+        if negative_activations and len(negative_activations) > 0:
+            neg_acts: Sequence[Sequence[float]] = negative_activations
+        else:
+            n_emb = self.manifold.embed_trace(
+                negative_prompt or "unverified drifted noisy behavior", stratum=stratum
+            ).slice_prefix(max(cols, self._spec.c_int("sixteen")))[:cols]
+            neg_acts = [n_emb]
+
+        combined_anchors: list[Sequence[float]] = list(eng.anchor_inputs)
+        if anchor_vectors:
+            combined_anchors.extend(anchor_vectors)
+
+        sae_dict = self.sae_engine.build_dictionary(
+            cols,
+            int(sae_params["dictionary_expansion_factor"]),
+            normalize_columns=bool(sae_params["normalize_decoder_columns"]),
+        )
+        sae_cols = transpose(sae_dict)
+        chosen_feat_idx = int(feature_index) if feature_index is not None else 0
+        sae_col_vec = sae_cols[chosen_feat_idx % len(sae_cols)]
+
+        use_source = (
+            str(direction_source)
+            if direction_source is not None
+            else str(steer_params["direction_source"])
+        )
+        use_alpha = (
+            float(steering_strength)
+            if steering_strength is not None
+            else float(steer_params["steering_strength_alpha"])
+        )
+
+        res = self.steerer_engine.compute_nullspace_steering(
+            positive_activations=pos_acts,
+            negative_activations=neg_acts,
+            anchor_vectors=combined_anchors,
+            base_weights=eng.weights,
+            project_matrix_nullspace_fn=self._project_onto_anchor_nullspace,
+            sae_decoder_direction=sae_col_vec,
+            residual_vector=residual_vector,
+            steering_strength=use_alpha,
+            norm_clamp_ratio=float(steer_params["norm_clamp_ratio"]),
+            direction_source=use_source,
+            enforce_nullspace=bool(steer_params["enforce_anchor_nullspace"]),
+        )
+
+        steered_w: Matrix = res["steered_weights"]
+        if persist_weight_fold:
+            healed = self.self_healing_engine.heal_if_drifted(
+                steered_w,
+                eng.baseline_weights,
+                eng.anchor_inputs,
+                self._project_onto_anchor_nullspace,
+            )
+            eng.weights = healed["weights"]
+            drift_chk = eng.compute_anchor_drift()
+            tol = self._spec.c_float("anchor_drift_zero_tol")
+            eng.last_anchor_drift = 0.0 if drift_chk <= tol else float(drift_chk)
+            eng.edit_count += 1
+
+        op_dim = (
+            max(1, min(rows, cols, int(export_dim)))
+            if export_dim is not None
+            else min(rows, cols)
+        )
+        op_slice = [
+            [float(steered_w[r][c]) for c in range(op_dim)]
+            for r in range(op_dim)
+        ]
+        digest = hashlib.blake2s(
+            f"steer:{engine_id}:{res['steering_vector']}".encode("utf-8"),
+            digest_size=self._spec.c_int("four"),
+        ).hexdigest()
+        cart_id = f"nullspace_steerer_{engine_id}_{digest}"
+        cart = self.compiler.from_linear_operator(cart_id, op_slice)
+        artifact = self.compiler.lower_to_target(cart, target)
+
+        return {
+            "engine_id": engine_id,
+            "cartridge_id": cart_id,
+            "target": target,
+            "direction_source": res["direction_source"],
+            "steering_strength": res["steering_strength"],
+            "steering_vector": res["steering_vector"],
+            "raw_steering_vector": res["raw_steering_vector"],
+            "raw_anchor_drift": res["raw_anchor_drift"],
+            "nullspace_anchor_drift": res["nullspace_anchor_drift"],
+            "raw_numerical_nullspace_drift": res["raw_numerical_nullspace_drift"],
+            "retained_steering_norm_ratio": res["retained_steering_norm_ratio"],
+            "steered_residual_vector": res["steered_residual_vector"],
+            "folded_lora_xs_patch": res["folded_lora_xs_patch"],
+            "operator_shape": [op_dim, op_dim],
+            "weight2vec_16d": cart.weight2vec.slice_prefix(
+                self._spec.section("matryoshka_manifold")["coarse_dim"]
+            ),
+            "artifact": artifact,
+        }
+
     def manifold_status(self) -> dict[str, Any]:
-        """Full 24-engine / 88-sub-engine / 160-dim TT-Cross HyperGrid telemetry snapshot."""
+        """Full 28-engine / 104-sub-engine / 160-dim TT-Cross HyperGrid telemetry snapshot."""
         m_cfg = self._spec.section("matryoshka_manifold")
         engine_summaries: list[dict[str, Any]] = []
         for eid in self.engine_order:

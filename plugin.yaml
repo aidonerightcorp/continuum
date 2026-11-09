@@ -1,6 +1,6 @@
 name: continuum
-version: "1.1.0"
-description: "Unified self-improving agent engine for Hermes: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation."
+version: "1.2.0"
+description: "Unified self-improving agent engine for Hermes: 28 cybernetic engines (104 sub-engines), 160-axis TT-Cross tuning, SAE/ELK latent probing, Nullspace activation steering, Sheaf & Conformal verification, and 9-target skill compilation."
 author: aidonerightcorp
 license: MIT
 homepage: https://github.com/aidonerightcorp/continuum
@@ -12,7 +12,8 @@ tags:
   - context-engine
   - memory
   - delegation
-  - verification
+  - mechanistic-interpretability
+  - activation-steering
   - conformal-prediction
   - compiler
 python_dependencies: []
@@ -33,6 +34,8 @@ provides_tools:
   - continuum_sheaf_consistency_audit
   - continuum_conformal_calibrate
   - continuum_hyperlora_modulate
+  - continuum_probe_latent_state
+  - continuum_steer_nullspace_vector
 provides_hooks:
   - on_session_start
   - pre_tool_call

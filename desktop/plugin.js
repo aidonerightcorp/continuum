@@ -26,9 +26,9 @@ const DEFAULTS = {
 }
 
 const INITIAL_TELEMETRY = {
-  version: '1.1.0',
-  engine_count: 24,
-  sub_engine_count: 88,
+  version: '1.2.0',
+  engine_count: 28,
+  sub_engine_count: 104,
   hypergrid_total_dimensions: 160,
   supported_targets: ['rust', 'glsl', 'js', 'python', 'sql', 'c99', 'wasm', 'wat', 'wgsl'],
   matryoshka_spaces: ['task2vec', 'config2vec', 'weight2vec', 'trace2vec'],
@@ -84,7 +84,7 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
               }),
               jsx('div', {
                 style: { fontSize: '12px', color: '#4a4843', marginTop: '2px' },
-                children: `v${snap.version} • 6 Layers • ${snap.engine_count} Engines • ${snap.sub_engine_count} Sub-Engines • ${snap.hypergrid_total_dimensions}-Axis TT-Cross Grid`
+                children: `v${snap.version} • 7 Layers • ${snap.engine_count} Engines • ${snap.sub_engine_count} Sub-Engines • 17 Tools • ${snap.hypergrid_total_dimensions}-Axis TT-Cross Grid`
               })
             ]
           }),
@@ -109,7 +109,7 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
         children: [
           jsx('div', {
             style: { fontSize: '12px', fontWeight: 600, color: '#2f5d50' },
-            children: 'Shared 4-Space Nested Embeddings & 9 Portable Runtimes'
+            children: 'Latent Mind SAE Probing, Nullspace Steering & 9 Portable Runtimes'
           }),
           jsx('div', {
             style: { fontSize: '12px', color: '#141413', marginTop: '4px' },
@@ -137,7 +137,7 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
 export default {
   id: 'continuum',
   name: 'Continuum',
-  description: 'Unified self-improving agent engine for Hermes: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation.',
+  description: 'Unified self-improving agent engine for Hermes: 28 cybernetic engines (104 sub-engines), 17 tools, 160-axis TT-Cross tuning, Latent Mind SAE/ELK probing, Nullspace activation steering, and 9-target skill compilation.',
   register(ctx) {
     const prefs = atom({ ...DEFAULTS, ...ctx.storage.get('prefs', {}) })
     const telemetry = atom(INITIAL_TELEMETRY)
@@ -188,7 +188,7 @@ export default {
           children: [
             jsx(ToggleRow, {
               checked: showStatusChip,
-              description: 'Display live 24-engine and embedding slice indicator in the status bar.',
+              description: 'Display live 28-engine and embedding slice indicator in the status bar.',
               label: 'Show Continuum status chip',
               onChange: enabled => updatePrefs({ showStatusChip: enabled })
             }),

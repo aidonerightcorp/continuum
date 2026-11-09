@@ -116,9 +116,9 @@ def test_desktop_plugin_surface_sdk_conformance() -> None:
     assert "#f5f2ea" in src
     assert "#141413" in src
     assert "only light" in src
-    assert "1.1.0" in src
-    assert "engine_count: 24" in src
-    assert "sub_engine_count: 88" in src
+    assert "1.2.0" in src
+    assert "engine_count: 28" in src
+    assert "sub_engine_count: 104" in src
     assert "hypergrid_total_dimensions: 160" in src
     for forbidden in (
         "eval(",
@@ -155,15 +155,15 @@ def test_manifest_and_registration_exact_parity(
     )
     manifest_text = (REPO_ROOT / "plugin.yaml").read_text(encoding="utf-8")
     assert "name: continuum" in manifest_text
-    assert 'version: "1.1.0"' in manifest_text
+    assert 'version: "1.2.0"' in manifest_text
     assert "kind: standalone" in manifest_text
     assert "manifest_version: 2" in manifest_text
     assert 'requires_hermes: ">=0.23.0"' in manifest_text
 
     ctx = _RecordingContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 15
-    assert len(set(ctx.tools)) == 15
+    assert len(ctx.tools) == 17
+    assert len(set(ctx.tools)) == 17
     for t_name in ctx.tools:
         assert t_name.startswith("continuum_")
         assert f"- {t_name}" in manifest_text
@@ -183,13 +183,13 @@ def test_manifest_and_registration_exact_parity(
     )
 
 
-def test_twenty_four_engines_eighty_eight_subengines_one_sixty_hypergrid_dims() -> None:
+def test_twenty_eight_engines_one_hundred_four_subengines_one_sixty_hypergrid_dims() -> None:
     spec = get_manifold_spec()
     bus = CyberneticWeightBus(spec)
     status = bus.manifold_status()
-    assert status["version"] == "1.1.0"
-    assert status["engine_count"] == 24
-    assert status["sub_engine_count"] == 88
+    assert status["version"] == "1.2.0"
+    assert status["engine_count"] == 28
+    assert status["sub_engine_count"] == 104
     assert status["hypergrid_total_dimensions"] == 160
     assert status["supported_targets"] == [
         "rust",
@@ -203,7 +203,7 @@ def test_twenty_four_engines_eighty_eight_subengines_one_sixty_hypergrid_dims() 
         "wgsl",
     ]
     assert status["timescale_count"] == 5
-    assert status["coupling_edge_count"] == 32
+    assert status["coupling_edge_count"] == 40
     assert status["matryoshka_spaces"] == [
         "task2vec",
         "config2vec",
@@ -223,8 +223,37 @@ def test_twenty_four_engines_eighty_eight_subengines_one_sixty_hypergrid_dims() 
         "inter_engine_coupling_and_jacobian_bus",
         "homeostatic_meta_controller_engine",
         "structural_morphism_and_transfer_engine",
+        "sparse_feature_dictionary",
+        "crosslayer_circuit_tracer",
+        "internal_state_prober",
+        "nullspace_activation_steerer",
     ):
         assert required_engine in bus.engines
+
+    assert bus.engines["sparse_feature_dictionary"].sub_engines == [
+        "matryoshka_topk_encoder",
+        "jumprelu_threshold_gate",
+        "auxk_dead_latent_reviver",
+        "monosemantic_selectivity_scorer",
+    ]
+    assert bus.engines["crosslayer_circuit_tracer"].sub_engines == [
+        "multilayer_sparse_crosscoder",
+        "mlp_sparse_transcoder",
+        "procrustes_manifold_aligner",
+        "causal_patching_attributor",
+    ]
+    assert bus.engines["internal_state_prober"].sub_engines == [
+        "mass_mean_concept_prober",
+        "fisher_discriminant_prober",
+        "elk_layer_divergence_detector",
+        "conformal_truthfulness_calibrator",
+    ]
+    assert bus.engines["nullspace_activation_steerer"].sub_engines == [
+        "contrastive_direction_extractor",
+        "anchor_nullspace_steerer",
+        "zero_hook_weight_folder",
+        "control_vector_exporter",
+    ]
 
 
 def test_grid_ledger_enforces_maker_checker_separation() -> None:
