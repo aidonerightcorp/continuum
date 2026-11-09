@@ -22,16 +22,17 @@
     root.style.fontFamily = 'ui-sans-serif, system-ui, sans-serif';
 
     const heading = document.createElement('h2');
-    heading.textContent = 'Continuum — Unified Self-Improving Agent Engine';
+    heading.textContent = 'Continuum v1.1.0 — Unified Self-Improving Agent Engine';
     heading.style.margin = '0 0 6px 0';
     heading.style.fontSize = '18px';
     root.appendChild(heading);
 
     const sub = document.createElement('p');
-    const eCount = statusPayload && statusPayload.engine_count ? statusPayload.engine_count : 20;
-    const sCount = statusPayload && statusPayload.sub_engine_count ? statusPayload.sub_engine_count : 72;
-    const dims = statusPayload && statusPayload.hypergrid_total_dimensions ? statusPayload.hypergrid_total_dimensions : 100;
-    sub.textContent = eCount + ' Functional Engines • ' + sCount + ' Sub-Engines • ' + dims + ' Tunable Parameters';
+    const eCount = statusPayload && statusPayload.engine_count ? statusPayload.engine_count : 24;
+    const sCount = statusPayload && statusPayload.sub_engine_count ? statusPayload.sub_engine_count : 88;
+    const dims = statusPayload && statusPayload.hypergrid_total_dimensions ? statusPayload.hypergrid_total_dimensions : 160;
+    const targets = statusPayload && Array.isArray(statusPayload.supported_targets) ? statusPayload.supported_targets.length : 9;
+    sub.textContent = eCount + ' Functional Engines • ' + sCount + ' Sub-Engines • ' + dims + '-Axis TT-Cross HyperGrid • ' + targets + ' Portable Runtimes';
     sub.style.margin = '0 0 12px 0';
     sub.style.color = PALETTE.muted;
     sub.style.fontSize = '13px';

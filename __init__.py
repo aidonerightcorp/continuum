@@ -100,7 +100,7 @@ def _build_tool_definitions(
     def _handle_compile_cartridge(args: dict[str, Any], **_: Any) -> str:
         cid = str(args.get("cartridge_id", "compiled_cartridge") or "compiled_cartridge")
         rules = args.get("rules", [])
-        target = str(args.get("target", "python") or "python")
+        target = str(args.get("target", "rust") or "rust")
         num_layers = args.get("num_layers")
         activation = str(args.get("activation", "gelu") or "gelu")
         early_margin = args.get("early_exit_margin")
@@ -127,6 +127,7 @@ def _build_tool_definitions(
             {
                 "cartridge_id": cart.cartridge_id,
                 "target": target,
+                "supported_targets": rt.bus.compiler.supported_targets,
                 "layers": len(cart.layers),
                 "early_exit_margin": cart.early_exit_margin,
                 "fit_mse": cart.fit_mse,
@@ -231,6 +232,84 @@ def _build_tool_definitions(
     def _handle_attractor_recall(args: dict[str, Any], **kw: Any) -> str:
         return rt.memory_provider.handle_tool_call("continuum_attractor_recall", args, **kw)
 
+    def _handle_sheaf_consistency_audit(args: dict[str, Any], **_: Any) -> str:
+        claims = args.get("claims", [])
+        edges = args.get("edges")
+        stalk_dim = args.get("stalk_dim")
+        eta = args.get("harmonic_eta")
+        edge_th = args.get("edge_threshold")
+        out = rt.bus.sheaf_consistency_audit(
+            claims if isinstance(claims, list) else [],
+            edges if isinstance(edges, list) else None,
+            stalk_dim=int(stalk_dim) if stalk_dim is not None else None,
+            harmonic_eta=float(eta) if eta is not None else None,
+            edge_threshold=float(edge_th) if edge_th is not None else None,
+        )
+        rt.persist_status_snapshot()
+        return json.dumps(out)
+
+    def _handle_conformal_calibrate(args: dict[str, Any], **_: Any) -> str:
+        cal_scores = args.get("calibration_scores", [])
+        cand_scores = args.get("candidate_scores", [])
+        alpha = args.get("alpha")
+        alpha_t = args.get("current_alpha_t")
+        misses = args.get("recent_misses")
+        is_prob = bool(args.get("scores_are_probabilities", False))
+        max_set = args.get("abstention_max_set_size")
+        ctx_q = str(args.get("context_query", "") or "conformal selective calibration")
+        out = rt.bus.conformal_calibrate(
+            cal_scores if isinstance(cal_scores, list) else [],
+            cand_scores if isinstance(cand_scores, list) else [],
+            alpha=float(alpha) if alpha is not None else None,
+            current_alpha_t=float(alpha_t) if alpha_t is not None else None,
+            recent_misses=misses if isinstance(misses, list) else None,
+            scores_are_probabilities=is_prob,
+            abstention_max_set_size=int(max_set) if max_set is not None else None,
+            context_query=ctx_q,
+        )
+        return json.dumps(out)
+
+    def _handle_hyperlora_modulate(args: dict[str, Any], **_: Any) -> str:
+        desc = str(args.get("task_description", "") or "")
+        eid = str(
+            args.get("engine_id", "multilayer_film_molora_stack_engine")
+            or "multilayer_film_molora_stack_engine"
+        )
+        target = str(args.get("target", "rust") or "rust")
+        emb = args.get("task_embedding")
+        ranks = args.get("rank_components")
+        gain = args.get("modulation_gain")
+        exp_dim = args.get("export_dim")
+        persist = bool(args.get("persist_modulation", True))
+        probes = args.get("counterexample_probes")
+        out = rt.bus.hyperlora_modulate(
+            desc,
+            engine_id=eid,
+            task_embedding=emb if isinstance(emb, list) else None,
+            target=target,
+            rank_components=int(ranks) if ranks is not None else None,
+            modulation_gain=float(gain) if gain is not None else None,
+            export_dim=int(exp_dim) if exp_dim is not None else None,
+            persist_modulation=persist,
+            counterexample_probes=probes if isinstance(probes, list) else None,
+        )
+        rt.persist_status_snapshot()
+        return json.dumps(out)
+
+    all_targets = [
+        "rust",
+        "glsl",
+        "js",
+        "python",
+        "sql",
+        "c99",
+        "wasm",
+        "wat",
+        "wgsl",
+        "safetensors",
+        "wasm_base64",
+    ]
+
     return [
         (
             "continuum_fission_dag",
@@ -293,10 +372,10 @@ def _build_tool_definitions(
         ),
         (
             "continuum_compile_cartridge",
-            "Compile repeated rules or examples into fast multi-layer modules across 7 portable formats.",
+            "Compile repeated rules or examples into fast multi-layer modules across 9 zero-dependency runtimes.",
             {
                 "name": "continuum_compile_cartridge",
-                "description": "Compile decision rules or input-target examples into safetensors, wasm_base64, wat, wgsl, c99, sql, or python.",
+                "description": "Compile decision rules or input-target examples into rust (#![no_std]), glsl, js, python, sql, c99, wasm, wat, wgsl, or safetensors.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -304,7 +383,7 @@ def _build_tool_definitions(
                         "rules": {"type": "array", "items": {"type": "object"}},
                         "target": {
                             "type": "string",
-                            "enum": ["safetensors", "wasm_base64", "wat", "wgsl", "c99", "sql", "python"],
+                            "enum": all_targets,
                         },
                         "num_layers": {"type": "integer"},
                         "activation": {"type": "string", "enum": ["gelu", "silu", "relu", "identity"]},
@@ -359,10 +438,10 @@ def _build_tool_definitions(
         ),
         (
             "continuum_coupling_step",
-            "Coordinate cross-engine updates and test new parameter candidates against saved history using zero LLM tokens.",
+            "Coordinate cross-engine updates and test new TT-Cross parameter candidates against saved history using zero LLM tokens.",
             {
                 "name": "continuum_coupling_step",
-                "description": "Run a stability-checked engine coordination step and explore candidate configurations offline.",
+                "description": "Run a stability-checked engine coordination step and explore epistatic TT-Cross configurations offline.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -413,10 +492,10 @@ def _build_tool_definitions(
         ),
         (
             "continuum_manifold_status",
-            "Inspect live status, configuration tuning progress, and token/compute savings across all 20 engines.",
+            "Inspect live status, TT-Cross configuration tuning progress, and token/compute savings across all 24 engines.",
             {
                 "name": "continuum_manifold_status",
-                "description": "Return health, verified configuration counts, and efficiency metrics for Continuum's 20 engines.",
+                "description": "Return health, verified configuration counts, and efficiency metrics for Continuum's 24 engines.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -438,11 +517,93 @@ def _build_tool_definitions(
             ATTRACTOR_RECALL_SCHEMA,
             _handle_attractor_recall,
         ),
+        (
+            "continuum_sheaf_consistency_audit",
+            "Audit multi-agent claims via Cellular Sheaf Laplacian coboundary energy, flag contradictions, and compute harmonic consensus.",
+            {
+                "name": "continuum_sheaf_consistency_audit",
+                "description": "Build a Cellular Sheaf Laplacian over agent claims and restriction maps to localize contradictions and compute harmonic consensus.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "claims": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "description": "Agent claim nodes, each with agent_id and either state_vector or text.",
+                        },
+                        "edges": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "description": "Optional communication edges with source, target, weight, and restriction maps.",
+                        },
+                        "stalk_dim": {"type": "integer"},
+                        "harmonic_eta": {"type": "number"},
+                        "edge_threshold": {"type": "number"},
+                    },
+                    "required": ["claims"],
+                },
+            },
+            _handle_sheaf_consistency_audit,
+        ),
+        (
+            "continuum_conformal_calibrate",
+            "Build distribution-free Split Conformal + Online ACI 1-alpha prediction sets with selective abstention routing.",
+            {
+                "name": "continuum_conformal_calibrate",
+                "description": "Compute finite-sample 1 - alpha conformal prediction sets, online ACI alpha adaptation, and selective cartridge/LLM routing.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "calibration_scores": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "description": "Historical calibration nonconformity scores (or probabilities if scores_are_probabilities=true).",
+                        },
+                        "candidate_scores": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "description": "Candidate action or output scores to filter into a guaranteed prediction set.",
+                        },
+                        "alpha": {"type": "number"},
+                        "current_alpha_t": {"type": "number"},
+                        "recent_misses": {"type": "array", "items": {"type": "boolean"}},
+                        "scores_are_probabilities": {"type": "boolean"},
+                        "abstention_max_set_size": {"type": "integer"},
+                        "context_query": {"type": "string"},
+                    },
+                    "required": ["calibration_scores", "candidate_scores"],
+                },
+            },
+            _handle_conformal_calibrate,
+        ),
+        (
+            "continuum_hyperlora_modulate",
+            "Synthesize input-conditioned Kronecker HyperLoRA weight modulations in the safety-anchor nullspace (0.0 drift) across 9 targets.",
+            {
+                "name": "continuum_hyperlora_modulate",
+                "description": "Generate an input-conditioned Kronecker weight modulation projected strictly onto the anchor nullspace and lower to any portable target.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "task_description": {"type": "string"},
+                        "engine_id": {"type": "string"},
+                        "task_embedding": {"type": "array", "items": {"type": "number"}},
+                        "target": {"type": "string", "enum": all_targets},
+                        "rank_components": {"type": "integer"},
+                        "modulation_gain": {"type": "number"},
+                        "export_dim": {"type": "integer"},
+                        "persist_modulation": {"type": "boolean"},
+                        "counterexample_probes": {"type": "array", "items": {"type": "array", "items": {"type": "number"}}},
+                    },
+                },
+            },
+            _handle_hyperlora_modulate,
+        ),
     ]
 
 
 def register(ctx: Any) -> ContinuumRuntime:
-    """Hermes v0.23.0+ entry point registering native providers, 12 tools, 4 hooks, /continuum, and skill."""
+    """Hermes v0.23.0+ entry point registering native providers, 15 tools, 4 hooks, /continuum, and skill."""
     rt = ContinuumRuntime()
     default_headroom = float(
         ctx.get_config(
@@ -459,7 +620,7 @@ def register(ctx: Any) -> ContinuumRuntime:
     ctx.register_memory_provider(rt.memory_provider)
     ctx.register_delegation_provider(rt.delegation_provider)
 
-    # Surface 4a — 12 Agent Tools
+    # Surface 4a — 15 Agent Tools
     for tool_name, desc, schema, handler in _build_tool_definitions(rt):
         ctx.register_tool(
             name=tool_name,
@@ -511,10 +672,12 @@ def register(ctx: Any) -> ContinuumRuntime:
         snap = rt.persist_status_snapshot()
         ledger = snap["grid_ledger_counts"]
         cost = snap["cost_ledger"]
+        targets_n = len(snap.get("supported_targets", []))
         return (
             f"Continuum v{snap['version']} | "
             f"{snap['engine_count']} engines ({snap['sub_engine_count']} sub-engines) | "
             f"{snap['hypergrid_total_dimensions']} tunable params | "
+            f"{targets_n} targets | "
             f"embedding slices={snap['matryoshka_prefix_dims']} | "
             f"verified/promoted={ledger.get('verified', 0)}/{ledger.get('promoted', 0)} | "
             f"zero-token config probes={cost['sha_zero_token_probes']}"
@@ -535,7 +698,7 @@ def register(ctx: Any) -> ContinuumRuntime:
         ctx.register_skill(
             "continuum",
             skill_path,
-            description="Workflow guide for Continuum task planning, independent verification, and portable skill compilation.",
+            description="Workflow guide for Continuum task planning, Sheaf & Conformal verification, and 9-target skill compilation.",
         )
 
     return rt

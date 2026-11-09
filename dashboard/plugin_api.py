@@ -46,7 +46,7 @@ def _get_baseline_bus() -> CyberneticWeightBus:
 
 @router.get("/status")
 def get_continuum_status() -> dict[str, Any]:
-    """Return read-only SQLite WAL status merged with 20-engine configuration metadata."""
+    """Return read-only SQLite WAL status merged with 24-engine configuration metadata."""
     db_path = resolve_continuum_db_path()
     ro = ContinuumStore.read_readonly_snapshot(db_path)
     base = (
@@ -64,13 +64,14 @@ def get_continuum_status() -> dict[str, Any]:
 
 @router.get("/engines")
 def get_continuum_engines() -> dict[str, Any]:
-    """Return all 20 Functional Engines, 72 Sub-Engines, and 5 Adaptation Timescales."""
+    """Return all 24 Functional Engines, 88 Sub-Engines, 9 Portable Runtimes, and 5 Adaptation Timescales."""
     spec = get_manifold_spec()
     status = get_continuum_status()
     return {
         "engine_count": status["engine_count"],
         "sub_engine_count": status["sub_engine_count"],
         "hypergrid_total_dimensions": status["hypergrid_total_dimensions"],
+        "supported_targets": status.get("supported_targets", []),
         "strata": spec.section("strata"),
         "feedback_timescales": spec.section("feedback_timescales"),
         "engines": status["engines"],

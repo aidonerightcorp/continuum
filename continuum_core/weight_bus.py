@@ -1,13 +1,25 @@
-"""20-Engine Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Surgical Edits, Morphism, and EVSI."""
+"""24-Engine Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Surgical Edits, Sheaf, Conformal, HyperLoRA, Morphism, and EVSI."""
 
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
 from continuum_core.cartridge_compiler import CartridgeCompiler
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+from continuum_core.cybernetic_engines import (
+    ActiveExperimentalDesignEngine,
+    AutonomicSelfHealingEngine,
+    CausalCounterfactualEngine,
+    ConformalCalibrationEngine,
+    FormalInvariantSynthesisEngine,
+    GameTheoreticMechanismEngine,
+    InformationBottleneckCompressionEngine,
+    SheafConsensusTopologyEngine,
+    kronecker_product,
+)
 from continuum_core.grid_and_gates import (
     FluidHyperGrid,
     OperationCostLedger,
@@ -24,7 +36,6 @@ from continuum_core.linalg_backend import (
     matvec,
     orthogonal_procrustes,
     outer_product,
-    softmax,
     svd_compact,
     transpose,
     vec_dot,
@@ -41,11 +52,13 @@ class ParameterizedWeightSpaceEngine:
 
     index: int
     engine_id: str
+    class_name: str
     stratum: str
     primary_timescale: str
     description: str
     sub_engines: list[str]
     weights: Matrix
+    baseline_weights: Matrix
     anchor_inputs: Matrix  # shape [anchor_rank, cols], orthonormal rows protecting core skills
     anchor_targets: Matrix  # baseline W @ anchor_inputs^T
     hopfield_patterns: list[Vector] = field(default_factory=list)
@@ -62,7 +75,7 @@ class ParameterizedWeightSpaceEngine:
 
 
 class CyberneticWeightBus:
-    """Coordinates all 20 Functional Engines, 72 Sub-Engines, 5 Timescales, and 20x20 Sparse Jacobian."""
+    """Coordinates all 24 Functional Engines, 88 Sub-Engines, 5 Timescales, and 24x24 Sparse Jacobian."""
 
     def __init__(
         self,
@@ -76,6 +89,16 @@ class CyberneticWeightBus:
         self.hypergrid = FluidHyperGrid(self._spec, self.manifold, self.cost_ledger)
         self.compiler = CartridgeCompiler(self._spec, self.manifold)
 
+        # Cybernetic specialist operators backing the 24-engine taxonomy
+        self.sheaf_engine = SheafConsensusTopologyEngine(self._spec, self.manifold)
+        self.conformal_engine = ConformalCalibrationEngine(self._spec)
+        self.causal_engine = CausalCounterfactualEngine(self._spec)
+        self.mechanism_engine = GameTheoreticMechanismEngine(self._spec)
+        self.invariant_engine = FormalInvariantSynthesisEngine(self._spec)
+        self.experimental_design_engine = ActiveExperimentalDesignEngine(self._spec)
+        self.ib_engine = InformationBottleneckCompressionEngine(self._spec)
+        self.self_healing_engine = AutonomicSelfHealingEngine(self._spec)
+
         self.engines: dict[str, ParameterizedWeightSpaceEngine] = {}
         self.engine_order: list[str] = []
         self._init_engines()
@@ -88,6 +111,7 @@ class CyberneticWeightBus:
         for eng_raw in self._spec.section("engines"):
             idx = int(eng_raw["index"])
             eid = str(eng_raw["engine_id"])
+            cname = str(eng_raw.get("class_name", eid))
             rows, cols = int(eng_raw["matrix_shape"][0]), int(eng_raw["matrix_shape"][1])
             anchor_rank = int(eng_raw["anchor_subspace_rank"])
 
@@ -109,11 +133,13 @@ class CyberneticWeightBus:
             engine = ParameterizedWeightSpaceEngine(
                 index=idx,
                 engine_id=eid,
+                class_name=cname,
                 stratum=str(eng_raw["stratum"]),
                 primary_timescale=str(eng_raw["primary_timescale"]),
                 description=str(eng_raw["description"]),
                 sub_engines=[str(s) for s in eng_raw["sub_engines"]],
                 weights=w_mat,
+                baseline_weights=copy_matrix(w_mat),
                 anchor_inputs=anchors,
                 anchor_targets=targets,
                 state_energy=half,
@@ -145,7 +171,7 @@ class CyberneticWeightBus:
         """Run Marchenko-Pastur RMT noise-floor, effective-rank, power-law alpha, and Wanda saliency."""
         if matrix is not None:
             target_mat = matrix
-            stratum = "adaptation_and_economics"
+            stratum = "adaptation_and_experimentation"
             label = engine_id or "custom_matrix"
         else:
             eid = engine_id or self.engine_order[0]
@@ -339,6 +365,13 @@ class CyberneticWeightBus:
                     cegar_refinements += 1
 
         eng.weights = add_scaled(eng.weights, projected_delta, scale=1.0)
+        heal_res = self.self_healing_engine.heal_if_drifted(
+            eng.weights,
+            eng.baseline_weights,
+            eng.anchor_inputs,
+            self._project_onto_anchor_nullspace,
+        )
+        eng.weights = heal_res["weights"]
         raw_drift = eng.compute_anchor_drift()
         verified_drift = 0.0 if raw_drift <= tol else raw_drift
         eng.last_anchor_drift = verified_drift
@@ -355,6 +388,247 @@ class CyberneticWeightBus:
             "edit_count": eng.edit_count,
         }
 
+    def sheaf_consistency_audit(
+        self,
+        claims: Sequence[Mapping[str, Any]],
+        edges: Sequence[Mapping[str, Any]] | None = None,
+        *,
+        stalk_dim: int | None = None,
+        harmonic_eta: float | None = None,
+        edge_threshold: float | None = None,
+    ) -> dict[str, Any]:
+        """Audit multi-agent consistency via Cellular Sheaf Laplacian L_F = delta^T delta and harmonic repair."""
+        q_vec = self.manifold.embed_task(
+            "cellular sheaf coboundary consistency audit",
+            stratum="uncertainty_and_verification",
+        )
+        fluid_params = self.hypergrid.interpolate_fluid_config(
+            "sheaf_consensus_topology_engine", q_vec
+        )["parameters"]
+        use_stalk = (
+            int(stalk_dim)
+            if stalk_dim is not None
+            else int(fluid_params["stalk_dimension"])
+        )
+        use_eta = (
+            float(harmonic_eta)
+            if harmonic_eta is not None
+            else float(fluid_params["harmonic_step_eta"])
+        )
+        return self.sheaf_engine.audit_consistency(
+            claims,
+            edges,
+            stalk_dim=use_stalk,
+            harmonic_eta=use_eta,
+            edge_threshold=edge_threshold,
+        )
+
+    def conformal_calibrate(
+        self,
+        calibration_scores: Sequence[float],
+        candidate_scores: Sequence[float],
+        *,
+        alpha: float | None = None,
+        current_alpha_t: float | None = None,
+        recent_misses: Sequence[bool | int] | None = None,
+        scores_are_probabilities: bool = False,
+        abstention_max_set_size: int | None = None,
+        context_query: str = "conformal selective calibration",
+    ) -> dict[str, Any]:
+        """Compute Split Conformal + Online ACI 1 - alpha prediction set and selective abstention routing."""
+        q_vec = self.manifold.embed_task(
+            context_query, stratum="uncertainty_and_verification"
+        )
+        fluid_params = self.hypergrid.interpolate_fluid_config(
+            "conformal_calibration_engine", q_vec
+        )["parameters"]
+        use_alpha = (
+            float(alpha)
+            if alpha is not None
+            else float(fluid_params["target_miscoverage_alpha"])
+        )
+        use_max_set = (
+            int(abstention_max_set_size)
+            if abstention_max_set_size is not None
+            else int(fluid_params["abstention_max_set_size"])
+        )
+        return self.conformal_engine.calibrate(
+            calibration_scores,
+            candidate_scores,
+            alpha=use_alpha,
+            current_alpha_t=current_alpha_t,
+            recent_misses=recent_misses,
+            scores_are_probabilities=scores_are_probabilities,
+            abstention_max_set_size=use_max_set,
+        )
+
+    def hyperlora_modulate(
+        self,
+        task_description: str = "",
+        *,
+        engine_id: str = "multilayer_film_molora_stack_engine",
+        task_embedding: Sequence[float] | None = None,
+        target: str = "rust",
+        rank_components: int | None = None,
+        modulation_gain: float | None = None,
+        export_dim: int | None = None,
+        persist_modulation: bool = True,
+        counterexample_probes: Sequence[Sequence[float]] | None = None,
+    ) -> dict[str, Any]:
+        """Synthesize input-conditioned Kronecker HyperLoRA DeltaW(e(x)) in anchor nullspace (0.0 drift) and lower to target."""
+        eng = self.engines[engine_id]
+        rows = len(eng.weights)
+        cols = len(eng.weights[0])
+        h_cfg = self._spec.section("hyperlora")
+
+        k_rows = int(h_cfg["kronecker_factor_rows"])
+        k_cols = int(h_cfg["kronecker_factor_cols"])
+        b_rows = int(h_cfg["sub_block_rows"])
+        b_cols = int(h_cfg["sub_block_cols"])
+        n_comp = max(
+            1,
+            int(
+                rank_components
+                if rank_components is not None
+                else h_cfg["rank_components"]
+            ),
+        )
+        gain = float(
+            modulation_gain
+            if modulation_gain is not None
+            else h_cfg["modulation_gain"]
+        )
+
+        if task_embedding is not None and len(task_embedding) > 0:
+            e_vec = MatryoshkaVector.from_list(
+                task_embedding, space="task2vec", spec=self._spec
+            )
+        else:
+            e_vec = self.manifold.embed_task(
+                task_description or engine_id, stratum=eng.stratum
+            )
+
+        full_vals = list(e_vec.values)
+        full_len = max(1, len(full_vals))
+        u_size = k_rows * k_cols
+        v_size = b_rows * b_cols
+
+        raw_kron = zeros_matrix(k_rows * b_rows, k_cols * b_cols)
+        component_norms: list[float] = []
+
+        for comp_idx in range(n_comp):
+            offset_u = (comp_idx * (u_size + v_size)) % full_len
+            u_mat: Matrix = [
+                [
+                    float(full_vals[(offset_u + r * k_cols + c) % full_len])
+                    for c in range(k_cols)
+                ]
+                for r in range(k_rows)
+            ]
+            offset_v = (offset_u + u_size) % full_len
+            v_mat: Matrix = [
+                [
+                    float(full_vals[(offset_v + r * b_cols + c) % full_len])
+                    for c in range(b_cols)
+                ]
+                for r in range(b_rows)
+            ]
+            kron_r = kronecker_product(u_mat, v_mat)
+            alpha_r = gain / float(comp_idx + 1)
+            component_norms.append(float(frobenius_norm(kron_r) * alpha_r))
+            raw_kron = add_scaled(raw_kron, kron_r, scale=alpha_r)
+
+        # Match engine [rows, cols] shape exactly
+        shaped_delta = zeros_matrix(rows, cols)
+        for r in range(min(rows, len(raw_kron))):
+            for c in range(min(cols, len(raw_kron[r]))):
+                shaped_delta[r][c] = raw_kron[r][c]
+
+        protected_anchors = list(eng.anchor_inputs)
+        projected_delta = self._project_onto_anchor_nullspace(
+            shaped_delta, protected_anchors
+        )
+        tol = self._spec.c_float("anchor_drift_zero_tol")
+
+        cegar_refinements = 0
+        if counterexample_probes:
+            for probe in counterexample_probes:
+                p_vec = [float(v) for v in probe[:cols]]
+                if len(p_vec) < cols:
+                    p_vec.extend([0.0 for _ in range(cols - len(p_vec))])
+                if vec_norm(matvec(projected_delta, p_vec)) > tol:
+                    protected_anchors.append(p_vec)
+                    projected_delta = self._project_onto_anchor_nullspace(
+                        shaped_delta, protected_anchors
+                    )
+                    cegar_refinements += 1
+
+        effective_weights = add_scaled(eng.weights, projected_delta, scale=1.0)
+        heal_res = self.self_healing_engine.heal_if_drifted(
+            effective_weights,
+            eng.baseline_weights,
+            eng.anchor_inputs,
+            self._project_onto_anchor_nullspace,
+        )
+        effective_weights = heal_res["weights"]
+
+        # Verify anchor invariance on effective_weights regardless of persist_modulation
+        anchor_check = (
+            frobenius_norm(
+                add_scaled(
+                    matmul(effective_weights, transpose(eng.anchor_inputs)),
+                    eng.anchor_targets,
+                    scale=-1.0,
+                )
+            )
+            if eng.anchor_inputs
+            else 0.0
+        )
+        verified_drift = 0.0 if anchor_check <= tol else float(anchor_check)
+
+        if persist_modulation:
+            eng.weights = effective_weights
+            eng.last_anchor_drift = verified_drift
+            eng.edit_count += 1
+
+        op_dim = (
+            max(1, min(rows, cols, int(export_dim)))
+            if export_dim is not None
+            else min(rows, cols)
+        )
+        operator_slice = [
+            [float(effective_weights[r][c]) for c in range(op_dim)]
+            for r in range(op_dim)
+        ]
+        cond_digest = hashlib.blake2s(
+            f"{engine_id}:{task_description}:{full_vals[:self._spec.c_int('eight')]}".encode("utf-8"),
+            digest_size=self._spec.c_int("four"),
+        ).hexdigest()
+        cart_id = f"hyperlora_{engine_id}_{cond_digest}"
+        cartridge = self.compiler.from_linear_operator(cart_id, operator_slice)
+        artifact = self.compiler.lower_to_target(cartridge, target)
+
+        return {
+            "engine_id": engine_id,
+            "cartridge_id": cart_id,
+            "target": target,
+            "kronecker_factors": [[k_rows, k_cols], [b_rows, b_cols]],
+            "rank_components": n_comp,
+            "component_norms": component_norms,
+            "delta_frobenius_norm": float(frobenius_norm(projected_delta)),
+            "anchor_drift": verified_drift,
+            "raw_numerical_drift": float(anchor_check),
+            "cegar_refinements": cegar_refinements,
+            "operator_shape": [op_dim, op_dim],
+            "weight2vec_16d": cartridge.weight2vec.slice_prefix(
+                self._spec.section("matryoshka_manifold")["coarse_dim"]
+            ),
+            "weight2vec_64d": cartridge.weight2vec.slice_prefix(
+                self._spec.section("matryoshka_manifold")["fine_dim"]
+            ),
+            "artifact": artifact,
+        }
+
     def coupling_step(
         self,
         *,
@@ -363,8 +637,7 @@ class CyberneticWeightBus:
         compute_headroom_ratio: float | None = None,
         replay_records: Sequence[Mapping[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """Execute multi-timescale Jacobian propagation + Lyapunov damping + Opportunistic SHA + Boundary Expansion."""
-        n = len(self.engine_order)
+        """Execute multi-timescale Jacobian propagation + Lyapunov damping + TT-Cross SHA + Boundary Expansion."""
         state_before = [self.engines[eid].state_energy for eid in self.engine_order]
         if impulse_engine_id and impulse_engine_id in self.engines:
             imp_idx = self.engine_order.index(impulse_engine_id)
@@ -416,7 +689,7 @@ class CyberneticWeightBus:
         v_before = vec_dot(state_before, state_before)
         v_after = vec_dot(state_after, state_after)
 
-        # Opportunistic SHA configuration exploration on target engine as compute headroom permits
+        # Opportunistic TT-Cross + SHA configuration exploration on target engine as compute headroom permits
         explore_target = impulse_engine_id or "fluid_hypergrid_interpolator_engine"
         sha_report = self.hypergrid.opportunistic_explore(
             explore_target,
@@ -513,7 +786,7 @@ class CyberneticWeightBus:
         """Compute Expected Value of Sample Information (EVSI) to select effort, slice dim, and escalation."""
         t_vec = self.manifold.embed_task(goal_text, stratum=stratum)
         fluid = self.hypergrid.interpolate_fluid_config(
-            "evsi_effort_cascade_calibrator_engine", t_vec
+            "active_experimental_design_engine", t_vec
         )
         c_vec: MatryoshkaVector = fluid["config2vec"]
         sur_stats = self.hypergrid.surrogate.score(t_vec, c_vec)
@@ -525,7 +798,7 @@ class CyberneticWeightBus:
         net_evsi = gross_voi - cost_w
 
         esc_cfg = self.hypergrid.interpolate_fluid_config(
-            "human_attention_and_escalation_engine", t_vec
+            "autonomic_self_healing_engine", t_vec
         )["parameters"]
         esc_thresh = float(esc_cfg["escalation_evsi_threshold"])
 
@@ -562,7 +835,7 @@ class CyberneticWeightBus:
         }
 
     def manifold_status(self) -> dict[str, Any]:
-        """Full 20-engine / 72-sub-engine / 100-dim HyperGrid telemetry snapshot."""
+        """Full 24-engine / 88-sub-engine / 160-dim TT-Cross HyperGrid telemetry snapshot."""
         m_cfg = self._spec.section("matryoshka_manifold")
         engine_summaries: list[dict[str, Any]] = []
         for eid in self.engine_order:
@@ -572,6 +845,7 @@ class CyberneticWeightBus:
                 {
                     "index": eng.index,
                     "engine_id": eid,
+                    "class_name": eng.class_name,
                     "stratum": eng.stratum,
                     "primary_timescale": eng.primary_timescale,
                     "sub_engine_count": len(eng.sub_engines),
@@ -589,6 +863,7 @@ class CyberneticWeightBus:
             "engine_count": len(self.engine_order),
             "sub_engine_count": self.sub_engine_count,
             "hypergrid_total_dimensions": self.hypergrid.total_dimensions,
+            "supported_targets": self.compiler.supported_targets,
             "matryoshka_spaces": list(m_cfg["spaces"]),
             "matryoshka_prefix_dims": list(m_cfg["prefix_dims"]),
             "timescale_count": len(self._spec.section("feedback_timescales")),

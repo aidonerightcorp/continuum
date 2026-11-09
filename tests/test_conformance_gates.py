@@ -83,18 +83,26 @@ def test_domain_agnostic_naming_gate() -> None:
 
 
 def test_zero_legacy_codename_leftovers() -> None:
-    legacy_stem = "eigen" + "loom"
+    legacy_stems = (
+        "eigen" + "loom",
+        "fenced" + "-task-loop",
+        "fenced" + "_task_loop",
+    )
     skip_dirs = {".git", "__pycache__", ".pytest_cache"}
     leftovers: list[str] = []
     for path in sorted(REPO_ROOT.rglob("*")):
         if any(part in skip_dirs for part in path.parts):
             continue
-        if legacy_stem in path.name.lower():
+        low_name = path.name.lower()
+        if any(st in low_name for st in legacy_stems):
             leftovers.append(str(path.relative_to(REPO_ROOT)))
             continue
         if path.is_file() and path.suffix.lower() not in {".png", ".pyc"}:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            if legacy_stem in text.lower():
+            # Skip self-reference inside this test function by checking stems constructed dynamically
+            if path.resolve() == Path(__file__).resolve():
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore").lower()
+            if any(st in text for st in legacy_stems):
                 leftovers.append(str(path.relative_to(REPO_ROOT)))
     assert leftovers == [], f"Legacy codename references found: {leftovers}"
 
@@ -108,6 +116,10 @@ def test_desktop_plugin_surface_sdk_conformance() -> None:
     assert "#f5f2ea" in src
     assert "#141413" in src
     assert "only light" in src
+    assert "1.1.0" in src
+    assert "engine_count: 24" in src
+    assert "sub_engine_count: 88" in src
+    assert "hypergrid_total_dimensions: 160" in src
     for forbidden in (
         "eval(",
         "new Function(",
@@ -143,14 +155,15 @@ def test_manifest_and_registration_exact_parity(
     )
     manifest_text = (REPO_ROOT / "plugin.yaml").read_text(encoding="utf-8")
     assert "name: continuum" in manifest_text
+    assert 'version: "1.1.0"' in manifest_text
     assert "kind: standalone" in manifest_text
     assert "manifest_version: 2" in manifest_text
     assert 'requires_hermes: ">=0.23.0"' in manifest_text
 
     ctx = _RecordingContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 12
-    assert len(set(ctx.tools)) == 12
+    assert len(ctx.tools) == 15
+    assert len(set(ctx.tools)) == 15
     for t_name in ctx.tools:
         assert t_name.startswith("continuum_")
         assert f"- {t_name}" in manifest_text
@@ -170,14 +183,27 @@ def test_manifest_and_registration_exact_parity(
     )
 
 
-def test_twenty_engines_seventy_two_subengines_hundred_hypergrid_dims() -> None:
+def test_twenty_four_engines_eighty_eight_subengines_one_sixty_hypergrid_dims() -> None:
     spec = get_manifold_spec()
     bus = CyberneticWeightBus(spec)
     status = bus.manifold_status()
-    assert status["engine_count"] == 20
-    assert status["sub_engine_count"] == 72
-    assert status["hypergrid_total_dimensions"] == 100
+    assert status["version"] == "1.1.0"
+    assert status["engine_count"] == 24
+    assert status["sub_engine_count"] == 88
+    assert status["hypergrid_total_dimensions"] == 160
+    assert status["supported_targets"] == [
+        "rust",
+        "glsl",
+        "js",
+        "python",
+        "sql",
+        "c99",
+        "wasm",
+        "wat",
+        "wgsl",
+    ]
     assert status["timescale_count"] == 5
+    assert status["coupling_edge_count"] == 32
     assert status["matryoshka_spaces"] == [
         "task2vec",
         "config2vec",
@@ -186,10 +212,17 @@ def test_twenty_engines_seventy_two_subengines_hundred_hypergrid_dims() -> None:
     ]
     assert status["matryoshka_prefix_dims"] == [16, 32, 64, 128]
     for required_engine in (
+        "sheaf_consensus_topology_engine",
+        "conformal_calibration_engine",
+        "causal_counterfactual_engine",
+        "game_theoretic_mechanism_engine",
+        "formal_invariant_synthesis_engine",
+        "active_experimental_design_engine",
+        "information_bottleneck_compression_engine",
+        "autonomic_self_healing_engine",
         "inter_engine_coupling_and_jacobian_bus",
         "homeostatic_meta_controller_engine",
         "structural_morphism_and_transfer_engine",
-        "human_attention_and_escalation_engine",
     ):
         assert required_engine in bus.engines
 

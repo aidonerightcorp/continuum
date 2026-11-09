@@ -27,8 +27,9 @@ _STRATUM_REGIME_ANCHORS: tuple[str, ...] = (
     "compilation_and_lowering",
     "verify",
     "routing_and_governance",
+    "uncertainty_and_verification",
     "architect",
-    "adaptation_and_economics",
+    "adaptation_and_experimentation",
     "meta_cybernetic_coupling",
 )
 

@@ -1,6 +1,6 @@
 name: continuum
-version: "1.0.0"
-description: "Unified self-improving agent engine for Hermes: smart context compression, local episodic memory, verified subtask routing, adaptive configuration tuning, and 7-target skill compilation."
+version: "1.1.0"
+description: "Unified self-improving agent engine for Hermes: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation."
 author: aidonerightcorp
 license: MIT
 homepage: https://github.com/aidonerightcorp/continuum
@@ -13,7 +13,7 @@ tags:
   - memory
   - delegation
   - verification
-  - configuration
+  - conformal-prediction
   - compiler
 python_dependencies: []
 requires_env: []
@@ -30,6 +30,9 @@ provides_tools:
   - continuum_manifold_status
   - continuum_context_grep
   - continuum_attractor_recall
+  - continuum_sheaf_consistency_audit
+  - continuum_conformal_calibrate
+  - continuum_hyperlora_modulate
 provides_hooks:
   - on_session_start
   - pre_tool_call
@@ -39,7 +42,7 @@ config_schema:
   compute_headroom_ratio:
     type: float
     default: 0.6
-    description: "Fraction of spare local CPU budget used to test candidate configurations against saved history using zero extra LLM tokens."
+    description: "Fraction of spare local CPU budget used to test TT-Cross and Sobol candidate configurations against saved history using zero extra LLM tokens."
   default_embedding_dim:
     type: int
     default: 64

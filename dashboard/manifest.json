@@ -1,9 +1,9 @@
 {
   "name": "continuum",
   "label": "Continuum",
-  "description": "Unified self-improving agent engine: smart context compression, local episodic memory, verified subtask routing, adaptive tuning, and 7-target skill compilation.",
+  "description": "Unified self-improving agent engine: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation.",
   "icon": "Cpu",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "entry": "bundle.js",
   "api": "plugin_api.py",
   "tab": {

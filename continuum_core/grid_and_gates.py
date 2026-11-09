@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+from continuum_core.cybernetic_engines import TensorTrainCross
 from continuum_core.linalg_backend import (
     Matrix,
     Vector,
@@ -444,7 +445,7 @@ class ComponentNodeGrid:
 
 
 class FluidHyperGrid:
-    """100-dimensional embedding-conditioned HyperGrid with kernel interpolation and Opportunistic SHA."""
+    """160-axis embedding-conditioned TT-Cross HyperGrid with kernel interpolation and Opportunistic SHA."""
 
     def __init__(
         self,
@@ -457,6 +458,7 @@ class FluidHyperGrid:
         self.ledger = GridLedger(self._spec)
         self.cost_ledger = cost_ledger or OperationCostLedger()
         self.surrogate = BilinearWoodburySurrogate(self._spec)
+        self.tt_cross = TensorTrainCross(self._spec)
         self.grids: dict[str, ComponentNodeGrid] = {}
         self._probe_counter: int = 1
 
@@ -699,9 +701,6 @@ class FluidHyperGrid:
             bases=[int(b) for b in exp_cfg["sobol_radical_bases"]],
             uniform_mix=float(exp_cfg["uniform_mix_fraction"]),
         )
-        raw_pool = [c for c in (covering + probed) if grid.check_constraints(c)]
-        self.cost_ledger.sha_zero_token_probes += len(raw_pool)
-
         # Build replay reference vectors from historical verified maker != checker episodes (or engine anchors)
         anchors: list[tuple[MatryoshkaVector, float]] = []
         if replay_records:
@@ -725,6 +724,59 @@ class FluidHyperGrid:
                     1.0,
                 )
             )
+
+        # Low-rank TT-Cross epistatic probe over discrete levels of the engine's NodeGrid axes
+        axis_items = list(grid.parameters.items())
+        tt_levels = self.tt_cross.default_levels
+
+        def _decode_level_indices(idx_vec: list[int]) -> dict[str, Any]:
+            decoded: dict[str, Any] = {}
+            denom = float(max(1, tt_levels - 1))
+            for ax_i, (pname, param) in enumerate(axis_items):
+                lv = idx_vec[ax_i] if ax_i < len(idx_vec) else 0
+                frac = float(lv) / denom
+                if param.kind in ("continuous_range", "integer_range") and param.bounds is not None:
+                    val = param.bounds.low + frac * (param.bounds.high - param.bounds.low)
+                    decoded[pname] = param.validate_and_clamp(val)
+                elif param.kind == "boolean":
+                    decoded[pname] = frac >= self._spec.c_float("half")
+                else:
+                    c_i = min(len(param.choices) - 1, int(round(frac * float(max(0, len(param.choices) - 1)))))
+                    decoded[pname] = param.choices[max(0, c_i)]
+            return grid.clamp_values(decoded)
+
+        epi_scale = float(self._spec.section("tt_cross_explorer")["epistatic_interaction_scale"])
+
+        def _tt_objective(idx_vec: list[int]) -> float:
+            cand = _decode_level_indices(idx_vec)
+            c_vec = self.manifold.embed_config(
+                cand,
+                engine_id=engine_id,
+                stratum=grid.stratum,
+                bounds_lookup=grid.bounds_lookup(),
+            )
+            base_s = self.surrogate.score(anchors[0][0], c_vec)["ucb_score"]
+            # Non-additive epistatic interaction term across adjacent axes
+            epi = 0.0
+            if len(idx_vec) >= self._spec.c_int("two"):
+                denom_e = float(max(1, tt_levels - 1))
+                for k_i in range(len(idx_vec) - 1):
+                    u_a = float(idx_vec[k_i]) / denom_e - self._spec.c_float("half")
+                    u_b = float(idx_vec[k_i + 1]) / denom_e - self._spec.c_float("half")
+                    epi += u_a * u_b
+            return float(base_s + epi_scale * epi)
+
+        tt_report = self.tt_cross.fit_and_search(
+            _tt_objective,
+            len(axis_items),
+            sweeps=1,
+        )
+        tt_candidate = _decode_level_indices(tt_report["best_indices"])
+
+        raw_pool = [
+            c for c in ([tt_candidate] + covering + probed) if grid.check_constraints(c)
+        ]
+        self.cost_ledger.sha_zero_token_probes += len(raw_pool)
 
         # Register candidates in GridLedger (represented -> applicable -> proposed)
         entries: list[GridCellRecord] = []
@@ -827,6 +879,8 @@ class FluidHyperGrid:
             "skipped_low_headroom": False,
             "candidates_generated": len(raw_pool),
             "covering_array_rows": len(covering),
+            "tt_cross_evaluations": tt_report["evaluations_used"],
+            "tt_cross_compression_factor": tt_report["compression_factor_vs_grid"],
             "rung_counts": rung_counts,
             "winner_cell_id": survivors[0].cell_id if survivors else None,
             "promoted_cell_id": promoted_id,

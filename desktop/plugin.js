@@ -26,10 +26,11 @@ const DEFAULTS = {
 }
 
 const INITIAL_TELEMETRY = {
-  version: '1.0.0',
-  engine_count: 20,
-  sub_engine_count: 72,
-  hypergrid_total_dimensions: 100,
+  version: '1.1.0',
+  engine_count: 24,
+  sub_engine_count: 88,
+  hypergrid_total_dimensions: 160,
+  supported_targets: ['rust', 'glsl', 'js', 'python', 'sql', 'c99', 'wasm', 'wat', 'wgsl'],
   matryoshka_spaces: ['task2vec', 'config2vec', 'weight2vec', 'trace2vec'],
   matryoshka_prefix_dims: [16, 32, 64, 128],
   persisted_tasks: 0,
@@ -67,6 +68,7 @@ function ContinuumStatusChip({ prefs, telemetry }) {
 function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
   const { embeddingSlice } = useValue(prefs)
   const snap = useValue(telemetry)
+  const targets = snap.supported_targets || []
 
   return jsxs('div', {
     style: PAPER_INK_STYLE,
@@ -82,7 +84,7 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
               }),
               jsx('div', {
                 style: { fontSize: '12px', color: '#4a4843', marginTop: '2px' },
-                children: `v${snap.version} • 5 Layers • ${snap.engine_count} Engines • ${snap.sub_engine_count} Sub-Engines • ${snap.hypergrid_total_dimensions} Tunable Parameters`
+                children: `v${snap.version} • 6 Layers • ${snap.engine_count} Engines • ${snap.sub_engine_count} Sub-Engines • ${snap.hypergrid_total_dimensions}-Axis TT-Cross Grid`
               })
             ]
           }),
@@ -107,11 +109,11 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
         children: [
           jsx('div', {
             style: { fontSize: '12px', fontWeight: 600, color: '#2f5d50' },
-            children: 'Shared 4-Space Nested Embeddings'
+            children: 'Shared 4-Space Nested Embeddings & 9 Portable Runtimes'
           }),
           jsx('div', {
             style: { fontSize: '12px', color: '#141413', marginTop: '4px' },
-            children: `Spaces: ${(snap.matryoshka_spaces || []).join(' · ')} | Active Slice: ${embeddingSlice}d of [${(snap.matryoshka_prefix_dims || []).join(', ')}]`
+            children: `Spaces: ${(snap.matryoshka_spaces || []).join(' · ')} | Slice: ${embeddingSlice}d | Targets (${targets.length}): ${targets.join(', ')}`
           })
         ]
       }),
@@ -135,7 +137,7 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
 export default {
   id: 'continuum',
   name: 'Continuum',
-  description: 'Unified self-improving agent engine for Hermes: context compression, local episodic memory, verified subtask routing, adaptive tuning, and 7-target skill compilation.',
+  description: 'Unified self-improving agent engine for Hermes: 24 cybernetic engines, 160-axis TT-Cross configuration tuning, Sheaf & Conformal verification, and 9-target skill compilation.',
   register(ctx) {
     const prefs = atom({ ...DEFAULTS, ...ctx.storage.get('prefs', {}) })
     const telemetry = atom(INITIAL_TELEMETRY)
@@ -186,7 +188,7 @@ export default {
           children: [
             jsx(ToggleRow, {
               checked: showStatusChip,
-              description: 'Display live 20-engine and embedding slice indicator in the status bar.',
+              description: 'Display live 24-engine and embedding slice indicator in the status bar.',
               label: 'Show Continuum status chip',
               onChange: enabled => updatePrefs({ showStatusChip: enabled })
             }),

@@ -1,6 +1,6 @@
 {
   "schema_id": "continuum.self_improving_engine_grid.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "palette": {
     "paper_bg": "#f5f2ea",
     "paper_card": "#faf8f3",
@@ -20,8 +20,10 @@
     "six": 6,
     "seven": 7,
     "eight": 8,
+    "nine": 9,
     "ten": 10,
     "twelve": 12,
+    "fifteen": 15,
     "sixteen": 16,
     "twenty": 20,
     "twenty_four": 24,
@@ -29,8 +31,10 @@
     "forty_eight": 48,
     "sixty_four": 64,
     "seventy_two": 72,
+    "eighty_eight": 88,
     "one_hundred": 100,
     "one_twenty_eight": 128,
+    "one_sixty": 160,
     "two_fifty_six": 256,
     "five_twelve": 512,
     "one_thousand": 1000,
@@ -47,6 +51,11 @@
     "pico": 1e-12,
     "gelu_c1": 0.7978845608,
     "gelu_c2": 0.044715,
+    "pade_tanh_c0": 945.0,
+    "pade_tanh_c1": 105.0,
+    "pade_tanh_d1": 420.0,
+    "pade_tanh_d2": 15.0,
+    "pade_tanh_clamp": 4.5,
     "default_threshold_percent": 0.78,
     "busy_timeout_ms": 5000,
     "hash_mod_prime": 2147483647,
@@ -90,7 +99,9 @@
     "op_local_get": 32,
     "op_f32_const": 67,
     "op_f32_add": 146,
+    "op_f32_sub": 147,
     "op_f32_mul": 148,
+    "op_f32_div": 149,
     "op_i32_const": 65,
     "op_end": 11,
     "leb_mask_7bit": 127,
@@ -145,8 +156,37 @@
       ]
     }
   },
+  "tt_cross_explorer": {
+    "tt_rank": 3,
+    "sweeps": 2,
+    "discrete_levels": 3,
+    "epistatic_interaction_scale": 0.15,
+    "pivot_regularization": 0.01
+  },
+  "sheaf_consensus": {
+    "default_stalk_dim": 4,
+    "default_harmonic_eta": 0.5,
+    "obstruction_alert_threshold": 0.05,
+    "edge_contradiction_threshold": 0.02
+  },
+  "conformal_calibration": {
+    "default_alpha": 0.1,
+    "min_alpha": 0.01,
+    "max_alpha": 0.5,
+    "aci_gamma": 0.05,
+    "abstention_max_set_size": 2,
+    "cartridge_margin_floor": 0.25
+  },
+  "hyperlora": {
+    "kronecker_factor_rows": 2,
+    "kronecker_factor_cols": 2,
+    "sub_block_rows": 4,
+    "sub_block_cols": 4,
+    "rank_components": 3,
+    "modulation_gain": 0.25
+  },
   "hypergrid_fluid_interpolation": {
-    "total_config_dimensions": 100,
+    "total_config_dimensions": 160,
     "default_kernel_tau": 0.25,
     "woodbury_prior_lambda": 0.2,
     "bilinear_feature_dim": 48,
@@ -189,13 +229,19 @@
       "film_cond_dim": 16,
       "default_early_exit_margin": 0.35,
       "supported_targets": [
-        "safetensors",
-        "wasm_base64",
-        "wat",
-        "wgsl",
-        "c99",
+        "rust",
+        "glsl",
+        "js",
+        "python",
         "sql",
-        "python"
+        "c99",
+        "wasm",
+        "wat",
+        "wgsl"
+      ],
+      "auxiliary_formats": [
+        "safetensors",
+        "wasm_base64"
       ]
     }
   },
@@ -243,21 +289,21 @@
       "order": 0,
       "gain": 0.35,
       "horizon": "sub_turn_token_and_layer_cascade",
-      "description": "Per-call Matryoshka slicing, FiLM affine modulation, MoLoRA gating, and confidence-margin early exit."
+      "description": "Per-call Matryoshka slicing, Conformal selective exit, FiLM/HyperLoRA modulation, and MoLoRA gating."
     },
     {
       "timescale_id": "tau_1_episode",
       "order": 1,
       "gain": 0.25,
       "horizon": "per_verified_record",
-      "description": "Simultaneous Recursive Woodbury updates across LinUCB routing, Dawid-Skene quorum, EigenTrust, and Cost Ledger."
+      "description": "Simultaneous Woodbury, Sheaf consensus, Dawid-Skene quorum, Causal do-calculus, and Autonomic self-healing updates."
     },
     {
       "timescale_id": "tau_2_consolidation",
       "order": 2,
       "gain": 0.18,
       "horizon": "session_compaction_and_attractor_merge",
-      "description": "Hopfield continuous attractor consolidation and LoRA-XS / safetensors micro-cartridge compilation."
+      "description": "Hopfield attractor consolidation, Formal Invariant synthesis, VCG mechanism trust, and 9-target cartridge compilation."
     },
     {
       "timescale_id": "tau_3_morphism",
@@ -271,20 +317,22 @@
       "order": 4,
       "gain": 0.08,
       "horizon": "hypergrid_generation_evolution",
-      "description": "HyperGrid Boundary Auto-Expansion on saturated axes and Jacobian spectral-radius Lyapunov stabilization."
+      "description": "160-axis TT-Cross HyperGrid Boundary Auto-Expansion and 24x24 Jacobian spectral-radius Lyapunov stabilization."
     }
   ],
   "strata": [
     "ingestion_and_memory",
     "compilation_and_lowering",
     "routing_and_governance",
-    "adaptation_and_economics",
+    "uncertainty_and_verification",
+    "adaptation_and_experimentation",
     "meta_cybernetic_coupling"
   ],
   "engines": [
     {
       "index": 0,
       "engine_id": "quotient_context_dag_engine",
+      "class_name": "QuotientContextDagEngine",
       "stratum": "ingestion_and_memory",
       "primary_timescale": "tau_0_reflex",
       "description": "Deduplicates context turns into a content-addressed quotient DAG while preserving prompt-cache prefix stability.",
@@ -350,6 +398,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -367,13 +435,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "compression_ratio_target": 0.68,
               "protect_tail_turns": 6,
               "dedup_policy": "hybrid_quotient",
               "preserve_prefix_identity": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -382,13 +452,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "compression_ratio_target": 0.515,
               "protect_tail_turns": 4,
               "dedup_policy": "exact_uid",
               "preserve_prefix_identity": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -397,13 +469,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "compression_ratio_target": 0.79,
               "protect_tail_turns": 12,
               "dedup_policy": "hybrid_quotient",
               "preserve_prefix_identity": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -412,6 +486,7 @@
     {
       "index": 1,
       "engine_id": "wanda_saliency_pruning_engine",
+      "class_name": "WandaSaliencyPruningEngine",
       "stratum": "ingestion_and_memory",
       "primary_timescale": "tau_0_reflex",
       "description": "Scores token, turn, and channel importance via activation-norm weighted magnitude saliency.",
@@ -477,6 +552,26 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -494,13 +589,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "saliency_quantile_floor": 0.3,
               "window_horizon_turns": 24,
               "norm_aggregation": "l2_wanda",
               "normalize_per_role": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -509,13 +606,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "saliency_quantile_floor": 0.2,
               "window_horizon_turns": 14,
               "norm_aggregation": "l2_wanda",
               "normalize_per_role": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -524,13 +623,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "saliency_quantile_floor": 0.5475,
               "window_horizon_turns": 48,
               "norm_aggregation": "spectral_entropy",
               "normalize_per_role": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -539,6 +640,7 @@
     {
       "index": 2,
       "engine_id": "hopfield_attractor_memory_engine",
+      "class_name": "HopfieldAttractorMemoryEngine",
       "stratum": "ingestion_and_memory",
       "primary_timescale": "tau_2_consolidation",
       "description": "Stores and retrieves episodic traces in a modern continuous Hopfield energy landscape backed by SQLite WAL.",
@@ -604,6 +706,26 @@
             ],
             "default": 128,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -621,13 +743,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "inverse_temperature_beta": 8.0,
               "max_attractor_slots": 128,
               "retrieval_kernel": "cascade_mrl",
               "consolidate_on_pre_compress": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -636,13 +760,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "inverse_temperature_beta": 5.0,
               "max_attractor_slots": 72,
               "retrieval_kernel": "softmax_hopfield",
               "consolidate_on_pre_compress": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -651,13 +777,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "inverse_temperature_beta": 16.8,
               "max_attractor_slots": 352,
               "retrieval_kernel": "cascade_mrl",
               "consolidate_on_pre_compress": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -665,15 +793,16 @@
     },
     {
       "index": 3,
-      "engine_id": "matryoshka_manifold_encoder_engine",
+      "engine_id": "information_bottleneck_compression_engine",
+      "class_name": "InformationBottleneckCompressionEngine",
       "stratum": "ingestion_and_memory",
       "primary_timescale": "tau_0_reflex",
-      "description": "Projects tasks, configurations, weight stacks, and traces into one shared 16d/32d/64d/128d Matryoshka geometry.",
+      "description": "Optimizes rate-distortion Information Bottleneck compression across shared 16d/32d/64d/128d nested embeddings.",
       "sub_engines": [
-        "task2vec_structural_projector",
-        "config2vec_fourier_encoder",
-        "weight2vec_spectral_descriptor",
-        "trace2vec_shingle_encoder"
+        "rate_distortion_lagrangian_solver",
+        "mutual_info_spectrum_filter",
+        "task2vec_config2vec_projector",
+        "nested_matryoshka_normalizer"
       ],
       "matrix_shape": [
         8,
@@ -684,12 +813,12 @@
         "generation": 1,
         "parameters": [
           {
-            "name": "cross_space_alignment_gain",
+            "name": "ib_lagrange_beta",
             "kind": "continuous_range",
             "bounds": {
-              "low": 0.15,
-              "high": 0.95,
-              "default": 0.55
+              "low": 0.25,
+              "high": 16.0,
+              "default": 4.0
             },
             "expandable": true
           },
@@ -709,9 +838,9 @@
             "choices": [
               "uniform_prefix",
               "harmonic_decay",
-              "variance_balanced"
+              "ib_rate_optimal"
             ],
-            "default": "harmonic_decay",
+            "default": "ib_rate_optimal",
             "expandable": false
           },
           {
@@ -731,60 +860,86 @@
             ],
             "default": 128,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
           {
             "kind": "range_order",
-            "parameter": "cross_space_alignment_gain",
-            "min_allowed": 0.15,
-            "max_allowed": 0.95
+            "parameter": "ib_lagrange_beta",
+            "min_allowed": 0.25,
+            "max_allowed": 16.0
           }
         ],
         "seed_cells": [
           {
-            "cell_id": "matryoshka_manifold_encoder_engine::seed_balanced",
+            "cell_id": "information_bottleneck_compression_engine::seed_balanced",
             "regime": "balanced_default",
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
-              "cross_space_alignment_gain": 0.55,
+              "ib_lagrange_beta": 4.0,
               "shingle_ngram_width": 3,
-              "band_weighting_mode": "harmonic_decay",
+              "band_weighting_mode": "ib_rate_optimal",
               "unit_normalize_all_prefixes": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
-            "cell_id": "matryoshka_manifold_encoder_engine::seed_reflex",
+            "cell_id": "information_bottleneck_compression_engine::seed_reflex",
             "regime": "low_latency_reflex",
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
-              "cross_space_alignment_gain": 0.35,
+              "ib_lagrange_beta": 2.125,
               "shingle_ngram_width": 2,
               "band_weighting_mode": "uniform_prefix",
               "unit_normalize_all_prefixes": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
-            "cell_id": "matryoshka_manifold_encoder_engine::seed_deep",
+            "cell_id": "information_bottleneck_compression_engine::seed_deep",
             "regime": "high_precision_verify",
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
-              "cross_space_alignment_gain": 0.77,
+              "ib_lagrange_beta": 10.6,
               "shingle_ngram_width": 5,
-              "band_weighting_mode": "variance_balanced",
+              "band_weighting_mode": "ib_rate_optimal",
               "unit_normalize_all_prefixes": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -793,6 +948,7 @@
     {
       "index": 4,
       "engine_id": "ridge_polytope_compiler_engine",
+      "class_name": "RidgePolytopeCompilerEngine",
       "stratum": "compilation_and_lowering",
       "primary_timescale": "tau_2_consolidation",
       "description": "Compiles verified decision traces and symbolic rule tables into regularized linear polytopes and low-rank cores.",
@@ -858,6 +1014,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -875,13 +1051,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "ridge_regularization_lambda": 0.01,
               "rank_cap": 6,
               "solver_regime": "svd_pseudoinverse",
               "whiten_design_matrix": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -890,13 +1068,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "ridge_regularization_lambda": 0.00505,
               "rank_cap": 4,
               "solver_regime": "cholesky_ridge",
               "whiten_design_matrix": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -905,13 +1085,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "ridge_regularization_lambda": 0.2795,
               "rank_cap": 12,
               "solver_regime": "woodbury_incremental",
               "whiten_design_matrix": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -920,13 +1102,14 @@
     {
       "index": 5,
       "engine_id": "multilayer_film_molora_stack_engine",
+      "class_name": "MultilayerFilmMoloraStackEngine",
       "stratum": "compilation_and_lowering",
       "primary_timescale": "tau_1_episode",
-      "description": "Synthesizes variable-depth residual operator stacks with FiLM affine conditioning, MoLoRA routing, and early exit.",
+      "description": "Synthesizes variable-depth residual operator stacks with FiLM conditioning, MoLoRA routing, HyperLoRA Kronecker modulation, and early exit.",
       "sub_engines": [
         "film_gamma_beta_generator",
         "molora_expert_gate_router",
-        "residual_activation_block",
+        "hyperlora_kronecker_modulator",
         "confidence_margin_halting_gate"
       ],
       "matrix_shape": [
@@ -986,6 +1169,26 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1003,13 +1206,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "early_exit_margin": 0.35,
               "operator_stack_layers": 3,
               "activation_family": "gelu",
               "enable_film_modulation": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -1018,13 +1223,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "early_exit_margin": 0.225,
               "operator_stack_layers": 2,
               "activation_family": "gelu",
               "enable_film_modulation": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -1033,13 +1240,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "early_exit_margin": 0.6525,
               "operator_stack_layers": 5,
               "activation_family": "identity",
               "enable_film_modulation": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -1048,6 +1257,7 @@
     {
       "index": 6,
       "engine_id": "svd_nullspace_surgical_editor_engine",
+      "class_name": "SvdNullspaceSurgicalEditorEngine",
       "stratum": "compilation_and_lowering",
       "primary_timescale": "tau_1_episode",
       "description": "Applies zero-anchor-drift nullspace updates, LoRA-XS cores, Woodbury writes, and CEGAR counterexample healing.",
@@ -1114,6 +1324,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1131,13 +1361,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "nullspace_energy_cutoff": 0.001,
               "anchor_basis_rank": 3,
               "surgical_mode": "svd_nullspace",
               "enforce_cegar_healing": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -1146,13 +1378,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "nullspace_energy_cutoff": 0.00055,
               "anchor_basis_rank": 2,
               "surgical_mode": "svd_nullspace",
               "enforce_cegar_healing": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -1161,13 +1395,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "nullspace_energy_cutoff": 0.02795,
               "anchor_basis_rank": 6,
               "surgical_mode": "procrustes_align",
               "enforce_cegar_healing": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -1176,14 +1412,15 @@
     {
       "index": 7,
       "engine_id": "portable_target_lowering_engine",
+      "class_name": "PortableTargetLoweringEngine",
       "stratum": "compilation_and_lowering",
       "primary_timescale": "tau_2_consolidation",
-      "description": "Lowers compiled multi-layer cartridges into safetensors, in-memory WASM, WAT, WGSL, C99, SQL, and Python.",
+      "description": "Lowers compiled multi-layer cartridges across 9 zero-dependency targets: rust (#![no_std]), glsl, js, python, sql, c99, wasm, wat, and wgsl.",
       "sub_engines": [
-        "safetensors_header_packer",
-        "wasm_ieee754_emitter",
-        "wgsl_compute_kernel_writer",
-        "c99_sql_python_codegen"
+        "rust_nostd_ffi_emitter",
+        "glsl_wgsl_shader_writer",
+        "wasm_wat_ieee754_emitter",
+        "js_c99_sql_python_codegen"
       ],
       "matrix_shape": [
         8,
@@ -1217,15 +1454,17 @@
             "name": "default_target_format",
             "kind": "choice",
             "choices": [
-              "safetensors",
-              "wasm_base64",
-              "wat",
-              "wgsl",
-              "c99",
+              "rust",
+              "glsl",
+              "js",
+              "python",
               "sql",
-              "python"
+              "c99",
+              "wasm",
+              "wat",
+              "wgsl"
             ],
-            "default": "safetensors",
+            "default": "rust",
             "expandable": false
           },
           {
@@ -1245,6 +1484,26 @@
             ],
             "default": 128,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1262,13 +1521,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "quantization_clip_sigma": 4.5,
               "wgsl_workgroup_width": 16,
-              "default_target_format": "safetensors",
+              "default_target_format": "rust",
               "embed_weight2vec_manifest": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -1277,13 +1538,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "quantization_clip_sigma": 3.5,
               "wgsl_workgroup_width": 12,
-              "default_target_format": "safetensors",
+              "default_target_format": "rust",
               "embed_weight2vec_manifest": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -1292,13 +1555,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "quantization_clip_sigma": 6.425,
               "wgsl_workgroup_width": 44,
-              "default_target_format": "python",
+              "default_target_format": "wgsl",
               "embed_weight2vec_manifest": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -1307,6 +1572,7 @@
     {
       "index": 8,
       "engine_id": "contextual_linucb_router_engine",
+      "class_name": "ContextualLinucbRouterEngine",
       "stratum": "routing_and_governance",
       "primary_timescale": "tau_1_episode",
       "description": "Routes delegated subtasks across candidate model tiers via Task2Vec x Config2Vec bilinear LinUCB with Woodbury updates.",
@@ -1372,6 +1638,26 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1389,13 +1675,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "ucb_exploration_alpha": 0.65,
               "woodbury_feature_dim": 16,
               "routing_objective": "reward_per_cost",
               "enforce_maker_checker_separation": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -1404,13 +1692,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "ucb_exploration_alpha": 0.35,
               "woodbury_feature_dim": 12,
               "routing_objective": "reward_per_cost",
               "enforce_maker_checker_separation": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -1419,13 +1709,15 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "ucb_exploration_alpha": 1.6675,
               "woodbury_feature_dim": 35,
               "routing_objective": "latency_pareto",
               "enforce_maker_checker_separation": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -1434,6 +1726,7 @@
     {
       "index": 9,
       "engine_id": "cas_fission_lease_fencing_engine",
+      "class_name": "CasFissionLeaseFencingEngine",
       "stratum": "routing_and_governance",
       "primary_timescale": "tau_0_reflex",
       "description": "Decomposes composite goals into interface-contracted DAG nodes with atomic SQLite WAL compare-and-swap fencing stamps.",
@@ -1498,6 +1791,16 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1515,13 +1818,14 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "lease_ttl_seconds": 180.0,
               "max_fission_fanout": 5,
               "fission_granularity": "interface_contract",
               "reuse_verified_cache": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3
             }
           },
           {
@@ -1530,13 +1834,14 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "lease_ttl_seconds": 105.0,
               "max_fission_fanout": 4,
               "fission_granularity": "coarse_module",
               "reuse_verified_cache": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
@@ -1545,13 +1850,14 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "lease_ttl_seconds": 576.0,
               "max_fission_fanout": 9,
               "fission_granularity": "atomic_step",
               "reuse_verified_cache": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
@@ -1560,6 +1866,7 @@
     {
       "index": 10,
       "engine_id": "dawid_skene_quorum_adjudicator_engine",
+      "class_name": "DawidSkeneQuorumAdjudicatorEngine",
       "stratum": "routing_and_governance",
       "primary_timescale": "tau_1_episode",
       "description": "Estimates posterior truth and per-actor confusion matrices across independent maker-checker verification records.",
@@ -1624,6 +1931,16 @@
             ],
             "default": 16,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1641,13 +1958,14 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "quorum_posterior_threshold": 0.85,
               "dirichlet_prior_strength": 2,
               "adjudication_rule": "dawid_skene_em",
               "penalize_correlated_checkers": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 3
             }
           },
           {
@@ -1656,13 +1974,14 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "quorum_posterior_threshold": 0.725,
               "dirichlet_prior_strength": 2,
               "adjudication_rule": "dawid_skene_em",
               "penalize_correlated_checkers": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
@@ -1671,13 +1990,14 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "quorum_posterior_threshold": 0.927,
               "dirichlet_prior_strength": 7,
               "adjudication_rule": "strict_unanimity",
               "penalize_correlated_checkers": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
@@ -1685,14 +2005,16 @@
     },
     {
       "index": 11,
-      "engine_id": "eigentrust_reputation_flow_engine",
+      "engine_id": "game_theoretic_mechanism_engine",
+      "class_name": "GameTheoreticMechanismEngine",
       "stratum": "routing_and_governance",
       "primary_timescale": "tau_2_consolidation",
-      "description": "Computes stationary left-principal eigenvector reputation over the actor verification graph with pre-trusted anchors.",
+      "description": "Enforces truthful verification incentives via VCG pivot transfers, strictly proper Brier scoring, and Sybil-damped EigenTrust.",
       "sub_engines": [
-        "trust_transition_normalizer",
-        "power_iteration_stationary_solver",
-        "sybil_damping_guard"
+        "vcg_pivot_incentive_calculator",
+        "strictly_proper_brier_scorer",
+        "stationary_eigentrust_solver",
+        "collusion_sybil_damping_guard"
       ],
       "matrix_shape": [
         8,
@@ -1723,14 +2045,14 @@
             "expandable": true
           },
           {
-            "name": "trust_aggregation",
+            "name": "mechanism_rule",
             "kind": "choice",
             "choices": [
+              "vcg_brier_hybrid",
               "stationary_eigenvector",
-              "damped_katz",
-              "beta_reputation"
+              "strict_proper_log"
             ],
-            "default": "stationary_eigenvector",
+            "default": "vcg_brier_hybrid",
             "expandable": false
           },
           {
@@ -1750,6 +2072,26 @@
             ],
             "default": 16,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1762,48 +2104,54 @@
         ],
         "seed_cells": [
           {
-            "cell_id": "eigentrust_reputation_flow_engine::seed_balanced",
+            "cell_id": "game_theoretic_mechanism_engine::seed_balanced",
             "regime": "balanced_default",
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "pretrusted_damping_alpha": 0.15,
               "power_iteration_steps": 12,
-              "trust_aggregation": "stationary_eigenvector",
+              "mechanism_rule": "vcg_brier_hybrid",
               "clamp_negative_endorsements": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
-            "cell_id": "eigentrust_reputation_flow_engine::seed_reflex",
+            "cell_id": "game_theoretic_mechanism_engine::seed_reflex",
             "regime": "low_latency_reflex",
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "pretrusted_damping_alpha": 0.1,
               "power_iteration_steps": 8,
-              "trust_aggregation": "stationary_eigenvector",
+              "mechanism_rule": "vcg_brier_hybrid",
               "clamp_negative_endorsements": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
-            "cell_id": "eigentrust_reputation_flow_engine::seed_deep",
+            "cell_id": "game_theoretic_mechanism_engine::seed_deep",
             "regime": "high_precision_verify",
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "pretrusted_damping_alpha": 0.315,
               "power_iteration_steps": 24,
-              "trust_aggregation": "beta_reputation",
+              "mechanism_rule": "strict_proper_log",
               "clamp_negative_endorsements": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -1811,8 +2159,597 @@
     },
     {
       "index": 12,
+      "engine_id": "sheaf_consensus_topology_engine",
+      "class_name": "SheafConsensusTopologyEngine",
+      "stratum": "uncertainty_and_verification",
+      "primary_timescale": "tau_1_episode",
+      "description": "Builds Cellular Sheaf coboundary and Laplacian operators across multi-agent claims to detect cohomological contradictions and compute harmonic consensus.",
+      "sub_engines": [
+        "cellular_stalk_restriction_builder",
+        "coboundary_sheaf_laplacian_assembler",
+        "cohomological_obstruction_auditor",
+        "harmonic_consensus_projector"
+      ],
+      "matrix_shape": [
+        8,
+        8
+      ],
+      "anchor_subspace_rank": 2,
+      "node_grid": {
+        "generation": 1,
+        "parameters": [
+          {
+            "name": "harmonic_step_eta",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.05,
+              "high": 2.0,
+              "default": 0.5
+            },
+            "expandable": true
+          },
+          {
+            "name": "stalk_dimension",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 2,
+              "high": 16,
+              "default": 4
+            },
+            "expandable": true
+          },
+          {
+            "name": "consensus_solver",
+            "kind": "choice",
+            "choices": [
+              "tikhonov_harmonic",
+              "iterative_diffusion",
+              "hodge_projection"
+            ],
+            "default": "tikhonov_harmonic",
+            "expandable": false
+          },
+          {
+            "name": "flag_local_edge_frustration",
+            "kind": "boolean",
+            "default": true,
+            "expandable": false
+          },
+          {
+            "name": "matryoshka_slice_dim",
+            "kind": "choice",
+            "choices": [
+              16,
+              32,
+              64,
+              128
+            ],
+            "default": 64,
+            "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "range_order",
+            "parameter": "harmonic_step_eta",
+            "min_allowed": 0.05,
+            "max_allowed": 2.0
+          }
+        ],
+        "seed_cells": [
+          {
+            "cell_id": "sheaf_consensus_topology_engine::seed_balanced",
+            "regime": "balanced_default",
+            "state": "promoted",
+            "maker_id": "bootstrap_architect",
+            "checker_id": "bootstrap_auditor",
+            "observed_reward": 0.87,
+            "values": {
+              "harmonic_step_eta": 0.5,
+              "stalk_dimension": 4,
+              "consensus_solver": "tikhonov_harmonic",
+              "flag_local_edge_frustration": true,
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
+            }
+          },
+          {
+            "cell_id": "sheaf_consensus_topology_engine::seed_reflex",
+            "regime": "low_latency_reflex",
+            "state": "verified",
+            "maker_id": "bootstrap_compiler",
+            "checker_id": "bootstrap_verifier",
+            "observed_reward": 0.83,
+            "values": {
+              "harmonic_step_eta": 0.275,
+              "stalk_dimension": 3,
+              "consensus_solver": "tikhonov_harmonic",
+              "flag_local_edge_frustration": true,
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
+            }
+          },
+          {
+            "cell_id": "sheaf_consensus_topology_engine::seed_deep",
+            "regime": "high_precision_verify",
+            "state": "verified",
+            "maker_id": "bootstrap_synthesizer",
+            "checker_id": "bootstrap_inspector",
+            "observed_reward": 0.9,
+            "values": {
+              "harmonic_step_eta": 1.325,
+              "stalk_dimension": 11,
+              "consensus_solver": "hodge_projection",
+              "flag_local_edge_frustration": true,
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
+            }
+          }
+        ]
+      }
+    },
+    {
+      "index": 13,
+      "engine_id": "conformal_calibration_engine",
+      "class_name": "ConformalCalibrationEngine",
+      "stratum": "uncertainty_and_verification",
+      "primary_timescale": "tau_0_reflex",
+      "description": "Provides distribution-free Split Conformal and Online Adaptive Conformal (ACI) prediction sets with finite-sample 1 - alpha coverage guarantees.",
+      "sub_engines": [
+        "split_conformal_quantile_estimator",
+        "adaptive_conformal_aci_updater",
+        "prediction_set_margin_constructor",
+        "selective_abstention_router"
+      ],
+      "matrix_shape": [
+        8,
+        8
+      ],
+      "anchor_subspace_rank": 2,
+      "node_grid": {
+        "generation": 1,
+        "parameters": [
+          {
+            "name": "target_miscoverage_alpha",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.02,
+              "high": 0.35,
+              "default": 0.1
+            },
+            "expandable": true
+          },
+          {
+            "name": "abstention_max_set_size",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 5,
+              "default": 2
+            },
+            "expandable": true
+          },
+          {
+            "name": "nonconformity_score_fn",
+            "kind": "choice",
+            "choices": [
+              "one_minus_prob",
+              "aps_cumulative",
+              "margin_residual"
+            ],
+            "default": "one_minus_prob",
+            "expandable": false
+          },
+          {
+            "name": "enable_online_aci_adaptation",
+            "kind": "boolean",
+            "default": true,
+            "expandable": false
+          },
+          {
+            "name": "matryoshka_slice_dim",
+            "kind": "choice",
+            "choices": [
+              16,
+              32,
+              64,
+              128
+            ],
+            "default": 32,
+            "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "range_order",
+            "parameter": "target_miscoverage_alpha",
+            "min_allowed": 0.02,
+            "max_allowed": 0.35
+          }
+        ],
+        "seed_cells": [
+          {
+            "cell_id": "conformal_calibration_engine::seed_balanced",
+            "regime": "balanced_default",
+            "state": "promoted",
+            "maker_id": "bootstrap_architect",
+            "checker_id": "bootstrap_auditor",
+            "observed_reward": 0.87,
+            "values": {
+              "target_miscoverage_alpha": 0.1,
+              "abstention_max_set_size": 2,
+              "nonconformity_score_fn": "one_minus_prob",
+              "enable_online_aci_adaptation": true,
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
+            }
+          },
+          {
+            "cell_id": "conformal_calibration_engine::seed_reflex",
+            "regime": "low_latency_reflex",
+            "state": "verified",
+            "maker_id": "bootstrap_compiler",
+            "checker_id": "bootstrap_verifier",
+            "observed_reward": 0.83,
+            "values": {
+              "target_miscoverage_alpha": 0.06,
+              "abstention_max_set_size": 2,
+              "nonconformity_score_fn": "one_minus_prob",
+              "enable_online_aci_adaptation": true,
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
+            }
+          },
+          {
+            "cell_id": "conformal_calibration_engine::seed_deep",
+            "regime": "high_precision_verify",
+            "state": "verified",
+            "maker_id": "bootstrap_synthesizer",
+            "checker_id": "bootstrap_inspector",
+            "observed_reward": 0.9,
+            "values": {
+              "target_miscoverage_alpha": 0.2375,
+              "abstention_max_set_size": 4,
+              "nonconformity_score_fn": "margin_residual",
+              "enable_online_aci_adaptation": true,
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
+            }
+          }
+        ]
+      }
+    },
+    {
+      "index": 14,
+      "engine_id": "formal_invariant_synthesis_engine",
+      "class_name": "FormalInvariantSynthesisEngine",
+      "stratum": "uncertainty_and_verification",
+      "primary_timescale": "tau_2_consolidation",
+      "description": "Synthesizes affine and polyhedral pre/postcondition invariants from verified execution traces and isolates counterexample witnesses.",
+      "sub_engines": [
+        "affine_invariant_halfspace_miner",
+        "inductive_barrier_checker",
+        "counterexample_witness_isolator"
+      ],
+      "matrix_shape": [
+        8,
+        8
+      ],
+      "anchor_subspace_rank": 2,
+      "node_grid": {
+        "generation": 1,
+        "parameters": [
+          {
+            "name": "invariant_slack_margin",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.001,
+              "high": 0.25,
+              "default": 0.02
+            },
+            "expandable": true
+          },
+          {
+            "name": "max_relational_constraints",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 4,
+              "high": 32,
+              "default": 12
+            },
+            "expandable": true
+          },
+          {
+            "name": "invariant_domain",
+            "kind": "choice",
+            "choices": [
+              "octagon_zone",
+              "interval_box",
+              "affine_equality"
+            ],
+            "default": "octagon_zone",
+            "expandable": false
+          },
+          {
+            "name": "reject_unverified_transitions",
+            "kind": "boolean",
+            "default": true,
+            "expandable": false
+          },
+          {
+            "name": "matryoshka_slice_dim",
+            "kind": "choice",
+            "choices": [
+              16,
+              32,
+              64,
+              128
+            ],
+            "default": 64,
+            "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "range_order",
+            "parameter": "invariant_slack_margin",
+            "min_allowed": 0.001,
+            "max_allowed": 0.25
+          }
+        ],
+        "seed_cells": [
+          {
+            "cell_id": "formal_invariant_synthesis_engine::seed_balanced",
+            "regime": "balanced_default",
+            "state": "promoted",
+            "maker_id": "bootstrap_architect",
+            "checker_id": "bootstrap_auditor",
+            "observed_reward": 0.87,
+            "values": {
+              "invariant_slack_margin": 0.02,
+              "max_relational_constraints": 12,
+              "invariant_domain": "octagon_zone",
+              "reject_unverified_transitions": true,
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3
+            }
+          },
+          {
+            "cell_id": "formal_invariant_synthesis_engine::seed_reflex",
+            "regime": "low_latency_reflex",
+            "state": "verified",
+            "maker_id": "bootstrap_compiler",
+            "checker_id": "bootstrap_verifier",
+            "observed_reward": 0.83,
+            "values": {
+              "invariant_slack_margin": 0.0105,
+              "max_relational_constraints": 8,
+              "invariant_domain": "octagon_zone",
+              "reject_unverified_transitions": true,
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
+            }
+          },
+          {
+            "cell_id": "formal_invariant_synthesis_engine::seed_deep",
+            "regime": "high_precision_verify",
+            "state": "verified",
+            "maker_id": "bootstrap_synthesizer",
+            "checker_id": "bootstrap_inspector",
+            "observed_reward": 0.9,
+            "values": {
+              "invariant_slack_margin": 0.1465,
+              "max_relational_constraints": 24,
+              "invariant_domain": "affine_equality",
+              "reject_unverified_transitions": true,
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "index": 15,
+      "engine_id": "causal_counterfactual_engine",
+      "class_name": "CausalCounterfactualEngine",
+      "stratum": "uncertainty_and_verification",
+      "primary_timescale": "tau_1_episode",
+      "description": "Executes structural causal model do-calculus interventions and abduction-action-prediction twin-world counterfactuals.",
+      "sub_engines": [
+        "structural_equation_do_intervenor",
+        "abduction_twin_world_solver",
+        "confounding_sensitivity_auditor"
+      ],
+      "matrix_shape": [
+        8,
+        8
+      ],
+      "anchor_subspace_rank": 2,
+      "node_grid": {
+        "generation": 1,
+        "parameters": [
+          {
+            "name": "structural_damping_ridge",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.001,
+              "high": 0.3,
+              "default": 0.02
+            },
+            "expandable": true
+          },
+          {
+            "name": "max_causal_ancestors",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 2,
+              "high": 16,
+              "default": 6
+            },
+            "expandable": true
+          },
+          {
+            "name": "identification_strategy",
+            "kind": "choice",
+            "choices": [
+              "backdoor_adjustment",
+              "scm_abduction",
+              "instrumental_projection"
+            ],
+            "default": "scm_abduction",
+            "expandable": false
+          },
+          {
+            "name": "audit_unobserved_confounding",
+            "kind": "boolean",
+            "default": true,
+            "expandable": false
+          },
+          {
+            "name": "matryoshka_slice_dim",
+            "kind": "choice",
+            "choices": [
+              16,
+              32,
+              64,
+              128
+            ],
+            "default": 64,
+            "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "range_order",
+            "parameter": "structural_damping_ridge",
+            "min_allowed": 0.001,
+            "max_allowed": 0.3
+          }
+        ],
+        "seed_cells": [
+          {
+            "cell_id": "causal_counterfactual_engine::seed_balanced",
+            "regime": "balanced_default",
+            "state": "promoted",
+            "maker_id": "bootstrap_architect",
+            "checker_id": "bootstrap_auditor",
+            "observed_reward": 0.87,
+            "values": {
+              "structural_damping_ridge": 0.02,
+              "max_causal_ancestors": 6,
+              "identification_strategy": "scm_abduction",
+              "audit_unobserved_confounding": true,
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3
+            }
+          },
+          {
+            "cell_id": "causal_counterfactual_engine::seed_reflex",
+            "regime": "low_latency_reflex",
+            "state": "verified",
+            "maker_id": "bootstrap_compiler",
+            "checker_id": "bootstrap_verifier",
+            "observed_reward": 0.83,
+            "values": {
+              "structural_damping_ridge": 0.0105,
+              "max_causal_ancestors": 4,
+              "identification_strategy": "backdoor_adjustment",
+              "audit_unobserved_confounding": true,
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
+            }
+          },
+          {
+            "cell_id": "causal_counterfactual_engine::seed_deep",
+            "regime": "high_precision_verify",
+            "state": "verified",
+            "maker_id": "bootstrap_synthesizer",
+            "checker_id": "bootstrap_inspector",
+            "observed_reward": 0.9,
+            "values": {
+              "structural_damping_ridge": 0.174,
+              "max_causal_ancestors": 12,
+              "identification_strategy": "instrumental_projection",
+              "audit_unobserved_confounding": true,
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "index": 16,
       "engine_id": "rmt_marchenko_pastur_spectral_engine",
-      "stratum": "adaptation_and_economics",
+      "class_name": "RmtMarchenkoPasturSpectralEngine",
+      "stratum": "adaptation_and_experimentation",
       "primary_timescale": "tau_2_consolidation",
       "description": "Diagnoses random-matrix noise floors, Roy-Vetterli effective rank, and heavy-tail spectral power-law exponents.",
       "sub_engines": [
@@ -1877,6 +2814,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -1894,13 +2851,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "mp_spike_margin_ratio": 1.15,
               "tail_min_singular_count": 4,
               "variance_estimator": "median_marcinkiewicz",
               "flag_over_regularized_tails": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -1909,13 +2868,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "mp_spike_margin_ratio": 1.085,
               "tail_min_singular_count": 4,
               "variance_estimator": "median_marcinkiewicz",
               "flag_over_regularized_tails": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -1924,27 +2885,30 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "mp_spike_margin_ratio": 1.6175,
               "tail_min_singular_count": 11,
               "variance_estimator": "frobenius_unbiased",
               "flag_over_regularized_tails": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
       }
     },
     {
-      "index": 13,
+      "index": 17,
       "engine_id": "fluid_hypergrid_interpolator_engine",
-      "stratum": "adaptation_and_economics",
+      "class_name": "FluidHypergridInterpolatorEngine",
+      "stratum": "adaptation_and_experimentation",
       "primary_timescale": "tau_0_reflex",
-      "description": "Synthesizes continuous embedding-conditioned configurations over verified GridLedger cells and expands saturated bounds.",
+      "description": "Synthesizes continuous embedding-conditioned configurations over verified GridLedger cells using TT-Cross low-rank epistatic search.",
       "sub_engines": [
         "verified_cell_kernel_smoother",
-        "parameter_bounds_clamper",
+        "tt_cross_epistatic_explorer",
         "bilinear_surrogate_ranker",
         "boundary_auto_expander"
       ],
@@ -1982,9 +2946,9 @@
             "choices": [
               "matryoshka_rbf",
               "cosine_softmax",
-              "laplacian_kernel"
+              "tt_cross_hybrid"
             ],
-            "default": "cosine_softmax",
+            "default": "tt_cross_hybrid",
             "expandable": false
           },
           {
@@ -2004,6 +2968,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2021,13 +3005,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "kernel_temperature_tau": 0.25,
               "interpolation_top_k_cells": 4,
-              "kernel_family": "cosine_softmax",
+              "kernel_family": "tt_cross_hybrid",
               "auto_expand_saturated_axes": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -2036,13 +3022,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "kernel_temperature_tau": 0.15,
               "interpolation_top_k_cells": 3,
               "kernel_family": "matryoshka_rbf",
               "auto_expand_saturated_axes": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -2051,28 +3039,31 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "kernel_temperature_tau": 0.9375,
               "interpolation_top_k_cells": 9,
-              "kernel_family": "laplacian_kernel",
+              "kernel_family": "tt_cross_hybrid",
               "auto_expand_saturated_axes": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
       }
     },
     {
-      "index": 14,
-      "engine_id": "evsi_effort_cascade_calibrator_engine",
-      "stratum": "adaptation_and_economics",
+      "index": 18,
+      "engine_id": "active_experimental_design_engine",
+      "class_name": "ActiveExperimentalDesignEngine",
+      "stratum": "adaptation_and_experimentation",
       "primary_timescale": "tau_0_reflex",
-      "description": "Computes Expected Value of Sample Information to select reasoning effort, Matryoshka depth, and early-exit cascades.",
+      "description": "Maximizes D-optimal Fisher information gain and Expected Value of Sample Information (EVSI) to calibrate effort and queries.",
       "sub_engines": [
-        "epistemic_variance_estimator",
-        "evsi_net_gain_integrator",
-        "short_circuit_tier_selector"
+        "d_optimal_fisher_det_maximizer",
+        "evsi_effort_cascade_calibrator",
+        "minimum_entropy_question_ranker"
       ],
       "matrix_shape": [
         8,
@@ -2103,12 +3094,12 @@
             "expandable": true
           },
           {
-            "name": "effort_policy",
+            "name": "design_criterion",
             "kind": "choice",
             "choices": [
+              "d_optimal_logdet",
               "evsi_bayes_optimal",
-              "risk_averse_cvar",
-              "latency_first"
+              "bald_mutual_info"
             ],
             "default": "evsi_bayes_optimal",
             "expandable": false
@@ -2130,6 +3121,16 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2142,57 +3143,61 @@
         ],
         "seed_cells": [
           {
-            "cell_id": "evsi_effort_cascade_calibrator_engine::seed_balanced",
+            "cell_id": "active_experimental_design_engine::seed_balanced",
             "regime": "balanced_default",
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "information_cost_weight": 0.14,
               "cascade_depth_budget": 3,
-              "effort_policy": "evsi_bayes_optimal",
+              "design_criterion": "evsi_bayes_optimal",
               "enable_reflex_short_circuit": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3
             }
           },
           {
-            "cell_id": "evsi_effort_cascade_calibrator_engine::seed_reflex",
+            "cell_id": "active_experimental_design_engine::seed_reflex",
             "regime": "low_latency_reflex",
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "information_cost_weight": 0.08,
               "cascade_depth_budget": 2,
-              "effort_policy": "evsi_bayes_optimal",
+              "design_criterion": "d_optimal_logdet",
               "enable_reflex_short_circuit": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
-            "cell_id": "evsi_effort_cascade_calibrator_engine::seed_deep",
+            "cell_id": "active_experimental_design_engine::seed_deep",
             "regime": "high_precision_verify",
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "information_cost_weight": 0.393,
               "cascade_depth_budget": 5,
-              "effort_policy": "latency_first",
+              "design_criterion": "bald_mutual_info",
               "enable_reflex_short_circuit": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
       }
     },
     {
-      "index": 15,
+      "index": 19,
       "engine_id": "operation_cost_thermodynamic_engine",
-      "stratum": "adaptation_and_economics",
+      "class_name": "OperationCostThermodynamicEngine",
+      "stratum": "adaptation_and_experimentation",
       "primary_timescale": "tau_1_episode",
       "description": "Tracks prompt tokens, Cartridge FLOPs, cache preservation rate, and Landauer-inspired compute efficiency per regime.",
       "sub_engines": [
@@ -2256,6 +3261,16 @@
             ],
             "default": 16,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2273,13 +3288,14 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "cost_ema_smoothing": 0.2,
               "ledger_window_episodes": 64,
               "efficiency_metric": "verified_gain_per_kilotoken",
               "reward_cache_hit_identity": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 3
             }
           },
           {
@@ -2288,13 +3304,14 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "cost_ema_smoothing": 0.125,
               "ledger_window_episodes": 36,
               "efficiency_metric": "verified_gain_per_kilotoken",
               "reward_cache_hit_identity": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
@@ -2303,24 +3320,26 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "cost_ema_smoothing": 0.365,
               "ledger_window_episodes": 176,
               "efficiency_metric": "net_surplus",
               "reward_cache_hit_identity": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
       }
     },
     {
-      "index": 16,
+      "index": 20,
       "engine_id": "inter_engine_coupling_and_jacobian_bus",
+      "class_name": "InterEngineCouplingAndJacobianBus",
       "stratum": "meta_cybernetic_coupling",
       "primary_timescale": "tau_3_morphism",
-      "description": "Propagates cross-engine sensitivities over the sparse 20x20 Jacobian bus under spectral-radius contraction bounds.",
+      "description": "Propagates cross-engine sensitivities over the sparse 24x24 Jacobian bus under spectral-radius contraction bounds.",
       "sub_engines": [
         "sparse_jacobian_assembler",
         "spectral_radius_governor",
@@ -2383,6 +3402,26 @@
             ],
             "default": 64,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2400,13 +3439,15 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "jacobian_step_size": 0.12,
               "max_coupling_hops": 2,
               "damping_norm": "spectral_svd",
               "zero_diagonal_self_loop": true,
-              "matryoshka_slice_dim": 64
+              "matryoshka_slice_dim": 64,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
@@ -2415,13 +3456,15 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "jacobian_step_size": 0.07,
               "max_coupling_hops": 2,
               "damping_norm": "spectral_svd",
               "zero_diagonal_self_loop": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
@@ -2430,21 +3473,24 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "jacobian_step_size": 0.3015,
               "max_coupling_hops": 4,
               "damping_norm": "frobenius_cap",
               "zero_diagonal_self_loop": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
       }
     },
     {
-      "index": 17,
+      "index": 21,
       "engine_id": "homeostatic_meta_controller_engine",
+      "class_name": "HomeostaticMetaControllerEngine",
       "stratum": "meta_cybernetic_coupling",
       "primary_timescale": "tau_4_meta_grid",
       "description": "Enforces discrete Lyapunov energy decay and homeostatic setpoint regulation across all 5 feedback timescales.",
@@ -2509,6 +3555,16 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2526,13 +3582,14 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "lyapunov_contraction_rho": 0.88,
               "homeostasis_patience_steps": 4,
               "control_law": "lyapunov_damped",
               "rollback_divergent_cells": true,
-              "matryoshka_slice_dim": 32
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3
             }
           },
           {
@@ -2541,13 +3598,14 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "lyapunov_contraction_rho": 0.715,
               "homeostasis_patience_steps": 3,
               "control_law": "lyapunov_damped",
               "rollback_divergent_cells": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
@@ -2556,21 +3614,23 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "lyapunov_contraction_rho": 0.935,
               "homeostasis_patience_steps": 11,
               "control_law": "conservative_clamp",
               "rollback_divergent_cells": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
       }
     },
     {
-      "index": 18,
+      "index": 22,
       "engine_id": "structural_morphism_and_transfer_engine",
+      "class_name": "StructuralMorphismAndTransferEngine",
       "stratum": "meta_cybernetic_coupling",
       "primary_timescale": "tau_3_morphism",
       "description": "Discovers task-DAG spectral isomorphisms and transplants verified cartridges across domains via Orthogonal Procrustes.",
@@ -2635,6 +3695,16 @@
             ],
             "default": 128,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2652,13 +3722,14 @@
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "morphism_similarity_floor": 0.68,
               "laplacian_eigen_k": 6,
               "alignment_solver": "svd_orthogonal_procrustes",
               "preserve_singular_spectrum": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 3
             }
           },
           {
@@ -2667,13 +3738,14 @@
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "morphism_similarity_floor": 0.54,
               "laplacian_eigen_k": 4,
               "alignment_solver": "svd_orthogonal_procrustes",
               "preserve_singular_spectrum": true,
-              "matryoshka_slice_dim": 16
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2
             }
           },
           {
@@ -2682,28 +3754,31 @@
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "morphism_similarity_floor": 0.8285,
               "laplacian_eigen_k": 10,
               "alignment_solver": "rank_constrained_procrustes",
               "preserve_singular_spectrum": true,
-              "matryoshka_slice_dim": 128
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5
             }
           }
         ]
       }
     },
     {
-      "index": 19,
-      "engine_id": "human_attention_and_escalation_engine",
+      "index": 23,
+      "engine_id": "autonomic_self_healing_engine",
+      "class_name": "AutonomicSelfHealingEngine",
       "stratum": "meta_cybernetic_coupling",
       "primary_timescale": "tau_1_episode",
-      "description": "Synthesizes minimum-entropy disambiguation questions and escalates only when EVSI exceeds human interruption cost.",
+      "description": "Monitors spectral drift and invariant health, projecting faults onto safety-anchor nullspaces and escalating only when VoI exceeds cost.",
       "sub_engines": [
-        "minimum_entropy_question_ranker",
-        "interruption_budget_guard",
-        "escalation_threshold_gate"
+        "spectral_drift_anomaly_detector",
+        "nullspace_quarantine_projector",
+        "checkpoint_rollback_restorer",
+        "human_escalation_attention_gate"
       ],
       "matrix_shape": [
         8,
@@ -2724,28 +3799,28 @@
             "expandable": true
           },
           {
-            "name": "max_disambiguation_options",
+            "name": "quarantine_cooldown_steps",
             "kind": "integer_range",
             "bounds": {
-              "low": 2,
-              "high": 5,
+              "low": 1,
+              "high": 12,
               "default": 3
             },
             "expandable": true
           },
           {
-            "name": "question_selection_criterion",
+            "name": "recovery_strategy",
             "kind": "choice",
             "choices": [
-              "shannon_ig_max",
-              "minimax_regret",
-              "voi_per_word"
+              "nullspace_quarantine",
+              "checkpoint_rollback",
+              "conformal_abstain"
             ],
-            "default": "shannon_ig_max",
+            "default": "nullspace_quarantine",
             "expandable": false
           },
           {
-            "name": "batch_clarifications",
+            "name": "auto_quarantine_drifting_edits",
             "kind": "boolean",
             "default": true,
             "expandable": false
@@ -2761,6 +3836,26 @@
             ],
             "default": 32,
             "expandable": false
+          },
+          {
+            "name": "tt_cross_bond_rank",
+            "kind": "integer_range",
+            "bounds": {
+              "low": 1,
+              "high": 6,
+              "default": 3
+            },
+            "expandable": true
+          },
+          {
+            "name": "epistatic_coupling_gain",
+            "kind": "continuous_range",
+            "bounds": {
+              "low": 0.01,
+              "high": 0.5,
+              "default": 0.15
+            },
+            "expandable": true
           }
         ],
         "constraints": [
@@ -2773,48 +3868,54 @@
         ],
         "seed_cells": [
           {
-            "cell_id": "human_attention_and_escalation_engine::seed_balanced",
+            "cell_id": "autonomic_self_healing_engine::seed_balanced",
             "regime": "balanced_default",
             "state": "promoted",
             "maker_id": "bootstrap_architect",
             "checker_id": "bootstrap_auditor",
-            "observed_reward": 0.86,
+            "observed_reward": 0.87,
             "values": {
               "escalation_evsi_threshold": 0.62,
-              "max_disambiguation_options": 3,
-              "question_selection_criterion": "shannon_ig_max",
-              "batch_clarifications": true,
-              "matryoshka_slice_dim": 32
+              "quarantine_cooldown_steps": 3,
+              "recovery_strategy": "nullspace_quarantine",
+              "auto_quarantine_drifting_edits": true,
+              "matryoshka_slice_dim": 32,
+              "tt_cross_bond_rank": 3,
+              "epistatic_coupling_gain": 0.15
             }
           },
           {
-            "cell_id": "human_attention_and_escalation_engine::seed_reflex",
+            "cell_id": "autonomic_self_healing_engine::seed_reflex",
             "regime": "low_latency_reflex",
             "state": "verified",
             "maker_id": "bootstrap_compiler",
             "checker_id": "bootstrap_verifier",
-            "observed_reward": 0.82,
+            "observed_reward": 0.83,
             "values": {
               "escalation_evsi_threshold": 0.435,
-              "max_disambiguation_options": 2,
-              "question_selection_criterion": "shannon_ig_max",
-              "batch_clarifications": true,
-              "matryoshka_slice_dim": 16
+              "quarantine_cooldown_steps": 2,
+              "recovery_strategy": "nullspace_quarantine",
+              "auto_quarantine_drifting_edits": true,
+              "matryoshka_slice_dim": 16,
+              "tt_cross_bond_rank": 2,
+              "epistatic_coupling_gain": 0.08
             }
           },
           {
-            "cell_id": "human_attention_and_escalation_engine::seed_deep",
+            "cell_id": "autonomic_self_healing_engine::seed_deep",
             "regime": "high_precision_verify",
             "state": "verified",
             "maker_id": "bootstrap_synthesizer",
             "checker_id": "bootstrap_inspector",
-            "observed_reward": 0.89,
+            "observed_reward": 0.9,
             "values": {
               "escalation_evsi_threshold": 0.8015,
-              "max_disambiguation_options": 4,
-              "question_selection_criterion": "voi_per_word",
-              "batch_clarifications": true,
-              "matryoshka_slice_dim": 128
+              "quarantine_cooldown_steps": 8,
+              "recovery_strategy": "conformal_abstain",
+              "auto_quarantine_drifting_edits": true,
+              "matryoshka_slice_dim": 128,
+              "tt_cross_bond_rank": 5,
+              "epistatic_coupling_gain": 0.28
             }
           }
         ]
@@ -2837,21 +3938,21 @@
       "signal": "evicted_turn_bundle"
     },
     {
-      "source": "matryoshka_manifold_encoder_engine",
+      "source": "information_bottleneck_compression_engine",
       "target": "fluid_hypergrid_interpolator_engine",
       "weight": 0.28,
       "timescale": "tau_0_reflex",
-      "signal": "nested_mrl_coordinates"
+      "signal": "ib_nested_coordinates"
     },
     {
-      "source": "matryoshka_manifold_encoder_engine",
+      "source": "information_bottleneck_compression_engine",
       "target": "contextual_linucb_router_engine",
       "weight": 0.25,
       "timescale": "tau_1_episode",
       "signal": "task2vec_bilinear_context"
     },
     {
-      "source": "matryoshka_manifold_encoder_engine",
+      "source": "information_bottleneck_compression_engine",
       "target": "hopfield_attractor_memory_engine",
       "weight": 0.21,
       "timescale": "tau_0_reflex",
@@ -2876,7 +3977,7 @@
       "target": "multilayer_film_molora_stack_engine",
       "weight": 0.24,
       "timescale": "tau_0_reflex",
-      "signal": "interpolated_film_hyperparams"
+      "signal": "interpolated_hyperlora_hyperparams"
     },
     {
       "source": "rmt_marchenko_pastur_spectral_engine",
@@ -2922,35 +4023,77 @@
     },
     {
       "source": "dawid_skene_quorum_adjudicator_engine",
-      "target": "eigentrust_reputation_flow_engine",
+      "target": "game_theoretic_mechanism_engine",
       "weight": 0.29,
       "timescale": "tau_1_episode",
-      "signal": "confusion_trust_deltas"
+      "signal": "confusion_brier_deltas"
     },
     {
-      "source": "eigentrust_reputation_flow_engine",
+      "source": "game_theoretic_mechanism_engine",
       "target": "contextual_linucb_router_engine",
       "weight": 0.2,
       "timescale": "tau_2_consolidation",
-      "signal": "stationary_actor_priors"
+      "signal": "vcg_stationary_actor_priors"
     },
     {
-      "source": "evsi_effort_cascade_calibrator_engine",
+      "source": "sheaf_consensus_topology_engine",
+      "target": "dawid_skene_quorum_adjudicator_engine",
+      "weight": 0.27,
+      "timescale": "tau_1_episode",
+      "signal": "cohomological_obstruction_penalty"
+    },
+    {
+      "source": "sheaf_consensus_topology_engine",
+      "target": "autonomic_self_healing_engine",
+      "weight": 0.23,
+      "timescale": "tau_1_episode",
+      "signal": "contradictory_edge_alert"
+    },
+    {
+      "source": "conformal_calibration_engine",
+      "target": "multilayer_film_molora_stack_engine",
+      "weight": 0.24,
+      "timescale": "tau_0_reflex",
+      "signal": "aci_selective_exit_quantile"
+    },
+    {
+      "source": "conformal_calibration_engine",
+      "target": "autonomic_self_healing_engine",
+      "weight": 0.22,
+      "timescale": "tau_0_reflex",
+      "signal": "abstention_escalation_trigger"
+    },
+    {
+      "source": "formal_invariant_synthesis_engine",
+      "target": "svd_nullspace_surgical_editor_engine",
+      "weight": 0.25,
+      "timescale": "tau_2_consolidation",
+      "signal": "invariant_anchor_witnesses"
+    },
+    {
+      "source": "causal_counterfactual_engine",
+      "target": "active_experimental_design_engine",
+      "weight": 0.24,
+      "timescale": "tau_1_episode",
+      "signal": "do_calculus_intervention_gain"
+    },
+    {
+      "source": "active_experimental_design_engine",
       "target": "multilayer_film_molora_stack_engine",
       "weight": 0.22,
       "timescale": "tau_0_reflex",
       "signal": "early_exit_margin_setpoint"
     },
     {
-      "source": "evsi_effort_cascade_calibrator_engine",
-      "target": "human_attention_and_escalation_engine",
-      "weight": 0.27,
+      "source": "active_experimental_design_engine",
+      "target": "autonomic_self_healing_engine",
+      "weight": 0.26,
       "timescale": "tau_1_episode",
       "signal": "net_evsi_surplus"
     },
     {
       "source": "operation_cost_thermodynamic_engine",
-      "target": "evsi_effort_cascade_calibrator_engine",
+      "target": "active_experimental_design_engine",
       "weight": -0.18,
       "timescale": "tau_1_episode",
       "signal": "marginal_compute_price"
@@ -2991,11 +4134,18 @@
       "signal": "boundary_expansion_authorization"
     },
     {
-      "source": "human_attention_and_escalation_engine",
+      "source": "autonomic_self_healing_engine",
       "target": "cas_fission_lease_fencing_engine",
       "weight": 0.18,
       "timescale": "tau_1_episode",
-      "signal": "resolved_interface_constraints"
+      "signal": "quarantined_replan_constraints"
+    },
+    {
+      "source": "autonomic_self_healing_engine",
+      "target": "svd_nullspace_surgical_editor_engine",
+      "weight": 0.21,
+      "timescale": "tau_1_episode",
+      "signal": "self_healing_nullspace_projection"
     }
   ]
 }
