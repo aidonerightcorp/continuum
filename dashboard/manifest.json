@@ -1,0 +1,13 @@
+{
+  "name": "continuum",
+  "label": "Continuum",
+  "description": "Unified self-improving agent engine: smart context compression, local episodic memory, verified subtask routing, adaptive tuning, and 7-target skill compilation.",
+  "icon": "Cpu",
+  "version": "1.0.0",
+  "entry": "bundle.js",
+  "api": "plugin_api.py",
+  "tab": {
+    "path": "/continuum",
+    "position": "end"
+  }
+}

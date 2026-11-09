@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "continuum"
+version = "1.0.0"
+description = "Unified self-improving agent engine for Hermes: context compression, local memory, verified subtask routing, adaptive configuration, and 7-target skill compilation."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{name = "aidonerightcorp"}]
+dependencies = []
+
+[tool.setuptools]
+packages = ["continuum_core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

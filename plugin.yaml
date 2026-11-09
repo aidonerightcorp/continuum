@@ -1,0 +1,50 @@
+name: continuum
+version: "1.0.0"
+description: "Unified self-improving agent engine for Hermes: smart context compression, local episodic memory, verified subtask routing, adaptive configuration tuning, and 7-target skill compilation."
+author: aidonerightcorp
+license: MIT
+homepage: https://github.com/aidonerightcorp/continuum
+kind: standalone
+manifest_version: 2
+requires_hermes: ">=0.23.0"
+tags:
+  - agent-engine
+  - context-engine
+  - memory
+  - delegation
+  - verification
+  - configuration
+  - compiler
+python_dependencies: []
+requires_env: []
+provides_tools:
+  - continuum_fission_dag
+  - continuum_claim_and_fence
+  - continuum_verify_record
+  - continuum_compile_cartridge
+  - continuum_analyze_spectrum
+  - continuum_surgical_edit
+  - continuum_coupling_step
+  - continuum_morphism_transfer
+  - continuum_calibrate_effort
+  - continuum_manifold_status
+  - continuum_context_grep
+  - continuum_attractor_recall
+provides_hooks:
+  - on_session_start
+  - pre_tool_call
+  - post_tool_call
+  - on_session_end
+config_schema:
+  compute_headroom_ratio:
+    type: float
+    default: 0.6
+    description: "Fraction of spare local CPU budget used to test candidate configurations against saved history using zero extra LLM tokens."
+  default_embedding_dim:
+    type: int
+    default: 64
+    description: "Default nested embedding slice width (16, 32, 64, or 128) for fast retrieval and routing."
+  enable_idle_exploration:
+    type: bool
+    default: true
+    description: "Automatically evaluate and promote better verified configurations at session end."
