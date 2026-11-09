@@ -9,6 +9,15 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+
+CARD = {
+    "name": "matryoshka_manifold",
+    "role": "embedding",
+    "stratum": "ingestion_and_memory",
+    "contract": "continuum.module/v1",
+    "describes": "Unified 4-space nested Matryoshka embedding geometry (Task2Vec, Config2Vec, Weight2Vec, Trace2Vec) across 16d/32d/64d/128d.",
+    "keywords": ["matryoshka", "embedding", "task2vec", "config2vec", "weight2vec", "trace2vec"],
+}
 from continuum_core.linalg_backend import (
     Matrix,
     Vector,

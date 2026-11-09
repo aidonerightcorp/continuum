@@ -6,6 +6,15 @@ import math
 from typing import Any, Callable, Mapping, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+
+CARD = {
+    "name": "cybernetic_engines",
+    "role": "engine_pack",
+    "stratum": "uncertainty_and_verification",
+    "contract": "continuum.module/v1",
+    "describes": "TT-Cross Explorer, Cellular Sheaf Consensus, Conformal ACI, Causal SCM, VCG, Invariants, IB, OED, and Self-Healing.",
+    "keywords": ["sheaf", "conformal", "causal", "vcg", "invariants", "tt_cross", "hyperlora"],
+}
 from continuum_core.linalg_backend import (
     Matrix,
     Vector,

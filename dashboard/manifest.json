@@ -1,9 +1,9 @@
 {
   "name": "continuum",
   "label": "Continuum",
-  "description": "Unified self-improving agent engine: 28 cybernetic engines (104 sub-engines), 17 tools, 160-axis TT-Cross configuration tuning, Latent Mind SAE/ELK probing, Nullspace activation steering, and 9-target skill compilation.",
+  "description": "OmniNode-encased unified self-improving agent engine: 30 cybernetic engines (112 sub-engines), 18 tools, >> // | @ shape composition, CARD lockfiles & grid/1 cell receipts, Latent Mind SAE/ELK probing, Nullspace steering, and 9-target compilation.",
   "icon": "Cpu",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "entry": "bundle.js",
   "api": "plugin_api.py",
   "tab": {

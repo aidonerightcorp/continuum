@@ -9,6 +9,15 @@ from typing import Any
 
 from continuum_core.config_loader import get_manifold_spec
 
+CARD = {
+    "name": "linalg_backend",
+    "role": "infrastructure",
+    "stratum": "compilation_and_lowering",
+    "contract": "continuum.module/v1",
+    "describes": "Dual-mode (pure Python stdlib + automatic NumPy acceleration) linear algebra and IEEE-754 safetensors codec.",
+    "keywords": ["linalg", "svd", "woodbury", "procrustes", "safetensors", "stdlib"],
+}
+
 try:
     import numpy as _np  # type: ignore[import-not-found]
 

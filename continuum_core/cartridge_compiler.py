@@ -10,6 +10,15 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+
+CARD = {
+    "name": "cartridge_compiler",
+    "role": "compiler",
+    "stratum": "compilation_and_lowering",
+    "contract": "continuum.module/v1",
+    "describes": "Multi-layer FiLM + MoLoRA + HyperLoRA operator stack compiler targeting 9 zero-dependency runtimes.",
+    "keywords": ["compiler", "cartridge", "rust", "glsl", "wasm", "wgsl", "c99", "sql"],
+}
 from continuum_core.linalg_backend import (
     Matrix,
     Vector,

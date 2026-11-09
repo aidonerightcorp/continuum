@@ -1,0 +1,547 @@
+{
+  "schema_id": "continuum.omninode_shell_grid.v1",
+  "version": "1.3.0",
+  "format": "grid/1",
+  "unknown_sentinel": "unknown",
+  "operator_precedence": [
+    "@",
+    ">>",
+    "|",
+    "//"
+  ],
+  "failure_kinds": [
+    "transient",
+    "bad_input",
+    "capability",
+    "data",
+    "contract",
+    "budget"
+  ],
+  "grid1_numeric_bounds": {
+    "default_float_precision_digits": 6,
+    "temperature_min": 0.0,
+    "temperature_max": 2.0,
+    "sparsity_min": 0.0,
+    "sparsity_max": 1.0,
+    "run_id_hex_chars": 12,
+    "job_id_hex_chars": 10,
+    "cas_short_hash_chars": 12,
+    "max_search_alternatives": 4
+  },
+  "grid1_outcome_fields": [
+    "passed",
+    "score",
+    "cost",
+    "tokens_in",
+    "tokens_out",
+    "latency_ms",
+    "failure"
+  ],
+  "grid1_kinds": [
+    "job",
+    "test",
+    "golden",
+    "classifier",
+    "pack",
+    "loop",
+    "worker",
+    "swarm",
+    "basket",
+    "train",
+    "durable",
+    "interact",
+    "tables",
+    "grid-trial",
+    "omninode-shape",
+    "other"
+  ],
+  "grid1_axes": {
+    "harness": {
+      "group": "harness",
+      "type": "str",
+      "default": null,
+      "description": "Execution driver such as omninode-shell or hermes-continuum"
+    },
+    "harness_version": {
+      "group": "harness",
+      "type": "str",
+      "default": null,
+      "description": "Exact version or commit of the active harness"
+    },
+    "model": {
+      "group": "model",
+      "type": "str",
+      "default": null,
+      "description": "Active model identifier when model inference is used"
+    },
+    "model_place": {
+      "group": "model",
+      "type": "str",
+      "default": null,
+      "description": "Execution locality of the model such as local, remote, or none"
+    },
+    "model_digest": {
+      "group": "model",
+      "type": "str",
+      "default": null,
+      "description": "Content digest of the model weights when known"
+    },
+    "temperature": {
+      "group": "model",
+      "type": "num",
+      "default": 0.0,
+      "description": "Sampling temperature"
+    },
+    "max_output": {
+      "group": "model",
+      "type": "int",
+      "default": null,
+      "description": "Maximum output tokens when applicable"
+    },
+    "context_window": {
+      "group": "model",
+      "type": "int",
+      "default": null,
+      "description": "Requested context window budget"
+    },
+    "proposer_model": {
+      "group": "model",
+      "type": "str",
+      "default": null,
+      "description": "Candidate-proposing model identifier"
+    },
+    "explain_model": {
+      "group": "model",
+      "type": "str",
+      "default": null,
+      "description": "Explanation-rendering model identifier"
+    },
+    "prompt_version": {
+      "group": "prompt",
+      "type": "str",
+      "default": null,
+      "description": "Prompt or shape specification digest"
+    },
+    "context_sent": {
+      "group": "prompt",
+      "type": "str",
+      "default": "full",
+      "description": "Context selection mode: small or full"
+    },
+    "skills": {
+      "group": "prompt",
+      "type": "list",
+      "default": null,
+      "description": "Sorted list of active skills"
+    },
+    "tools": {
+      "group": "prompt",
+      "type": "list",
+      "default": null,
+      "description": "Sorted list of active tools"
+    },
+    "retrieval_method": {
+      "group": "retrieval",
+      "type": "str",
+      "default": null,
+      "description": "word-overlap, embedding, hybrid, bm25, or none"
+    },
+    "top_k": {
+      "group": "retrieval",
+      "type": "int",
+      "default": null,
+      "description": "Retrieved candidate count"
+    },
+    "embedding_model": {
+      "group": "retrieval",
+      "type": "str",
+      "default": null,
+      "description": "Embedding geometry or encoder tag"
+    },
+    "director_weights": {
+      "group": "routing",
+      "type": "map",
+      "default": null,
+      "description": "Director scoring weights or fluid HyperGrid overrides"
+    },
+    "fallback_order": {
+      "group": "routing",
+      "type": "list",
+      "default": null,
+      "description": "Ordered waterfall fallback nodes"
+    },
+    "on_missing": {
+      "group": "routing",
+      "type": "str",
+      "default": null,
+      "description": "ask, proceed, or ask_once_then_proceed"
+    },
+    "classifier_type": {
+      "group": "learned",
+      "type": "str",
+      "default": null,
+      "description": "Learned probe or surrogate family"
+    },
+    "classifier_features": {
+      "group": "learned",
+      "type": "str",
+      "default": null,
+      "description": "Feature space or Matryoshka slice tag"
+    },
+    "pruning_method": {
+      "group": "learned",
+      "type": "str",
+      "default": null,
+      "description": "Pruning, erasure, or nullspace projection method"
+    },
+    "sparsity": {
+      "group": "learned",
+      "type": "num",
+      "default": null,
+      "description": "Active sparsity fraction in [0, 1]"
+    },
+    "seed": {
+      "group": "learned",
+      "type": "int",
+      "default": null,
+      "description": "Deterministic random seed"
+    },
+    "browser_name": {
+      "group": "browser",
+      "type": "str",
+      "default": null,
+      "description": "Browser engine when applicable"
+    },
+    "browser_version": {
+      "group": "browser",
+      "type": "str",
+      "default": null,
+      "description": "Exact browser version"
+    },
+    "headless": {
+      "group": "browser",
+      "type": "bool",
+      "default": true,
+      "description": "Headless browser flag"
+    },
+    "viewport": {
+      "group": "browser",
+      "type": "str",
+      "default": null,
+      "description": "Viewport dimensions"
+    },
+    "place": {
+      "group": "place",
+      "type": "str",
+      "default": null,
+      "description": "Execution environment such as local"
+    },
+    "hardware": {
+      "group": "place",
+      "type": "str",
+      "default": null,
+      "description": "Compute device such as cpu or gpu"
+    },
+    "notebook_version": {
+      "group": "place",
+      "type": "str",
+      "default": null,
+      "description": "Notebook revision when applicable"
+    },
+    "test_suite": {
+      "group": "data",
+      "type": "str",
+      "default": null,
+      "description": "Verification suite identifier"
+    },
+    "test_split": {
+      "group": "data",
+      "type": "str",
+      "default": null,
+      "description": "Evaluation split identifier"
+    },
+    "data_version": {
+      "group": "data",
+      "type": "str",
+      "default": null,
+      "description": "Dataset or SQLite WAL snapshot digest"
+    },
+    "dataset": {
+      "group": "data",
+      "type": "str",
+      "default": null,
+      "description": "Dataset identifier"
+    },
+    "pack": {
+      "group": "data",
+      "type": "str",
+      "default": null,
+      "description": "Cartridge pack identifier and hash"
+    },
+    "fix_commit": {
+      "group": "code",
+      "type": "str",
+      "default": null,
+      "description": "Commit under evaluation"
+    },
+    "code_commit": {
+      "group": "code",
+      "type": "str",
+      "default": null,
+      "description": "Repository or plugin version tag"
+    },
+    "components": {
+      "group": "code",
+      "type": "map",
+      "default": null,
+      "description": "Map of OmniNode component name to pinned CARD sha256 from lockfile"
+    }
+  },
+  "grid1_applies": {
+    "temperature": "model",
+    "context_sent": "model",
+    "headless": "browser_name"
+  },
+  "grid1_allowed_enums": {
+    "on_missing": [
+      "ask",
+      "proceed",
+      "ask_once_then_proceed"
+    ],
+    "context_sent": [
+      "small",
+      "full"
+    ]
+  },
+  "hermes_surfaces": [
+    {
+      "name": "surface_context_engine",
+      "role": "surface",
+      "stratum": "ingestion_and_memory",
+      "source_file": "continuum_core/context_engine.py",
+      "contract": "hermes.context_engine/v1",
+      "describes": "Native Hermes ContextEngine surface providing quotient-DAG deduplication, Wanda saliency pruning, and exact prompt-cache preservation.",
+      "keywords": [
+        "context",
+        "quotient",
+        "saliency",
+        "cache",
+        "grep",
+        "surface"
+      ]
+    },
+    {
+      "name": "surface_memory_provider",
+      "role": "surface",
+      "stratum": "ingestion_and_memory",
+      "source_file": "continuum_core/memory_provider.py",
+      "contract": "hermes.memory_provider/v1",
+      "describes": "Native Hermes MemoryProvider surface over profile-scoped SQLite WAL continuous Hopfield attractors and Matryoshka cascade recall.",
+      "keywords": [
+        "memory",
+        "hopfield",
+        "attractor",
+        "recall",
+        "sqlite",
+        "surface"
+      ]
+    },
+    {
+      "name": "surface_delegation_provider",
+      "role": "surface",
+      "stratum": "routing_and_governance",
+      "source_file": "continuum_core/delegation_provider.py",
+      "contract": "hermes.delegation_provider/v1",
+      "describes": "Native Hermes DelegationProvider surface enforcing atomic lease fencing, LinUCB Woodbury routing, and strict maker != checker separation.",
+      "keywords": [
+        "delegation",
+        "routing",
+        "linucb",
+        "lease",
+        "quorum",
+        "surface"
+      ]
+    },
+    {
+      "name": "surface_tools_hooks_cli",
+      "role": "surface",
+      "stratum": "omninode_shell_and_shape_composition",
+      "source_file": "__init__.py",
+      "contract": "hermes.tools_hooks_cli/v1",
+      "describes": "Native Hermes Tools, Lifecycle Hooks, /continuum CLI command, and bundled skill surface exposing all 18 continuum_* tools.",
+      "keywords": [
+        "tools",
+        "hooks",
+        "cli",
+        "command",
+        "skill",
+        "omninode",
+        "surface"
+      ]
+    },
+    {
+      "name": "surface_desktop_dashboard",
+      "role": "surface",
+      "stratum": "omninode_shell_and_shape_composition",
+      "source_file": "dashboard/plugin_api.py",
+      "contract": "hermes.desktop_dashboard/v1",
+      "describes": "Native Hermes Desktop SDK and read-only FastAPI Web Dashboard surface rendering Paper & Ink telemetry, CARD lockfile pins, and grid/1 cells.",
+      "keywords": [
+        "desktop",
+        "dashboard",
+        "telemetry",
+        "lockfile",
+        "grid1",
+        "surface"
+      ]
+    }
+  ],
+  "shape_stage_ops": [
+    {
+      "name": "orient",
+      "role": "op",
+      "stratum": "adaptation_and_experimentation",
+      "backing_engine": "active_experimental_design_engine",
+      "contract": "omninode.op/v1",
+      "describes": "Orient stage: embed the goal into 4-space Matryoshka coordinates, calibrate EVSI effort, and interpolate fluid HyperGrid parameters.",
+      "keywords": [
+        "orient",
+        "embed",
+        "calibrate",
+        "effort",
+        "evsi",
+        "matryoshka"
+      ]
+    },
+    {
+      "name": "sae_probe",
+      "role": "op",
+      "stratum": "latent_interpretability_and_steering",
+      "backing_engine": "sparse_feature_dictionary",
+      "contract": "omninode.op/v1",
+      "describes": "Probe latent state using Matryoshka Top-K JumpReLU SAE features, multi-layer sparse crosscoders, ELK divergence, and Conformal truthfulness.",
+      "keywords": [
+        "sae",
+        "probe",
+        "latent",
+        "crosscoder",
+        "elk",
+        "truthfulness"
+      ]
+    },
+    {
+      "name": "leace_erase",
+      "role": "op",
+      "stratum": "latent_interpretability_and_steering",
+      "backing_engine": "internal_state_prober",
+      "contract": "omninode.op/v1",
+      "describes": "Project out undesired linear concept or divergence directions via orthogonal concept-erasure projection while preserving orthogonal structure.",
+      "keywords": [
+        "leace",
+        "erase",
+        "orthogonal",
+        "concept",
+        "scrub",
+        "projection"
+      ]
+    },
+    {
+      "name": "nullspace_steer",
+      "role": "op",
+      "stratum": "latent_interpretability_and_steering",
+      "backing_engine": "nullspace_activation_steerer",
+      "contract": "omninode.op/v1",
+      "describes": "Extract contrastive or monosemantic SAE steering vector projected strictly onto Null(A_anchor) with 0.0 anchor drift and fold rank-1 LoRA-XS.",
+      "keywords": [
+        "nullspace",
+        "steer",
+        "anchor",
+        "lora",
+        "control",
+        "activation"
+      ]
+    },
+    {
+      "name": "fallback_compress",
+      "role": "op",
+      "stratum": "ingestion_and_memory",
+      "backing_engine": "information_bottleneck_compression_engine",
+      "contract": "omninode.op/v1",
+      "describes": "Waterfall fallback stage: compress envelope representation via Information Bottleneck and Wanda saliency pruning under bounded budget.",
+      "keywords": [
+        "fallback",
+        "compress",
+        "bottleneck",
+        "saliency",
+        "recover",
+        "waterfall"
+      ]
+    },
+    {
+      "name": "sheaf_audit",
+      "role": "op",
+      "stratum": "uncertainty_and_verification",
+      "backing_engine": "sheaf_consensus_topology_engine",
+      "contract": "omninode.op/v1",
+      "describes": "Audit multi-branch or multi-agent stalks via Cellular Sheaf Laplacian coboundary energy and compute Tikhonov harmonic consensus.",
+      "keywords": [
+        "sheaf",
+        "audit",
+        "consensus",
+        "laplacian",
+        "coboundary",
+        "harmonic"
+      ]
+    },
+    {
+      "name": "conformal_gate",
+      "role": "op",
+      "stratum": "uncertainty_and_verification",
+      "backing_engine": "conformal_calibration_engine",
+      "contract": "omninode.op/v1",
+      "describes": "Construct finite-sample 1 - alpha Split Conformal + Online ACI prediction sets and gate selective execution.",
+      "keywords": [
+        "conformal",
+        "gate",
+        "quantile",
+        "aci",
+        "coverage",
+        "calibration"
+      ]
+    },
+    {
+      "name": "compile_cartridge",
+      "role": "op",
+      "stratum": "compilation_and_lowering",
+      "backing_engine": "portable_target_lowering_engine",
+      "contract": "omninode.op/v1",
+      "describes": "Compile active steered or residual operator stack into any of the 9 zero-dependency portable runtimes.",
+      "keywords": [
+        "compile",
+        "cartridge",
+        "rust",
+        "wasm",
+        "wgsl",
+        "glsl",
+        "portable"
+      ]
+    },
+    {
+      "name": "independent_quorum_check",
+      "role": "check",
+      "stratum": "routing_and_governance",
+      "backing_engine": "dawid_skene_quorum_adjudicator_engine",
+      "contract": "omninode.check/v1",
+      "describes": "Independent @ quorum gate enforcing maker_id != checker_id, auditing anchor drift and sheaf consistency, and recording verified outcomes.",
+      "keywords": [
+        "independent",
+        "quorum",
+        "check",
+        "verify",
+        "maker",
+        "checker"
+      ]
+    }
+  ],
+  "default_canonical_shape": "orient >> sae_probe >> (leace_erase | nullspace_steer) // fallback_compress @ independent_quorum_check"
+}

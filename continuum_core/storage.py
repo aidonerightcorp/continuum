@@ -10,6 +10,15 @@ import tempfile
 import threading
 import time
 from pathlib import Path
+
+CARD = {
+    "name": "storage",
+    "role": "substrate",
+    "stratum": "routing_and_governance",
+    "contract": "continuum.module/v1",
+    "describes": "Profile-scoped SQLite WAL storage for CAS task fission, fencing leases, maker != checker quorum, and EigenTrust.",
+    "keywords": ["sqlite", "wal", "lease", "fencing", "eigentrust", "storage"],
+}
 from typing import Any, Mapping, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec

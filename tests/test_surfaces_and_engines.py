@@ -1,4 +1,4 @@
-"""Comprehensive v1.1.0 tests across 5 Hermes surfaces, 24 cybernetic engines, 160D TT-Cross grid, Sheaf, Conformal, HyperLoRA, and 9 portable runtimes."""
+"""Comprehensive v1.3.0 tests across 5 OmniNode-encased Hermes surfaces, 30 cybernetic engines (112 sub-engines), 172D TT-Cross grid, Sheaf, Conformal, HyperLoRA, Mechanistic Interpretability, OmniNode Shape Algebra + grid/1 receipts, and 9 portable runtimes."""
 
 from __future__ import annotations
 
@@ -977,7 +977,7 @@ def test_spectral_diagnostics_morphism_coupling_and_evsi() -> None:
     )
 
 
-def test_all_seventeen_registered_tools_hooks_command_and_dashboard_api(
+def test_all_eighteen_registered_tools_hooks_command_and_dashboard_api(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     import continuum_core.storage as storage_mod
@@ -993,16 +993,19 @@ def test_all_seventeen_registered_tools_hooks_command_and_dashboard_api(
 
     ctx = _HarnessContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 17
+    assert len(ctx.tools) == 18
 
     ctx.hooks["on_session_start"](session_id="test_sess")
     ctx.hooks["pre_tool_call"]()
     status_txt = ctx.commands["continuum"]("status")
     step_txt = ctx.commands["continuum"]("step")
-    assert "28 engines (104 sub-engines)" in status_txt
-    assert "160 tunable params" in status_txt
+    omni_txt = ctx.commands["continuum"]("omninode")
+    assert "30 engines (112 sub-engines)" in status_txt
+    assert "172 tunable params" in status_txt
     assert "9 targets" in status_txt
+    assert "OmniNode CARD lockfile=verified:" in status_txt
     assert "adaptation step" in step_txt
+    assert "Continuum OmniNode run ok=True" in omni_txt
 
     fission = json.loads(ctx.tools["continuum_fission_dag"]({"goal": "Alpha. Beta."}))
     tid = fission["tasks"][0]["task_id"]
@@ -1092,22 +1095,41 @@ def test_all_seventeen_registered_tools_hooks_command_and_dashboard_api(
     assert steered["raw_anchor_drift"] > 0.1
     assert "#![no_std]" in steered["artifact"]
 
+    composed = json.loads(
+        ctx.tools["continuum_compose_omninode"](
+            {
+                "shape": "orient >> sae_probe >> (leace_erase | nullspace_steer) // fallback_compress @ independent_quorum_check",
+                "maker_id": "maker_alpha",
+                "checker_id": "checker_beta",
+                "verify_lockfile": True,
+            }
+        )
+    )
+    assert composed["ok"] is True
+    assert composed["grid1_receipt"]["format"] == "grid/1"
+    assert len(composed["grid1_receipt"]["cell"]) == 64
+
     m_status = json.loads(
         ctx.tools["continuum_manifold_status"](
             {"engine_id": "sparse_feature_dictionary"}
         )
     )
     assert "interpolated_engine_config" in m_status
+    assert "omninode" in m_status
 
     ctx.hooks["post_tool_call"]()
     ctx.hooks["on_session_end"]()
 
     dash_status = dashboard_api.get_continuum_status()
     dash_engines = dashboard_api.get_continuum_engines()
-    assert dash_status["engine_count"] == 28
-    assert dash_status["sub_engine_count"] == 104
-    assert len(dash_engines["engines"]) == 28
+    dash_omninode = dashboard_api.get_continuum_omninode()
+    assert dash_status["engine_count"] == 30
+    assert dash_status["sub_engine_count"] == 112
+    assert len(dash_engines["engines"]) == 30
     assert len(dash_engines["supported_targets"]) == 9
+    assert dash_omninode["card_counts"]["engines"] == 30
+    assert dash_omninode["card_counts"]["tools"] == 18
+    assert dash_omninode["card_counts"]["surfaces"] == 5
 
 
 # ─── 9. Mechanistic Interpretability (Engines 25-28): SAE, Crosscoder, ELK & Nullspace Steering ─
@@ -1282,3 +1304,222 @@ def test_nullspace_activation_steerer_zero_anchor_drift_and_all_nine_targets(
     # Ensure zero binary artifacts exist anywhere in repository tree
     for ext in ("*.wasm", "*.rlib", "*.so", "*.dylib"):
         assert list(REPO_ROOT.rglob(ext)) == []
+
+
+# ─── 10. OmniNode Shell (Engines 29-30): Static AST CARDs, .omni/cas Lockfile, >> // | @ & grid/1 ─
+
+
+def test_omninode_static_ast_cards_and_cas_lockfile_tamper_fails_closed(
+    tmp_path: Path,
+) -> None:
+    from omninode_shell import OmniNodeFailure
+
+    state_root = tmp_path / "plugin_data"
+    bus = CyberneticWeightBus(state_root=state_root)
+    omni_dir = state_root / ".omni"
+
+    summary = bus.omninode_director.status_summary()
+    assert summary["card_counts"]["engines"] == 30
+    assert summary["card_counts"]["tools"] == 18
+    assert summary["card_counts"]["surfaces"] == 5
+    assert summary["card_counts"]["stages"] >= 9
+    assert summary["card_counts"]["modules"] >= 16
+
+    verify_ok = bus.omninode_encaser.cas_lockfile.verify_integrity(
+        bus.omninode_encaser.catalog
+    )
+    assert verify_ok["verified"] is True
+    assert verify_ok["total_cards"] >= 70
+
+    # Tamper with a .omni/cas/<sha256>.json payload -> must fail closed with typed 'contract' failure!
+    cas_files = sorted((omni_dir / "cas").glob("*.json"))
+    assert len(cas_files) >= 10
+    victim_cas = cas_files[0]
+    original_bytes = victim_cas.read_bytes()
+    victim_cas.write_text('{"tampered": true}\n', encoding="utf-8")
+
+    with pytest.raises(OmniNodeFailure) as exc_info:
+        bus.omninode_encaser.cas_lockfile.verify_integrity(
+            bus.omninode_encaser.catalog
+        )
+    assert exc_info.value.kind == "contract"
+
+    tampered_run = bus.compose_omninode(
+        shape="orient >> sae_probe @ independent_quorum_check",
+        maker_id="maker_1",
+        checker_id="checker_2",
+        verify_lockfile=True,
+    )
+    assert tampered_run["ok"] is False
+    assert tampered_run["failure"] == "contract"
+    assert tampered_run["grid1_receipt"]["outcome"]["passed"] is False
+
+    # Restore CAS blob -> verification recovers cleanly
+    victim_cas.write_bytes(original_bytes)
+    recovered = bus.compose_omninode(
+        shape="orient >> sae_probe @ independent_quorum_check",
+        maker_id="maker_1",
+        checker_id="checker_2",
+        verify_lockfile=True,
+    )
+    assert recovered["ok"] is True
+
+
+def test_compose_omninode_canonical_shape_parallel_sheaf_and_grid1_receipt(
+    tmp_path: Path,
+) -> None:
+    rt = continuum_plugin.ContinuumRuntime(db_path=tmp_path / "omni_pipe.db")
+    shape_expr = (
+        "orient >> sae_probe >> (leace_erase | nullspace_steer) "
+        "// fallback_compress @ independent_quorum_check"
+    )
+    res = rt.bus.compose_omninode(
+        shape=shape_expr,
+        goal="Verify zero-drift steering and concept erasure",
+        given={"concept_name": "truthfulness"},
+        grid_overrides={
+            "sae.topk": 6,
+            "steer.strength": 1.1,
+            "conformal.alpha": 0.1,
+        },
+        maker_id="planner_maker",
+        checker_id="auditor_checker",
+        verify_lockfile=True,
+    )
+    assert res["ok"] is True
+    assert res["failure"] is None
+    assert res["cost_usd"] == 0.0
+    assert res["extra_llm_tokens"] == 0
+    assert res["lockfile"]["verified"] is True
+
+    out = res["output"]
+    assert out["erased_concept_projection"] == 0.0
+    assert out["nullspace_anchor_drift"] == 0.0
+    assert "parallel_sheaf_audit" in out
+    assert out["check_state"] == "verified_independent_quorum"
+    assert out["quorum_verdict"]["maker_id"] == "planner_maker"
+    assert out["quorum_verdict"]["checker_id"] == "auditor_checker"
+
+    receipt = res["grid1_receipt"]
+    assert receipt["format"] == "grid/1"
+    assert len(receipt["cell"]) == 64
+    assert receipt["outcome"]["passed"] is True
+    assert receipt["outcome"]["cost"] == 0.0
+
+    # Verify receipt persisted cleanly under HERMES_HOME/plugin-data/continuum/.omni/grid-records.jsonl
+    records_file = tmp_path / ".omni" / "grid-records.jsonl"
+    assert records_file.is_file()
+    lines = [
+        json.loads(line)
+        for line in records_file.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert any(r["cell"] == receipt["cell"] for r in lines)
+    # Zero .omni files written inside repository root!
+    assert not (REPO_ROOT / ".omni").exists()
+
+
+def test_omninode_waterfall_fallback_capability_gap_and_quorum_maker_checker_gate(
+    tmp_path: Path,
+) -> None:
+    bus = CyberneticWeightBus(state_root=tmp_path)
+
+    # 1. Transient failure in primary recovers via waterfall // fallback_compress!
+    wf_ok = bus.compose_omninode(
+        shape="orient >> fail_transient // fallback_compress @ independent_quorum_check",
+        maker_id="agent_m",
+        checker_id="agent_c",
+        verify_lockfile=True,
+    )
+    assert wf_ok["ok"] is True
+    assert wf_ok["output"]["fallback_activated"] is True
+
+    # 2. Contract failure NEVER falls through // waterfall (fail-closed safety invariant)!
+    wf_contract = bus.compose_omninode(
+        shape="orient >> fail_contract // fallback_compress",
+        maker_id="agent_m",
+        checker_id="agent_c",
+        verify_lockfile=True,
+    )
+    assert wf_contract["ok"] is False
+    assert wf_contract["failure"] == "contract"
+
+    # 3a. Partial lexical/Matryoshka match resolves automatically via capability_search!
+    wf_search = bus.compose_omninode(
+        shape="orient >> nonexistent_quantum_stage @ independent_quorum_check",
+        maker_id="agent_m",
+        checker_id="agent_c",
+        verify_lockfile=True,
+    )
+    assert wf_search["ok"] is True
+    assert any(t.get("how_chosen") == "capability_search" for t in wf_search["trace"])
+
+    # 3b. Zero-overlap unknown step synthesizes a structured capability_gap fact & routes through // fallback_compress!
+    wf_gap = bus.compose_omninode(
+        shape="orient >> zzzz_unmapped_xyzzy // fallback_compress @ independent_quorum_check",
+        maker_id="agent_m",
+        checker_id="agent_c",
+        verify_lockfile=True,
+    )
+    assert wf_gap["ok"] is True
+    assert wf_gap["output"]["fallback_activated"] is True
+    assert any(
+        w.get("failure_kind") == "capability" for w in wf_gap["waterfall_recoveries"]
+    )
+    facts = bus.omninode_encaser.cas_lockfile.read_facts()
+    assert any(
+        f.get("fact") == "capability_gap"
+        and f.get("step") == "zzzz_unmapped_xyzzy"
+        for f in facts
+    )
+
+    # 4. Self-approval (maker_id == checker_id) in @ independent_quorum_check fails closed with 'contract'!
+    quorum_bad = bus.compose_omninode(
+        shape="orient >> sae_probe @ independent_quorum_check",
+        maker_id="same_agent",
+        checker_id="same_agent",
+        verify_lockfile=True,
+    )
+    assert quorum_bad["ok"] is False
+    assert quorum_bad["failure"] == "contract"
+
+
+def test_omninode_grid_overrides_clamping_and_deterministic_grid1_cell_hash(
+    tmp_path: Path,
+) -> None:
+    bus = CyberneticWeightBus(state_root=tmp_path)
+
+    # Extreme out-of-bounds grid overrides get clamped deterministically by ParameterBounds
+    r1 = bus.compose_omninode(
+        shape="orient >> sae_probe >> compile_cartridge @ independent_quorum_check",
+        grid_overrides={
+            "sae.topk": 999999,
+            "conformal.alpha": -5.0,
+            "compile.target": "rust",
+        },
+        maker_id="m1",
+        checker_id="c1",
+    )
+    r2 = bus.compose_omninode(
+        shape="orient >> sae_probe >> compile_cartridge @ independent_quorum_check",
+        grid_overrides={
+            "compile.target": "rust",
+            "conformal.alpha": -5.0,
+            "sae.topk": 999999,
+        },
+        maker_id="m1",
+        checker_id="c1",
+    )
+    assert r1["ok"] is True and r2["ok"] is True
+    # Clamped within configured ParameterBounds
+    sae_clamped = r1["clamped_grid_overrides"]["sparse_feature_dictionary"][
+        "topk_active_latents"
+    ]
+    conf_clamped = r1["clamped_grid_overrides"]["conformal_calibration_engine"][
+        "target_miscoverage_alpha"
+    ]
+    assert sae_clamped <= 32
+    assert conf_clamped >= 0.01
+    assert "#![no_std]" in r1["output"]["compiled_artifact_preview"]
+    # Canonical key-sorted JSON -> identical 64-hex grid/1 cell SHA-256 regardless of dict insertion order!
+    assert r1["grid1_receipt"]["cell"] == r2["grid1_receipt"]["cell"]

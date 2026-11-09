@@ -27,9 +27,18 @@ from continuum_core.memory_provider import (  # noqa: E402
 from continuum_core.storage import ContinuumStore  # noqa: E402
 from continuum_core.weight_bus import CyberneticWeightBus  # noqa: E402
 
+CARD = {
+    "name": "continuum_plugin_root",
+    "role": "surface",
+    "stratum": "omninode_shell_and_shape_composition",
+    "contract": "hermes.tools_hooks_cli/v1",
+    "describes": "Hermes v0.23.0+ plugin entrypoint unifying ContextEngine, MemoryProvider, DelegationProvider, 18 OmniNode-encased continuum_* tools, 4 hooks, /continuum, and skill.",
+    "keywords": ["continuum", "hermes", "plugin", "omninode", "tools", "hooks", "cli"],
+}
+
 
 class ContinuumRuntime:
-    """Per-registration runtime container coordinating all five Hermes extension surfaces."""
+    """Per-registration runtime container coordinating all five OmniNode-encased Hermes extension surfaces."""
 
     def __init__(self, *, db_path: str | Path | None = None) -> None:
         self.spec = get_manifold_spec()
@@ -37,6 +46,7 @@ class ContinuumRuntime:
         self.store = ContinuumStore(
             db_path=db_path, spec=self.spec, manifold=self.bus.manifold
         )
+        self.bus.bind_omninode_store(self.store)
         self.context_engine = ContinuumContextEngine(
             bus=self.bus, store=self.store, spec=self.spec
         )
@@ -47,6 +57,10 @@ class ContinuumRuntime:
             bus=self.bus, store=self.store, spec=self.spec
         )
         self.tool_invocations: int = 0
+        tool_defs = _build_tool_definitions(self)
+        self.bus.omninode_director.register_tool_handlers(
+            {t_name: handler for t_name, _, _, handler in tool_defs}
+        )
         self.persist_status_snapshot()
 
     def persist_status_snapshot(self) -> dict[str, Any]:
@@ -361,6 +375,28 @@ def _build_tool_definitions(
         rt.persist_status_snapshot()
         return json.dumps(out)
 
+    def _handle_compose_omninode(args: dict[str, Any], **_: Any) -> str:
+        shape_str = args.get("shape")
+        goal_str = str(args.get("goal", "") or "")
+        given_obj = args.get("given")
+        overrides_obj = args.get("grid_overrides")
+        maker_id = args.get("maker_id")
+        checker_id = args.get("checker_id")
+        verify_lock = bool(args.get("verify_lockfile", True))
+        unk_axes = args.get("unknown_axes")
+        out = rt.bus.compose_omninode(
+            str(shape_str) if shape_str is not None else None,
+            goal=goal_str,
+            given=given_obj if isinstance(given_obj, dict) else None,
+            grid_overrides=overrides_obj if isinstance(overrides_obj, dict) else None,
+            maker_id=str(maker_id) if maker_id is not None else None,
+            checker_id=str(checker_id) if checker_id is not None else None,
+            verify_lockfile=verify_lock,
+            unknown_axes=unk_axes if isinstance(unk_axes, list) else (),
+        )
+        rt.persist_status_snapshot()
+        return json.dumps(out)
+
     all_targets = [
         "rust",
         "glsl",
@@ -557,10 +593,10 @@ def _build_tool_definitions(
         ),
         (
             "continuum_manifold_status",
-            "Inspect live status, TT-Cross configuration tuning progress, and token/compute savings across all 28 engines.",
+            "Inspect live status, OmniNode CARD lockfile, grid/1 cell hash, and TT-Cross tuning progress across all 30 engines.",
             {
                 "name": "continuum_manifold_status",
-                "description": "Return health, verified configuration counts, and efficiency metrics for Continuum's 28 engines.",
+                "description": "Return health, OmniNode CARD lockfile status, grid/1 active cell SHA-256, and verified configuration counts for Continuum's 30 engines.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -761,6 +797,44 @@ def _build_tool_definitions(
             },
             _handle_steer_nullspace_vector,
         ),
+        (
+            "continuum_compose_omninode",
+            "Compose and execute a declarative OmniNode >> // | @ pipeline with CAS lockfile verification and a canonical grid/1 SHA-256 cell receipt.",
+            {
+                "name": "continuum_compose_omninode",
+                "description": "Execute a declarative OmniNode shape expression (>> sequential pipe, | parallel sheaf fanout, // waterfall fallback, @ independent maker != checker quorum gate) with ParameterBounds clamping, CAS lockfile integrity verification, and a format='grid/1' cell receipt.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "shape": {
+                            "type": "string",
+                            "description": "Algebraic shape expression, e.g. 'orient >> sae_probe >> (leace_erase | nullspace_steer) // fallback_compress @ independent_quorum_check'.",
+                        },
+                        "goal": {
+                            "type": "string",
+                            "description": "Optional task or prompt context passed into the pipeline envelope.",
+                        },
+                        "given": {
+                            "type": "object",
+                            "description": "Optional initial structured envelope inputs (activations, anchors, target runtime).",
+                        },
+                        "grid_overrides": {
+                            "type": "object",
+                            "description": "Optional NodeGrid or grid/1 axis overrides clamped by ParameterBounds.",
+                        },
+                        "maker_id": {"type": "string"},
+                        "checker_id": {"type": "string"},
+                        "verify_lockfile": {"type": "boolean"},
+                        "unknown_axes": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                        },
+                    },
+                    "required": ["shape"],
+                },
+            },
+            _handle_compose_omninode,
+        ),
     ]
 
 
@@ -820,6 +894,7 @@ def register(ctx: Any) -> ContinuumRuntime:
     # Surface 4c — /continuum Slash Command
     def _slash_command_handler(raw_args: str = "", **_: Any) -> str:
         arg = (raw_args or "").strip().lower()
+        short_n = rt.spec.c_int("uid_digest_chars")
         if arg.startswith("step"):
             step_res = rt.bus.coupling_step(
                 compute_headroom_ratio=default_headroom,
@@ -831,25 +906,41 @@ def register(ctx: Any) -> ContinuumRuntime:
                 f"stability delta={step_res['lyapunov_delta']:.6f} | "
                 f"configs tested (0 tokens)={step_res['opportunistic_exploration']['candidates_generated']}"
             )
+        if arg.startswith("omninode"):
+            comp_res = rt.bus.compose_omninode(goal="slash command omninode check")
+            rt.persist_status_snapshot()
+            cell_short = str(comp_res["grid1_receipt"]["cell"])[:short_n]
+            lock_short = str(comp_res["lockfile"]["lockfile_sha256"])[:short_n]
+            return (
+                f"Continuum OmniNode run ok={comp_res['ok']} | "
+                f"shape='{comp_res['shape']}' | "
+                f"lockfile={lock_short} (verified={comp_res['lockfile']['verified']}) | "
+                f"grid/1 cell={cell_short}"
+            )
         snap = rt.persist_status_snapshot()
         ledger = snap["grid_ledger_counts"]
         cost = snap["cost_ledger"]
         targets_n = len(snap.get("supported_targets", []))
+        omni = snap.get("omninode", {})
+        lock_status = "verified" if omni.get("lockfile_verified") else "unverified"
+        lock_short = str(omni.get("lockfile_sha256", ""))[:short_n]
+        cell_short = str(omni.get("active_grid1_cell", ""))[:short_n]
         return (
-            f"Continuum v{snap['version']} | "
+            f"Continuum v{snap['version']} (OmniNode-Encased) | "
             f"{snap['engine_count']} engines ({snap['sub_engine_count']} sub-engines) | "
-            f"{snap['hypergrid_total_dimensions']} tunable params | "
+            f"18 tools | {snap['hypergrid_total_dimensions']} tunable params | "
             f"{targets_n} targets | "
-            f"embedding slices={snap['matryoshka_prefix_dims']} | "
+            f"OmniNode CARD lockfile={lock_status}:{lock_short} | "
+            f"grid/1 cell={cell_short} | "
             f"verified/promoted={ledger.get('verified', 0)}/{ledger.get('promoted', 0)} | "
-            f"zero-token config probes={cost['sha_zero_token_probes']}"
+            f"zero-token probes={cost['sha_zero_token_probes']}"
         )
 
     ctx.register_command(
         "continuum",
         _slash_command_handler,
-        description="View Continuum engine status or run '/continuum step' to tune configurations.",
-        args_hint="[status|step]",
+        description="View Continuum 30-engine OmniNode status, CARD lockfile & grid/1 cell, or run '/continuum [step|omninode]'.",
+        args_hint="[status|step|omninode]",
     )
 
     # Surface 4d — Bundled Continuum Skill

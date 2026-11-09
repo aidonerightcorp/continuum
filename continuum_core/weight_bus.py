@@ -1,14 +1,24 @@
-"""28-Engine Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Surgical Edits, Sheaf, Conformal, HyperLoRA, Latent SAE Probing, and Nullspace Activation Steering."""
+"""30-Engine OmniNode-Encased Cybernetic Weight-Space Bus, Spectral Diagnostics, Zero-Drift Edits, Sheaf, Conformal, HyperLoRA, Latent SAE Probing, Nullspace Steering, and >> // | @ Shape Composition."""
 
 from __future__ import annotations
 
 import hashlib
 import math
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from continuum_core.cartridge_compiler import CartridgeCompiler
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+
+CARD = {
+    "name": "weight_bus",
+    "role": "bus",
+    "stratum": "meta_cybernetic_coupling",
+    "contract": "continuum.module/v1",
+    "describes": "Coordinates all 30 OmniNode-encased cybernetic engines, 112 sub-engines, 172-axis TT-Cross HyperGrid, and 30x30 Sparse Jacobian.",
+    "keywords": ["bus", "engines", "jacobian", "lyapunov", "omninode", "manifold"],
+}
 from continuum_core.cybernetic_engines import (
     ActiveExperimentalDesignEngine,
     AutonomicSelfHealingEngine,
@@ -50,6 +60,10 @@ from continuum_core.linalg_backend import (
     zeros_matrix,
 )
 from continuum_core.matryoshka_manifold import MatryoshkaManifold, MatryoshkaVector
+from continuum_core.omninode_shell import (
+    AlgebraicShapeAndGrid1Director,
+    OmniNodeShellEncaser,
+)
 
 
 @dataclass
@@ -88,6 +102,8 @@ class CyberneticWeightBus:
         spec: ManifoldConfigSpec | None = None,
         manifold: MatryoshkaManifold | None = None,
         cost_ledger: OperationCostLedger | None = None,
+        *,
+        state_root: Path | None = None,
     ) -> None:
         self._spec = spec or get_manifold_spec()
         self.cost_ledger = cost_ledger or OperationCostLedger()
@@ -95,7 +111,7 @@ class CyberneticWeightBus:
         self.hypergrid = FluidHyperGrid(self._spec, self.manifold, self.cost_ledger)
         self.compiler = CartridgeCompiler(self._spec, self.manifold)
 
-        # Cybernetic & mechanistic interpretability specialist operators backing the 28-engine taxonomy
+        # Cybernetic, mechanistic interpretability & OmniNode shell specialist operators backing the 30-engine taxonomy
         self.sheaf_engine = SheafConsensusTopologyEngine(self._spec, self.manifold)
         self.conformal_engine = ConformalCalibrationEngine(self._spec)
         self.causal_engine = CausalCounterfactualEngine(self._spec)
@@ -116,6 +132,25 @@ class CyberneticWeightBus:
         self._init_engines()
         self.jacobian: Matrix = self._init_jacobian()
         self.coupling_steps: int = 0
+        self.omninode_encaser = OmniNodeShellEncaser(
+            bus=self, state_root=state_root, spec=self._spec
+        )
+        self.omninode_director = AlgebraicShapeAndGrid1Director(
+            self.omninode_encaser, spec=self._spec
+        )
+
+    def bind_omninode_store(self, store: Any) -> None:
+        """Bind profile-scoped ContinuumStore so .omni/cas, omninode.lock.json, and grid/1 rows live under store.db_path.parent."""
+        self.omninode_encaser = OmniNodeShellEncaser(
+            bus=self,
+            store=store,
+            state_root=store.db_path.parent,
+            spec=self._spec,
+        )
+        self.omninode_director = AlgebraicShapeAndGrid1Director(
+            self.omninode_encaser,
+            spec=self._spec,
+        )
 
     def _init_engines(self) -> None:
         tenth = self._spec.c_float("tenth")
@@ -1125,13 +1160,38 @@ class CyberneticWeightBus:
             "artifact": artifact,
         }
 
+    def compose_omninode(
+        self,
+        shape: str | None = None,
+        *,
+        goal: str = "",
+        given: Mapping[str, Any] | None = None,
+        grid_overrides: Mapping[str, Any] | None = None,
+        maker_id: str | None = None,
+        checker_id: str | None = None,
+        verify_lockfile: bool = True,
+        unknown_axes: Sequence[str] = (),
+    ) -> dict[str, Any]:
+        """Compile and run an OmniNode >> // | @ pipeline and record a canonical grid/1 SHA-256 cell receipt."""
+        return self.omninode_director.compose_and_execute(
+            shape,
+            goal=goal,
+            given=given,
+            grid_overrides=grid_overrides,
+            maker_id=maker_id,
+            checker_id=checker_id,
+            verify_lockfile=verify_lockfile,
+            unknown_axes=unknown_axes,
+        )
+
     def manifold_status(self) -> dict[str, Any]:
-        """Full 28-engine / 104-sub-engine / 160-dim TT-Cross HyperGrid telemetry snapshot."""
+        """Full 30-engine / 112-sub-engine / 172-dim OmniNode-encased TT-Cross HyperGrid telemetry snapshot."""
         m_cfg = self._spec.section("matryoshka_manifold")
         engine_summaries: list[dict[str, Any]] = []
         for eid in self.engine_order:
             eng = self.engines[eid]
             grid = self.hypergrid.grids[eid]
+            card = self.omninode_encaser.catalog.get(eid, {})
             engine_summaries.append(
                 {
                     "index": eng.index,
@@ -1146,6 +1206,7 @@ class CyberneticWeightBus:
                     "edit_count": eng.edit_count,
                     "last_anchor_drift": eng.last_anchor_drift,
                     "state_energy": eng.state_energy,
+                    "card_sha256": str(card.get("sha256", "")),
                 }
             )
 
@@ -1163,5 +1224,6 @@ class CyberneticWeightBus:
             "grid_ledger_counts": self.hypergrid.ledger.state_counts(),
             "woodbury_surrogate_updates": self.hypergrid.surrogate.updates,
             "cost_ledger": self.cost_ledger.summary(),
+            "omninode": self.omninode_director.status_summary(),
             "engines": engine_summaries,
         }

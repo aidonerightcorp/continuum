@@ -6,6 +6,15 @@ import math
 from typing import Any, Callable, Mapping, Sequence
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
+
+CARD = {
+    "name": "latent_engines",
+    "role": "engine_pack",
+    "stratum": "latent_interpretability_and_steering",
+    "contract": "continuum.module/v1",
+    "describes": "Matryoshka Top-K JumpReLU SAE, Crosscoder Circuit Tracer, Internal/ELK State Prober, and Nullspace Activation Steerer.",
+    "keywords": ["sae", "crosscoder", "elk", "prober", "nullspace", "steering"],
+}
 from continuum_core.cybernetic_engines import ConformalCalibrationEngine
 from continuum_core.linalg_backend import (
     Matrix,

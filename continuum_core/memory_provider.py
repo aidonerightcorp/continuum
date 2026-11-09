@@ -11,6 +11,15 @@ from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
 from continuum_core.storage import ContinuumStore
 from continuum_core.weight_bus import CyberneticWeightBus
 
+CARD = {
+    "name": "memory_provider",
+    "role": "surface",
+    "stratum": "ingestion_and_memory",
+    "contract": "hermes.memory_provider/v1",
+    "describes": "Surface 2 — Native Hermes MemoryProvider over SQLite WAL Hopfield attractors and safetensors consolidation.",
+    "keywords": ["memory", "hopfield", "attractor", "sqlite", "recall", "surface"],
+}
+
 try:
     from agent.memory_provider import MemoryProvider as _HermesMemoryProvider
 except ImportError:

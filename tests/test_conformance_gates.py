@@ -71,10 +71,37 @@ class _RecordingContext:
 def test_zero_hardcoded_values_ast_gate() -> None:
     operational_files = sorted((REPO_ROOT / "continuum_core").glob("*.py")) + [
         REPO_ROOT / "__init__.py",
+        REPO_ROOT / "omninode_shell.py",
         REPO_ROOT / "dashboard" / "plugin_api.py",
     ]
     violations = ZeroHardcodedValuesAstGate.scan_paths(operational_files)
     assert violations == [], f"Magic literal violations found: {violations}"
+
+
+def test_all_python_modules_expose_static_ast_cards() -> None:
+    from omninode_shell import StaticAstCardInspector
+
+    spec = get_manifold_spec()
+    inspector = StaticAstCardInspector(spec)
+    operational_files = sorted((REPO_ROOT / "continuum_core").glob("*.py")) + [
+        REPO_ROOT / "__init__.py",
+        REPO_ROOT / "omninode_shell.py",
+        REPO_ROOT / "dashboard" / "plugin_api.py",
+    ]
+    for py_path in operational_files:
+        card = inspector.inspect_python_file(py_path)
+        assert card is not None, f"Missing static AST CARD in {py_path}"
+        for field in (
+            "name",
+            "role",
+            "stratum",
+            "describes",
+            "keywords",
+            "contract",
+            "sha256",
+        ):
+            assert field in card, f"Missing {field} in CARD of {py_path}"
+        assert len(card["sha256"]) == 64
 
 
 def test_domain_agnostic_naming_gate() -> None:
@@ -116,10 +143,11 @@ def test_desktop_plugin_surface_sdk_conformance() -> None:
     assert "#f5f2ea" in src
     assert "#141413" in src
     assert "only light" in src
-    assert "1.2.0" in src
-    assert "engine_count: 28" in src
-    assert "sub_engine_count: 104" in src
-    assert "hypergrid_total_dimensions: 160" in src
+    assert "1.3.0" in src
+    assert "engine_count: 30" in src
+    assert "sub_engine_count: 112" in src
+    assert "hypergrid_total_dimensions: 172" in src
+    assert "omninode" in src
     for forbidden in (
         "eval(",
         "new Function(",
@@ -155,15 +183,16 @@ def test_manifest_and_registration_exact_parity(
     )
     manifest_text = (REPO_ROOT / "plugin.yaml").read_text(encoding="utf-8")
     assert "name: continuum" in manifest_text
-    assert 'version: "1.2.0"' in manifest_text
+    assert 'version: "1.3.0"' in manifest_text
     assert "kind: standalone" in manifest_text
     assert "manifest_version: 2" in manifest_text
     assert 'requires_hermes: ">=0.23.0"' in manifest_text
 
     ctx = _RecordingContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 17
-    assert len(set(ctx.tools)) == 17
+    assert len(ctx.tools) == 18
+    assert len(set(ctx.tools)) == 18
+    assert "continuum_compose_omninode" in ctx.tools
     for t_name in ctx.tools:
         assert t_name.startswith("continuum_")
         assert f"- {t_name}" in manifest_text
@@ -183,14 +212,14 @@ def test_manifest_and_registration_exact_parity(
     )
 
 
-def test_twenty_eight_engines_one_hundred_four_subengines_one_sixty_hypergrid_dims() -> None:
+def test_thirty_engines_one_hundred_twelve_subengines_one_seventy_two_hypergrid_dims() -> None:
     spec = get_manifold_spec()
     bus = CyberneticWeightBus(spec)
     status = bus.manifold_status()
-    assert status["version"] == "1.2.0"
-    assert status["engine_count"] == 28
-    assert status["sub_engine_count"] == 104
-    assert status["hypergrid_total_dimensions"] == 160
+    assert status["version"] == "1.3.0"
+    assert status["engine_count"] == 30
+    assert status["sub_engine_count"] == 112
+    assert status["hypergrid_total_dimensions"] == 172
     assert status["supported_targets"] == [
         "rust",
         "glsl",
@@ -203,7 +232,11 @@ def test_twenty_eight_engines_one_hundred_four_subengines_one_sixty_hypergrid_di
         "wgsl",
     ]
     assert status["timescale_count"] == 5
-    assert status["coupling_edge_count"] == 40
+    assert status["coupling_edge_count"] == 46
+    assert "omninode" in status
+    assert status["omninode"]["card_counts"]["engines"] == 30
+    assert status["omninode"]["card_counts"]["tools"] == 18
+    assert status["omninode"]["card_counts"]["surfaces"] == 5
     assert status["matryoshka_spaces"] == [
         "task2vec",
         "config2vec",
@@ -227,8 +260,13 @@ def test_twenty_eight_engines_one_hundred_four_subengines_one_sixty_hypergrid_di
         "crosslayer_circuit_tracer",
         "internal_state_prober",
         "nullspace_activation_steerer",
+        "omninode_shell_encaser",
+        "algebraic_shape_and_grid1_director",
     ):
         assert required_engine in bus.engines
+
+    for eng_summary in status["engines"]:
+        assert len(eng_summary["card_sha256"]) == 64
 
     assert bus.engines["sparse_feature_dictionary"].sub_engines == [
         "matryoshka_topk_encoder",
@@ -253,6 +291,18 @@ def test_twenty_eight_engines_one_hundred_four_subengines_one_sixty_hypergrid_di
         "anchor_nullspace_steerer",
         "zero_hook_weight_folder",
         "control_vector_exporter",
+    ]
+    assert bus.engines["omninode_shell_encaser"].sub_engines == [
+        "static_ast_card_inspector",
+        "content_addressed_cas_lockfile",
+        "typed_failure_waterfall_router",
+        "capability_gap_synthesizer",
+    ]
+    assert bus.engines["algebraic_shape_and_grid1_director"].sub_engines == [
+        "sequential_pipe_operator",
+        "parallel_sheaf_fanout_operator",
+        "independent_quorum_gate_operator",
+        "grid1_canonical_cell_recorder",
     ]
 
 

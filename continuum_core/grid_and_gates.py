@@ -12,6 +12,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+CARD = {
+    "name": "grid_and_gates",
+    "role": "governance",
+    "stratum": "adaptation_and_experimentation",
+    "contract": "continuum.module/v1",
+    "describes": "Fluid HyperGrid manifold, GridLedger, Opportunistic SHA Exploration, and AST/Naming Conformance Gates.",
+    "keywords": ["hypergrid", "ledger", "sha", "sobol", "ast", "conformance"],
+}
+
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
 from continuum_core.cybernetic_engines import TensorTrainCross
 from continuum_core.linalg_backend import (

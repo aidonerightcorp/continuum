@@ -9,6 +9,15 @@ from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
 from continuum_core.storage import ContinuumStore
 from continuum_core.weight_bus import CyberneticWeightBus
 
+CARD = {
+    "name": "delegation_provider",
+    "role": "surface",
+    "stratum": "routing_and_governance",
+    "contract": "hermes.delegation_provider/v1",
+    "describes": "Surface 3 — Native Hermes DelegationProvider with Contextual LinUCB Woodbury routing and maker != checker.",
+    "keywords": ["delegation", "linucb", "router", "quorum", "maker", "checker"],
+}
+
 try:
     from agent.delegation_provider import (
         DelegationProvider as _HermesDelegationProvider,

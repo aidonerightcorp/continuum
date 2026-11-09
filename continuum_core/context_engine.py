@@ -10,6 +10,15 @@ from typing import Any, Optional
 
 from continuum_core.config_loader import ManifoldConfigSpec, get_manifold_spec
 from continuum_core.storage import ContinuumStore
+
+CARD = {
+    "name": "context_engine",
+    "role": "surface",
+    "stratum": "ingestion_and_memory",
+    "contract": "hermes.context_engine/v1",
+    "describes": "Surface 1 — Native Hermes ContextEngine over message-UID quotient DAG and Wanda saliency.",
+    "keywords": ["context", "quotient", "saliency", "cache", "grep", "surface"],
+}
 from continuum_core.weight_bus import CyberneticWeightBus
 
 try:

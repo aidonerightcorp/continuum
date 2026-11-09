@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "continuum"
-version = "1.2.0"
-description = "Unified self-improving agent engine for Hermes: 28 cybernetic engines (104 sub-engines), 160-axis TT-Cross configuration tuning, SAE/ELK latent probing, Nullspace activation steering, Sheaf & Conformal verification, and 9-target skill compilation."
+version = "1.3.0"
+description = "OmniNode-encased unified self-improving agent engine for Hermes: 30 cybernetic engines (112 sub-engines), 18 continuum_* tools, >> // | @ shape composition, grid/1 cell receipts, SAE/ELK latent probing, Nullspace steering, and 9-target skill compilation."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
@@ -14,6 +14,7 @@ dependencies = []
 
 [tool.setuptools]
 packages = ["continuum_core"]
+py-modules = ["omninode_shell"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

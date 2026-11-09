@@ -6,7 +6,8 @@
     ink: '#141413',
     muted: '#4a4843',
     border: '#cfc8b8',
-    sage: '#2f5d50'
+    sage: '#2f5d50',
+    ochre: '#8c5a2b'
   };
 
   function renderContinuumPanel(container, statusPayload) {
@@ -22,21 +23,34 @@
     root.style.fontFamily = 'ui-sans-serif, system-ui, sans-serif';
 
     const heading = document.createElement('h2');
-    heading.textContent = 'Continuum v1.2.0 — Unified Self-Improving Agent Engine';
+    heading.textContent = 'Continuum v1.3.0 — OmniNode-Encased Self-Improving Agent Engine';
     heading.style.margin = '0 0 6px 0';
     heading.style.fontSize = '18px';
     root.appendChild(heading);
 
     const sub = document.createElement('p');
-    const eCount = statusPayload && statusPayload.engine_count ? statusPayload.engine_count : 28;
-    const sCount = statusPayload && statusPayload.sub_engine_count ? statusPayload.sub_engine_count : 104;
-    const dims = statusPayload && statusPayload.hypergrid_total_dimensions ? statusPayload.hypergrid_total_dimensions : 160;
+    const eCount = statusPayload && statusPayload.engine_count ? statusPayload.engine_count : 30;
+    const sCount = statusPayload && statusPayload.sub_engine_count ? statusPayload.sub_engine_count : 112;
+    const dims = statusPayload && statusPayload.hypergrid_total_dimensions ? statusPayload.hypergrid_total_dimensions : 172;
     const targets = statusPayload && Array.isArray(statusPayload.supported_targets) ? statusPayload.supported_targets.length : 9;
-    sub.textContent = eCount + ' Functional Engines • ' + sCount + ' Sub-Engines • 17 Tools • ' + dims + '-Axis TT-Cross HyperGrid • ' + targets + ' Portable Runtimes • Latent Mind Probing & Nullspace Steering';
+    sub.textContent = eCount + ' Functional Engines • ' + sCount + ' Sub-Engines • 18 Tools • ' + dims + '-Axis TT-Cross HyperGrid • ' + targets + ' Portable Runtimes • OmniNode >> // | @ Shapes';
     sub.style.margin = '0 0 12px 0';
     sub.style.color = PALETTE.muted;
     sub.style.fontSize = '13px';
     root.appendChild(sub);
+
+    const omni = (statusPayload && statusPayload.omninode) ? statusPayload.omninode : {};
+    const lockOk = omni.lockfile_verified !== false;
+    const lockSha = omni.lockfile_sha256 ? String(omni.lockfile_sha256).slice(0, 16) : 'verified-cas';
+    const cellSha = omni.active_grid1_cell ? String(omni.active_grid1_cell).slice(0, 16) : 'grid1-ready';
+    const omniCard = document.createElement('div');
+    omniCard.style.backgroundColor = PALETTE.card;
+    omniCard.style.border = '1px solid ' + PALETTE.border;
+    omniCard.style.borderRadius = '6px';
+    omniCard.style.padding = '12px';
+    omniCard.style.marginBottom = '10px';
+    omniCard.textContent = 'OmniNode CARD Lockfile: ' + (lockOk ? 'VERIFIED' : 'UNVERIFIED') + ' (' + lockSha + ') | Active grid/1 Cell SHA-256: ' + cellSha + ' | Operators: >> // | @';
+    root.appendChild(omniCard);
 
     const card = document.createElement('div');
     card.style.backgroundColor = PALETTE.card;
