@@ -1,4 +1,4 @@
-"""Continuum Dashboard FastAPI Router — Read-only SQLite WAL & OmniNode CARD / grid/1 telemetry endpoints."""
+"""Continuum dashboard router. Read-only: the right-sizing records first, then the experimental engines."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ if _PLUGIN_ROOT not in sys.path:
     sys.path.insert(0, _PLUGIN_ROOT)
 
 from continuum_core.config_loader import get_manifold_spec  # noqa: E402
+from continuum_core.rightsize import read_snapshot  # noqa: E402
 from continuum_core.storage import (  # noqa: E402
     ContinuumStore,
     resolve_continuum_db_path,
@@ -22,7 +23,7 @@ CARD = {
     "role": "surface",
     "stratum": "omninode_shell_and_shape_composition",
     "contract": "hermes.desktop_dashboard/v1",
-    "describes": "Read-only SQLite WAL FastAPI telemetry endpoints exposing 30-engine health, OmniNode CARD lockfiles, and grid/1 cells.",
+    "describes": "Read-only dashboard routes: the right-sizing records (counts, choices, outcomes; no text) and the status of the experimental engines.",
     "keywords": ["dashboard", "fastapi", "status", "omninode", "grid1", "surface"],
 }
 
@@ -51,6 +52,12 @@ def _get_baseline_bus() -> CyberneticWeightBus:
     if _BASELINE_BUS is None:
         _BASELINE_BUS = CyberneticWeightBus(get_manifold_spec())
     return _BASELINE_BUS
+
+
+@router.get("/rightsize")
+def get_continuum_rightsize() -> dict[str, Any]:
+    """Counts, choices and outcomes of the right-sizing loop, read-only. No Task text and no reply text."""
+    return read_snapshot(resolve_continuum_db_path().with_name("rightsize.db"))
 
 
 @router.get("/status")

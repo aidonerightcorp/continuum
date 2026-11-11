@@ -1,0 +1,38 @@
+{
+  "schema": "continuum.bench/1",
+  "about": "Settings of the Hermes on/off benchmark. Nothing here is a result. bench_hermes.py reads this file; a run copies it into its folder.",
+  "endpoint": "http://127.0.0.1:11434/v1",
+  "reference_model": "coder-7b-bench",
+  "small_model": "meta-3b-bench",
+  "declared_context": 64000,
+  "real_context": 16384,
+  "toolsets": [],
+  "max_iterations": 6,
+  "prompt_suffix": "\n\nWork through it step by step. Then end your reply with one last line in this form: Answer: <the number, or the letter of the option>",
+  "phases": [
+    {
+      "title": "Learning phase",
+      "items": "hermes-learn.jsonl",
+      "from": 0,
+      "to": 240,
+      "about": "240 public Tasks. Continuum starts with an empty record file."
+    },
+    {
+      "title": "Test phase",
+      "items": "hermes-v1.jsonl",
+      "from": 240,
+      "to": 480,
+      "about": "240 other public Tasks of the same six kinds. Continuum keeps the records of the learning phase. This phase carries the headline figures."
+    }
+  ],
+  "arms": {
+    "B-small-model": {
+      "about": "Hermes with the small model for every Task. Continuum is not loaded.",
+      "model": "small",
+      "plugin": false
+    }
+  },
+  "temperature_in_model_alias": 0.2,
+  "model": "meta-3b-bench",
+  "items": "items/hermes-two-phase.jsonl"
+}

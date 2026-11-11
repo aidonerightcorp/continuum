@@ -14,3 +14,4 @@ build/
 *.db-wal
 *.sqlite*
 .DS_Store
+tests/benchmark/runs/

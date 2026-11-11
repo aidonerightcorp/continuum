@@ -1,6 +1,6 @@
 name: continuum
-version: "1.3.0"
-description: "OmniNode-encased unified self-improving agent engine for Hermes: 30 cybernetic engines (112 sub-engines), 18 continuum_* tools, >> // | @ algebraic shape composition, CAS CARD lockfiles & grid/1 cell receipts, SAE/ELK latent probing, Nullspace steering, and 9-target skill compilation."
+version: "2.0.0"
+description: "Hermes sizes itself to each Task. Continuum fingerprints every Task, finds similar past Tasks in its local records, and sends the Task to the cheapest of your own models that those records support. With thin evidence a Task stays on your own model; once you mark answers (/continuum good|bad), a small trial share (10% by default) tries the cheaper model, and only marks move a kind of Task. Continuum records every attempt and checks its own policy on held-out records."
 author: aidonerightcorp
 license: MIT
 homepage: https://github.com/aidonerightcorp/continuum
@@ -8,17 +8,16 @@ kind: standalone
 manifest_version: 2
 requires_hermes: ">=0.23.0"
 tags:
-  - agent-engine
-  - context-engine
+  - model-routing
+  - cost
+  - task-fingerprint
   - memory
-  - delegation
-  - mechanistic-interpretability
-  - activation-steering
-  - conformal-prediction
-  - compiler
+  - self-tuning
+  - records
 python_dependencies: []
 requires_env: []
 provides_tools:
+  - continuum_recall
   - continuum_fission_dag
   - continuum_claim_and_fence
   - continuum_verify_record
@@ -38,20 +37,86 @@ provides_tools:
   - continuum_steer_nullspace_vector
   - continuum_compose_omninode
 provides_hooks:
-  - on_session_start
-  - pre_tool_call
+  - pre_llm_call
+  - post_llm_call
+  - post_api_request
+  - api_request_error
   - post_tool_call
   - on_session_end
+  - on_session_finalize
+# Hermes's validator (`hermes plugins validate`) reads this field and fails without it. The plugin loader does not
+# know the field and logs one line, "unknown manifest field(s) ignored: provides_middleware", when Hermes starts.
+provides_middleware:
+  - llm_request
+capabilities:
+  - llm.model_override
+  - llm.side_question
 config_schema:
+  mode:
+    type: str
+    default: "auto"
+    choices:
+      - "auto"
+      - "observe"
+      - "off"
+    description: "auto: choose a model for each Task. observe: record and report what Continuum would choose, change no request. off: record nothing and change nothing. Every other value is read as off. A change takes effect when Hermes starts again."
+  small_model:
+    type: str
+    default: ""
+    description: "A cheaper model on the same provider as your own model. Empty: Continuum only records."
+  small_model_cost_ratio:
+    type: float
+    default: 0.2
+    description: "Cost of small_model for the same Task, as a share of the cost of your own model."
+  small_model_max_context:
+    type: int
+    default: 0
+    description: "Context window of small_model in tokens. 0: not set. When set, a request that grows past 80% of it returns to your own model."
+  rungs:
+    type: str
+    default: ""
+    description: "Optional JSON list for more than one cheaper model: [{\"model\": \"id\", \"cost\": 0.2, \"params\": {}, \"max_context\": 32000}]. Replaces small_model."
+  size_tools:
+    type: str
+    default: "observe"
+    choices:
+      - "on"
+      - "observe"
+      - "off"
+    description: "on: send only the tools that similar good Tasks of your own used; when a reply says a tool was missing, all tools return on the next turn. Needs mode auto and the llm.model_override consent. observe: only report the saving. off."
+  recall:
+    type: bool
+    default: true
+    description: "Add your own recorded answer to a near-identical good Task to the turn as context. Needs mode auto and the llm.model_override consent."
+  store_text:
+    type: bool
+    default: true
+    description: "Keep the Task text and the answer in the local record file. false: keep fingerprints and outcomes only; recall is then off, also for text stored earlier."
+  text_days:
+    type: int
+    default: 90
+    description: "Days after which stored Task and answer text is removed from the record file; fingerprints and outcomes stay. 0: keep the text until /continuum forget-text."
+  explore_share:
+    type: float
+    default: 0.1
+    description: "Share of Tasks on which Continuum tries a cheaper model that has too little evidence yet. Trial turns start only after you mark one of your recent turns (/continuum good|bad)."
+  check_share:
+    type: float
+    default: 0.3
+    description: "Share of the turns answered by a cheaper model on which your own model is asked one PASS or FAIL question about the answer (a FAIL counts against the cheaper model, a PASS counts as weak evidence). The few turns that Continuum keeps on your own model for comparison are always checked. Checks spend your own model's tokens and need mode auto and both consents (llm.model_override and llm.side_question). 0 turns all checks off."
+  self_tune:
+    type: bool
+    default: true
+    description: "Let Continuum tighten or relax its own floor and tune its similarity weights from its records. false: the audit only reports what the records advise."
+  enable_lab_tools:
+    type: bool
+    default: false
+    description: "Turn on the experimental engines of version 1: their 18 tools for the model and the /continuum lab commands (local user only). They stay off in mode off and when Hermes gives the plugin no data folder."
   compute_headroom_ratio:
     type: float
-    default: 0.6
-    description: "Fraction of spare local CPU budget used to test TT-Cross and Sobol candidate configurations against saved history using zero extra LLM tokens."
+    default: 0.0
+    description: "Lab only. Share of spare local CPU budget that /continuum lab step may use to test candidate configurations against saved history."
   default_embedding_dim:
     type: int
     default: 64
-    description: "Default nested embedding slice width (16, 32, 64, or 128) for fast retrieval and routing."
-  enable_idle_exploration:
-    type: bool
-    default: true
-    description: "Automatically evaluate and promote better verified configurations at session end."
+    description: "Lab only. Default nested embedding slice width (16, 32, 64, or 128)."

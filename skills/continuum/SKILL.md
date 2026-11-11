@@ -1,38 +1,80 @@
 ---
 name: continuum
-description: Encase and compose multi-step agent pipelines via OmniNode >> // | @ shapes with CAS CARD lockfiles and canonical grid/1 SHA-256 cell receipts, probe latent SAE/Crosscoder features and ELK divergence, steer activations in Null(A_anchor) with zero anchor drift, audit consistency with Cellular Sheaves, calibrate uncertainty via Conformal prediction, tune 172 settings automatically, and compile skills across 9 portable runtimes with Continuum.
+description: Use when the user asks why a turn went to a cheaper or larger model, wants to mark an answer good or bad, wants to keep a session on their own model, or when a Task looks like one answered before. Explains how to read Continuum's right-sizing records and how to use the continuum_recall tool.
 ---
 
-# Continuum v1.3.0 (OmniNode-Encased Edition) Workflow Guide
+# Continuum: Hermes sizes itself to each Task
 
-Use the 18 `continuum_*` tools whenever you want declarative `OmniNode` pipeline composition (`>> // | @`), reproducible `grid/1` SHA-256 experiment cells, mechanistic interpretability probing, surgical nullspace activation steering, cohomological consistency checks, distribution-free uncertainty calibration, fast memory lookup, or zero-dependency compiled modules.
+Continuum is a plugin that chooses, for each turn, the cheapest of the user's own models that its local records
+support. It runs before you see the turn. You do not choose the model; you help the user read what happened and you
+can look up how similar Tasks were answered before.
 
-## Practical Step-by-Step Workflow
+## When to use the `continuum_recall` tool
 
-1. **Compose Parameterized `OmniNode` Pipelines (`continuum_compose_omninode`)**
-   - Declare deterministic offline pipelines using algebraic operators: sequential pipe (`>>`), parallel Cellular Sheaf fanout (`|`), typed-failure waterfall fallback (`//`), and independent `maker != checker` quorum check (`@`) — for example:
-     `orient >> sae_probe >> (leace_erase | nullspace_steer) // fallback_compress @ independent_quorum_check`
-   - Every engine (`30` engines / `112` sub-engines), tool (`18` tools), and Hermes surface (`5` surfaces) carries a static `CARD` descriptor pinned by SHA-256 in `.omni/cas` / `omninode.lock.json` (`verify_lockfile: true` fails closed on `hash_mismatch`) and emits a canonical `format: "grid/1"` cell receipt (`cell: sha256(normalized_config)`).
+Call `continuum_recall` with the Task in plain words when:
 
-2. **Right-Size Effort & Uncertainty (`continuum_calibrate_effort`, `continuum_conformal_calibrate`)**
-   - Estimate task uncertainty and stakes to pick `low`, `medium`, or `high` reasoning effort, select the right embedding slice width (`16`, `32`, `64`, or `128`), and check whether asking a clarifying question saves wasted work.
-   - Use `continuum_conformal_calibrate` (Split Conformal + Online Adaptive Conformal Inference) to construct finite-sample `1 - alpha` prediction sets and decide automatically between fast cartridge execution, multi-layer operator stacks, or full deliberation.
+- the user asks for something that looks like an earlier Task ("do the same as last time", a recurring report, the
+  same kind of calculation with new numbers);
+- you are about to do a long piece of work and a recorded answer may save steps;
+- the user asks "have we done this before?".
 
-3. **Probe Latent States & Steer in `Null(A_anchor)` (`continuum_probe_latent_state`, `continuum_steer_nullspace_vector`)**
-   - Run `continuum_probe_latent_state` on residual activations or trace summaries to decompose monosemantic Matryoshka Top-K JumpReLU SAE features, trace multi-layer sparse crosscoder circuits, detect ELK internal-belief vs surface-output divergence, and return Split-Conformal truthfulness sets (plus optional 9-runtime portable probe export).
-   - Use `continuum_steer_nullspace_vector` to extract Contrastive or SAE steering directions projected strictly onto `Null(A_anchor)` (`0.0` anchor subspace drift vs naive residual addition), fold zero-hook rank-1 `LoRA-XS` + bias patches, and export control operators across all 9 portable runtimes.
+The tool returns the closest recorded Tasks with their answers, their recorded outcome and the tools they used. It
+reads local records only, and only those of the same user on the same platform as the running turn. An empty result
+means that no record can be shown: there is none, the stored text was removed, or Continuum is off or only observes.
+Do not guess one.
 
-4. **Split Large Goals & Claim Exclusive Leases (`continuum_fission_dag`, `continuum_claim_and_fence`)**
-   - Break a multi-step goal into ordered subtasks stored locally in profile-scoped SQLite WAL storage, each with an explicit interface contract.
-   - Acquire an atomic compare-and-swap lease (`fencing_stamp`) before executing a subtask so parallel workers never overwrite each other; if a subtask was already verified by an independent reviewer, Continuum immediately returns the cached result.
+How to use what it returns:
 
-5. **Audit Multi-Agent Consistency & Verify Independently (`continuum_sheaf_consistency_audit`, `continuum_verify_record`)**
-   - Run `continuum_sheaf_consistency_audit` across multi-agent claims and communication edges to measure Cellular Sheaf coboundary obstruction energy, pinpoint contradictory edges, and compute harmonic consensus stalks.
-   - Record reviews via `continuum_verify_record` with strict `maker_id != checker_id` separation to update routing models, reviewer confusion matrices, VCG truthful incentives, and EigenTrust scores.
+1. Prefer records with a good outcome. A record marked not good tells you what to avoid.
+2. Check that the record really matches the new Task. Similar wording with different numbers needs a new
+   calculation, not a copied answer.
+3. Say that you reused an earlier answer when you do.
 
-6. **Compile & Modulate Skills Across 9 Portable Runtimes (`continuum_compile_cartridge`, `continuum_hyperlora_modulate`)**
-   - Turn recurring decision tables or verified input-output examples into fast multi-layer modules in any of nine zero-dependency runtimes: `rust` (`#![no_std]` embedded/kernel FFI), `glsl` (`#version 300 es` WebGL2 shader), `js`, `python`, `sql`, `c99`, `wasm`, `wat`, or `wgsl` (plus `safetensors`).
-   - Use `continuum_hyperlora_modulate` to generate input-conditioned Kronecker weight modulations projected strictly onto the safety-anchor SVD nullspace (`0.0` anchor drift) and export directly to any portable target.
+## Commands the user can run
 
-7. **Inspect & Continuously Improve (`continuum_analyze_spectrum`, `continuum_surgical_edit`, `continuum_coupling_step`, `continuum_morphism_transfer`, `continuum_manifold_status`, `continuum_context_grep`, `continuum_attractor_recall`)**
-   - Check weight health, `OmniNode` `CARD` lockfiles, and active `grid/1` cells, apply zero-drift surgical edits, transfer structure across related workflows, recall past session attractors, search deduplicated context history, and explore epistatic `TT-Cross` configurations across 172 axes offline using zero extra LLM tokens.
+Tell the user about these when they fit. They are slash commands for the user, not tools for you.
+
+| The user wants | Command |
+| :--- | :--- |
+| To see what Continuum has done so far | `/continuum` |
+| To know why the last turn went to that model | `/continuum why` |
+| To mark the last answer good or bad | `/continuum good` or `/continuum bad` |
+| To keep this session on their own model | `/continuum pin` (and `/continuum unpin`) |
+| To try a cheaper model again after the provider refused it | `/continuum unblock` |
+| To remove the stored Task and answer text | `/continuum forget-text` |
+| To rewrite the record file after text was removed | `hermes continuum compact` (shell) |
+| To check the policy on held-out records now | `/continuum audit` |
+| To share what was learned without sharing text | `/continuum export` |
+
+## What to tell the user
+
+- A mark with `/continuum good` or `/continuum bad` is the strongest signal Continuum gets. A mark counts for or
+  against the model that answered that turn, on similar Tasks. A `bad` mark on a cheaper model's answer can move
+  such Tasks back to the user's own model; `/continuum why` shows what the records say now.
+- Continuum moves a kind of Task to a cheaper model only on marks (or a check that a caller reports). With no
+  recent mark from the user it makes no trial turns; a kind that marks already moved can stay on the cheaper model.
+  A PASS from the user's own model's check and a thank-you count as weak evidence; a FAIL counts in full. If the
+  user asks why nothing moves, explain this and suggest marking a few answers.
+- If the user says an answer from a cheaper model was wrong, suggest `/continuum bad`, then answer the Task again
+  with care.
+- Continuum changes a request (the model, the tool list, an added past answer) only in `mode: auto` and only when
+  the user granted `llm.model_override`. Without it Continuum only records. With `mode: off` it records nothing.
+- A pinned session stays on the user's own model, unchanged, until `/continuum unpin`.
+- If `/continuum` shows a blocked model, the provider refused it. The user fixes the model name or access, then runs
+  `/continuum unblock`. The user also runs `/continuum unblock` once after a change to another provider.
+- Stored Task and answer text is removed after 90 days by default (setting `text_days`).
+- `unblock`, `audit`, `tune`, `forget-text`, `compact`, `export` and `import` act on the whole record file. They run only for
+  the local user: in the Hermes terminal chat, the TUI, the desktop app, an editor session over ACP, or from the
+  shell as `hermes continuum <command>`. On a chat platform they answer with a note and change nothing; tell the
+  user to run the shell command on the machine that runs Hermes. On a chat platform `/continuum` shows
+  the mode, model names, counts, policy values and short notes (an unread `mode` value, a missing consent, that
+  Continuum is off for this run or started a new record file), and no provider name, block reason or file name.
+- `forget-text` does not touch files that Continuum set aside as unreadable or the file of the experimental
+  engines; it names them, and the user deletes them.
+- The records stay on the user's machine. The export holds fingerprints and outcomes, no text.
+
+## What not to do
+
+- Do not tell the user that a cheaper model was "as good" for a Task unless the records say so; `/continuum why`
+  shows the evidence.
+- Do not paste a recalled answer without checking it against the new Task.

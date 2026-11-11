@@ -1,0 +1,299 @@
+{
+  "schema": "continuum.rightsize/1",
+  "about": "Defaults for the right-sizing loop. User settings in plugins.entries.continuum.settings override the keys under 'settings'. Nothing here is a measured result.",
+  "settings": {
+    "mode": "auto",
+    "small_model": "",
+    "small_model_cost_ratio": 0.2,
+    "rungs": "",
+    "size_tools": "observe",
+    "recall": true,
+    "store_text": true,
+    "explore_share": 0.1,
+    "self_tune": true,
+    "check_share": 0.3,
+    "small_model_max_context": 0,
+    "text_days": 90,
+    "rewrite_at_start_max_mib": 32
+  },
+  "fingerprint": {
+    "minhash_size": 32,
+    "band_count": 4,
+    "word_buckets": 512,
+    "levels": {
+      "sketch": {
+        "scale": 0.5,
+        "power": 2
+      },
+      "words": {
+        "scale": 0.7,
+        "power": 3
+      },
+      "profile": {
+        "scale": 1.0,
+        "power": 6
+      }
+    },
+    "template_floor": 0.9,
+    "contract_mismatch": 0.5,
+    "presets": {
+      "balanced": {
+        "sketch": 1.0,
+        "words": 1.0,
+        "profile": 1.0
+      },
+      "words-first": {
+        "sketch": 1.0,
+        "words": 2.0,
+        "profile": 0.5
+      },
+      "shape-first": {
+        "sketch": 0.5,
+        "words": 0.5,
+        "profile": 2.0
+      },
+      "sketch-first": {
+        "sketch": 2.0,
+        "words": 1.0,
+        "profile": 0.5
+      },
+      "words-only": {
+        "sketch": 0.0,
+        "words": 1.0,
+        "profile": 0.0
+      },
+      "shape-only": {
+        "sketch": 0.0,
+        "words": 0.0,
+        "profile": 1.0
+      }
+    },
+    "default_preset": "balanced",
+    "contract_out": [
+      [
+        "choice",
+        "\\n\\s*\\(?[A-Da-d][\\).]\\s"
+      ],
+      [
+        "code",
+        "```|\\b(write|implement|fix|refactor|debug)\\b.{0,60}\\b(function|script|code|class|test|bug|program|regex|query)\\b"
+      ],
+      [
+        "action",
+        "^\\s*(please\\s+)?(create|make|run|install|open|download|delete|move|rename|deploy|commit|push|search|find|read|list|show|check|send|schedule|set up|start|stop)\\b"
+      ],
+      [
+        "number",
+        "^what('s| is) [-\\d(][\\d\\s+\\-*/().^x]*\\??$|\\b(how many|how much|how long|how far|calculate|compute|what is the (sum|total|difference|product|average|number))\\b|^[\\d\\s+\\-*/().=]+$"
+      ],
+      [
+        "yes-no",
+        "^\\s*(is|are|was|were|does|do|did|can|could|should|will|would|has|have)\\b"
+      ],
+      [
+        "rewrite",
+        "\\b(summari[sz]e|rewrite|translate|rephrase|shorten|proofread|paraphrase)\\b"
+      ],
+      [
+        "explain",
+        "\\b(why|explain|how does|how do|what does|compare|difference between)\\b"
+      ]
+    ],
+    "contract_in": [
+      [
+        "expression",
+        "^[\\d\\s+\\-*/().=]+$"
+      ],
+      [
+        "code",
+        "```|\\bdef \\w+\\(|\\bfunction \\w+\\(|#include|\\bclass \\w+[:{(]"
+      ],
+      [
+        "long-text",
+        "(?s)^(?:\\S+\\s+){150,}"
+      ]
+    ]
+  },
+  "chooser": {
+    "neighbours": 12,
+    "min_similarity": 0.35,
+    "min_evidence": 3.0,
+    "floor": 0.7,
+    "tolerance": 0.05,
+    "z": 1.0,
+    "prior_strength": 1.0,
+    "max_pool": 5000,
+    "max_calls_on_small": 8,
+    "context_fill": 0.8,
+    "never_downsize": "\\b(production|deploy\\w*|payments?|invoic\\w*|legal|medical|diagnos\\w*|passwords?|secrets?|credentials?|rm -rf|drop table|migrations?|wire transfers?)\\b",
+    "strong_weight": 0.5,
+    "strong_takeover": 1.0,
+    "promising_boost": 1.0,
+    "promising_evidence": 1.0,
+    "promising_max_share": 0.5,
+    "require_checked": true,
+    "explore_needs_marks": 50,
+    "import_max_evidence": 2.0,
+    "no_block_reasons": [
+      "content_policy_blocked",
+      "context_overflow",
+      "payload_too_large",
+      "image_too_large",
+      "image_corrupt",
+      "long_context_tier",
+      "thinking_signature",
+      "timeout",
+      "rate_limit",
+      "upstream_rate_limit",
+      "overloaded",
+      "server_error",
+      "ssl_cert_verification",
+      "auth",
+      "auth_permanent",
+      "billing",
+      "data_policy_denied",
+      "upstream_blocked",
+      "provider_policy_blocked",
+      "format_error",
+      "role_alternation",
+      "incomplete_response",
+      "invalid_encrypted_content",
+      "multimodal_tool_content_unsupported",
+      "reasoning_mandatory",
+      "oauth_long_context_beta_forbidden"
+    ],
+    "block_reasons": [
+      "model_not_found",
+      "model_entitlement"
+    ],
+    "block_after_refusals": 3
+  },
+  "holdout": {
+    "share": 0.2,
+    "audit_window": 400,
+    "audit_min_evidence": 4.0,
+    "audit_margin": 0.1,
+    "step_floor": 0.05,
+    "max_floor": 0.95,
+    "step_evidence": 1.0,
+    "max_evidence": 12.0,
+    "strong_weight": 0.5,
+    "audit_new_evidence": 2.0
+  },
+  "tune": {
+    "min_records": 40,
+    "max_records": 300,
+    "max_queries": 120,
+    "every": 25,
+    "holdout_margin": 0.01
+  },
+  "tools": {
+    "always_keep": [
+      "terminal",
+      "read_file",
+      "write_file",
+      "patch",
+      "search_files",
+      "todo",
+      "memory",
+      "clarify",
+      "continuum_recall"
+    ],
+    "min_neighbours": 5,
+    "min_similarity": 0.5,
+    "miss_pattern": "\\b(i (do not|don't) have (access to )?(a |any |the )?tool|no tool (is )?available|i (cannot|can't) (browse|search the web|run|execute|access))"
+  },
+  "import": {
+    "trust": 0.5,
+    "max_records": 20000,
+    "max_pool": 1000
+  },
+  "recall": {
+    "min_similarity": 0.92,
+    "min_weight": 0.9,
+    "max_chars": 2000,
+    "single_user_platforms": [
+      "cli",
+      "tui",
+      "desktop",
+      "acp",
+      "local"
+    ]
+  },
+  "outcomes": {
+    "explicit": {
+      "weight": 1.0
+    },
+    "check": {
+      "weight": 1.0
+    },
+    "thanks": {
+      "score": 1.0,
+      "weight": 0.3,
+      "pattern": "^\\s*(thanks|thank you|perfect|great|nice|awesome|that works|works now|exactly|good job|lgtm)\\b"
+    },
+    "correction": {
+      "score": 0.0,
+      "weight": 0.5,
+      "pattern": "^\\s*(no(?!\\s*[,.]?\\s*(problem|worries|need|thanks|thank you|rush|issues?|big deal|that'?s (fine|ok|okay|all|it|good|great|right|correct|enough)|that is (fine|ok|okay|all|it|good|great|right|correct|enough)|it'?s (fine|ok|okay|good)|all good|i'?m (good|fine|ok|okay))\\b)[,. ]|nope|wrong|that'?s (not|wrong|incorrect)|that is (not|wrong|incorrect)|incorrect|still (not|wrong|broken|fails)|try again|you (missed|forgot|ignored)|not what i)"
+    },
+    "asked_again": {
+      "score": 0.0,
+      "weight": 0.6,
+      "similarity": 0.8,
+      "min_words": 4
+    },
+    "moved_on": {
+      "score": 1.0,
+      "weight": 0.3
+    },
+    "session_end": {
+      "score": 1.0,
+      "weight": 0.2
+    },
+    "escalated": {
+      "score": 0.0,
+      "weight": 0.6
+    },
+    "api_error": {
+      "score": 0.0,
+      "weight": 0.6
+    },
+    "cut_off": {
+      "score": 0.0,
+      "weight": 0.5
+    },
+    "empty": {
+      "score": 0.0,
+      "weight": 0.7
+    },
+    "tool_errors": {
+      "score": 0.0,
+      "weight": 0.3,
+      "share": 0.5
+    },
+    "reference_check": {
+      "weight": 0.8,
+      "pass_weight": 0.3,
+      "timeout_s": 45,
+      "replaces": [
+        "session_end",
+        "moved_on",
+        "thanks"
+      ],
+      "prompt": "Continuum quality check. Reply with one word only: PASS or FAIL. PASS means the last assistant reply fully and correctly answered the user's last message. FAIL means it is wrong, incomplete, or does not answer it."
+    },
+    "api_error_transient": {
+      "score": 0.0,
+      "weight": 0.2,
+      "reasons": [
+        "rate_limit",
+        "upstream_rate_limit",
+        "overloaded",
+        "timeout",
+        "server_error",
+        "ssl_cert_verification"
+      ]
+    }
+  }
+}

@@ -55,16 +55,26 @@ def _resolve_rustc() -> str | None:
 
 
 class _HarnessContext:
+    """A Hermes context with the experimental engines switched on."""
+
     def __init__(self) -> None:
         self.tools: dict[str, Any] = {}
-        self.hooks: dict[str, Any] = {}
+        self.hooks: dict[str, list[Any]] = {}
+        self.middleware: dict[str, Any] = {}
         self.commands: dict[str, Any] = {}
         self.context_engine = None
         self.memory_provider = None
         self.delegation_provider = None
 
     def get_config(self, key: str, default=None):
-        return default
+        return True if key == "enable_lab_tools" else default
+
+    def register_middleware(self, kind: str, callback, **kwargs) -> None:
+        self.middleware[kind] = callback
+
+    def fire(self, hook_name: str, **kwargs: Any) -> None:
+        for callback in self.hooks.get(hook_name, []):
+            callback(**kwargs)
 
     def register_context_engine(self, eng) -> None:
         self.context_engine = eng
@@ -79,7 +89,7 @@ class _HarnessContext:
         self.tools[name] = handler
 
     def register_hook(self, hook_name: str, callback, **kwargs) -> None:
-        self.hooks[hook_name] = callback
+        self.hooks.setdefault(hook_name, []).append(callback)
 
     def register_command(self, name: str, handler, **kwargs) -> None:
         self.commands[name] = handler
@@ -993,19 +1003,21 @@ def test_all_eighteen_registered_tools_hooks_command_and_dashboard_api(
 
     ctx = _HarnessContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 18
+    assert len(ctx.tools) == 19  # 18 lab tools and continuum_recall
+    assert set(ctx.middleware) == {"llm_request"}
 
-    ctx.hooks["on_session_start"](session_id="test_sess")
-    ctx.hooks["pre_tool_call"]()
-    status_txt = ctx.commands["continuum"]("status")
-    step_txt = ctx.commands["continuum"]("step")
-    omni_txt = ctx.commands["continuum"]("omninode")
-    assert "30 engines (112 sub-engines)" in status_txt
-    assert "172 tunable params" in status_txt
-    assert "9 targets" in status_txt
-    assert "OmniNode CARD lockfile=verified:" in status_txt
+    ctx.fire("pre_llm_call", session_id="test_sess", user_message="Split a goal into two steps.",
+             is_first_turn=True, model="own-model")
+    assert "only for the local user" in ctx.commands["continuum"]("lab", platform="telegram")
+    status_txt = ctx.commands["continuum"]("lab", platform="cli")
+    step_txt = ctx.commands["continuum"]("step", platform="cli")
+    omni_txt = ctx.commands["continuum"]("omninode", platform="cli")
+    assert "30 engine modules" in status_txt
+    assert "172 settings" in status_txt
+    assert "experimental engines; on" in status_txt
     assert "adaptation step" in step_txt
-    assert "Continuum OmniNode run ok=True" in omni_txt
+    assert "OmniNode run ok=True" in omni_txt
+    assert "Continuum" in ctx.commands["continuum"]("status")
 
     fission = json.loads(ctx.tools["continuum_fission_dag"]({"goal": "Alpha. Beta."}))
     tid = fission["tasks"][0]["task_id"]
@@ -1117,8 +1129,10 @@ def test_all_eighteen_registered_tools_hooks_command_and_dashboard_api(
     assert "interpolated_engine_config" in m_status
     assert "omninode" in m_status
 
-    ctx.hooks["post_tool_call"]()
-    ctx.hooks["on_session_end"]()
+    ctx.fire("post_tool_call", tool_name="continuum_manifold_status", session_id="test_sess", result="{}")
+    ctx.fire("post_llm_call", session_id="test_sess", assistant_response="Done.")
+    ctx.fire("on_session_end", session_id="test_sess")
+    ctx.fire("on_session_finalize", session_id="test_sess")
 
     dash_status = dashboard_api.get_continuum_status()
     dash_engines = dashboard_api.get_continuum_engines()

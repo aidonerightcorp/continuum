@@ -1,0 +1,252 @@
+{
+  "run": "two-phase-v1",
+  "n": 480,
+  "arms": {
+    "A-own-model": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.6458333333333334,
+        "small_share": 0.0,
+        "sec": 608.724,
+        "tok_ref": 191238,
+        "tok_small": 0,
+        "price": 191238.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.5833333333333334,
+          0.7041666666666667
+        ]
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.6125,
+        "small_share": 0.0,
+        "sec": 627.697,
+        "tok_ref": 190280,
+        "tok_small": 0,
+        "price": 190280.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.55,
+          0.675
+        ]
+      }
+    },
+    "B-small-model": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.2833333333333333,
+        "small_share": 1.0,
+        "sec": 1198.693,
+        "tok_ref": 0,
+        "tok_small": 208241,
+        "price": 41648.200000000004,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.225,
+          0.3416666666666667
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": -0.3625,
+        "interval": [
+          -0.4375,
+          -0.2916666666666667
+        ],
+        "sec_ratio": 1.9691896491677672,
+        "tok_ref_ratio": 0.0,
+        "price_ratio": 0.21778203076794364
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.275,
+        "small_share": 1.0,
+        "sec": 1194.612,
+        "tok_ref": 0,
+        "tok_small": 209736,
+        "price": 41947.200000000004,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.22083333333333333,
+          0.3333333333333333
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.3375,
+        "interval": [
+          -0.4125,
+          -0.25833333333333336
+        ],
+        "sec_ratio": 1.9031666552492685,
+        "tok_ref_ratio": 0.0,
+        "price_ratio": 0.22044986335926006
+      }
+    },
+    "C-marked": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.5916666666666667,
+        "small_share": 0.12916666666666668,
+        "sec": 587.532,
+        "tok_ref": 163719,
+        "tok_small": 26620,
+        "price": 169043.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.5333333333333333,
+          0.6541666666666667
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": -0.05416666666666667,
+        "interval": [
+          -0.12916666666666668,
+          0.020833333333333332
+        ],
+        "sec_ratio": 0.9651861927573088,
+        "tok_ref_ratio": 0.8561007749505851,
+        "price_ratio": 0.8839404302492182
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.5541666666666667,
+        "small_share": 0.020833333333333332,
+        "sec": 605.399,
+        "tok_ref": 185713,
+        "tok_small": 4596,
+        "price": 186632.2,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.49166666666666664,
+          0.6166666666666667
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.058333333333333334,
+        "interval": [
+          -0.13333333333333333,
+          0.016666666666666666
+        ],
+        "sec_ratio": 0.964476491045839,
+        "tok_ref_ratio": 0.9759985284843389,
+        "price_ratio": 0.9808293041833088
+      }
+    },
+    "D-self-checked": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.5708333333333333,
+        "small_share": 0.17916666666666667,
+        "sec": 701.403,
+        "tok_ref": 197433,
+        "tok_small": 36584,
+        "price": 204749.8,
+        "checks": 44,
+        "errors": 0,
+        "right_interval": [
+          0.5083333333333333,
+          0.6375
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": -0.075,
+        "interval": [
+          -0.14583333333333334,
+          -0.004166666666666667
+        ],
+        "sec_ratio": 1.1522512665838704,
+        "tok_ref_ratio": 1.0323941894393374,
+        "price_ratio": 1.0706543678557607
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.4708333333333333,
+        "small_share": 0.42083333333333334,
+        "sec": 797.354,
+        "tok_ref": 207903,
+        "tok_small": 83474,
+        "price": 224597.8,
+        "checks": 107,
+        "errors": 0,
+        "right_interval": [
+          0.4083333333333333,
+          0.5375
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.14166666666666666,
+        "interval": [
+          -0.21666666666666667,
+          -0.06666666666666667
+        ],
+        "sec_ratio": 1.2702848667430304,
+        "tok_ref_ratio": 1.092616144628968,
+        "price_ratio": 1.1803542148412864
+      },
+      "checks": {
+        "n": 151,
+        "agree": 65,
+        "wrong_checked": 108,
+        "wrong_passed": 86
+      }
+    },
+    "E-marked-fast": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.6125,
+        "small_share": 0.12916666666666668,
+        "sec": 813.077,
+        "tok_ref": 165265,
+        "tok_small": 29802,
+        "price": 171225.4,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.55,
+          0.675
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": -0.03333333333333333,
+        "interval": [
+          -0.10416666666666667,
+          0.03333333333333333
+        ],
+        "sec_ratio": 1.3357071513526655,
+        "tok_ref_ratio": 0.8641849423231784,
+        "price_ratio": 0.8953523881236992
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.6041666666666666,
+        "small_share": 0.016666666666666666,
+        "sec": 591.2,
+        "tok_ref": 185841,
+        "tok_small": 3435,
+        "price": 186528.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.5458333333333333,
+          0.6666666666666666
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.008333333333333333,
+        "interval": [
+          -0.075,
+          0.058333333333333334
+        ],
+        "sec_ratio": 0.9418557042649559,
+        "tok_ref_ratio": 0.9766712213579988,
+        "price_ratio": 0.9802816901408451
+      }
+    }
+  }
+}

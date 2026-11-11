@@ -1,0 +1,8 @@
+{
+  "about": "The plugin code the plugin arms of this run load (CONTINUUM_PLUGIN_DIR). Copied from the working clone before the first plugin arm.",
+  "files": 42,
+  "sha256_of_paths_and_bytes": "0460b6e84294a4756d3f1eb3c941222b322d3a13f47466713eed5fccc5e9ecab",
+  "taken": "2026-11-10 22:19:27 EST",
+  "tests_at_this_state": "244 passed",
+  "branch": "v2-rightsize (uncommitted working tree)"
+}

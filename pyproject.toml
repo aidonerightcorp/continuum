@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "continuum"
-version = "1.3.0"
-description = "OmniNode-encased unified self-improving agent engine for Hermes: 30 cybernetic engines (112 sub-engines), 18 continuum_* tools, >> // | @ shape composition, grid/1 cell receipts, SAE/ELK latent probing, Nullspace steering, and 9-target skill compilation."
+version = "2.0.0"
+description = "Hermes sizes itself to each Task: Continuum learns from your own sessions which Tasks a cheaper model answers just as well, sends only those there, records every attempt and checks its own choices."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
@@ -13,7 +13,7 @@ authors = [{name = "aidonerightcorp"}]
 dependencies = []
 
 [tool.setuptools]
-packages = ["continuum_core"]
+packages = ["continuum_core", "continuum_core.rightsize"]
 py-modules = ["omninode_shell"]
 
 [tool.pytest.ini_options]

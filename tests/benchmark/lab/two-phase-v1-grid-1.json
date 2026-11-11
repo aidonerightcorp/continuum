@@ -1,0 +1,476 @@
+{
+ "what": "REPLAY of recorded answers through the plugin's engine; not a live run",
+ "run": "two-phase-v1",
+ "items": "items/hermes-two-phase.jsonl",
+ "seeds": 6,
+ "shuffle": true,
+ "price_ratio": 0.2,
+ "plugin": "../continuum",
+ "seconds": 437.2,
+ "grid": {
+  "default (as live arm C)": {},
+  "explore 0.3 (as live arm E)": {
+   "settings": {
+    "explore_share": 0.3
+   }
+  },
+  "boost 3": {
+   "config": {
+    "chooser": {
+     "promising_boost": 3.0
+    }
+   }
+  },
+  "boost 5": {
+   "config": {
+    "chooser": {
+     "promising_boost": 5.0
+    }
+   }
+  },
+  "boost 5, max share 0.8": {
+   "config": {
+    "chooser": {
+     "promising_boost": 8.0,
+     "promising_max_share": 0.8
+    }
+   }
+  },
+  "boost 5, evidence 2": {
+   "config": {
+    "chooser": {
+     "promising_boost": 5.0,
+     "promising_evidence": 2.0
+    }
+   }
+  }
+ },
+ "settings": {
+  "default (as live arm C)": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.6014,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0444,
+     "difference_min": -0.0542,
+     "difference_max": -0.0333,
+     "small_share": 0.0889,
+     "small_share_min": 0.0708,
+     "small_share_max": 0.1042,
+     "small_model_accuracy_on_its_turns": 0.2455,
+     "own_model_tokens_vs_A": 0.9102,
+     "price_vs_A": 0.9299,
+     "model_seconds_vs_A": 1.0913
+    },
+    {
+     "accuracy": 0.6056,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0069,
+     "difference_min": -0.0167,
+     "difference_max": 0.0,
+     "small_share": 0.0312,
+     "small_share_min": 0.0208,
+     "small_share_max": 0.0542,
+     "small_model_accuracy_on_its_turns": 0.3582,
+     "own_model_tokens_vs_A": 0.9666,
+     "price_vs_A": 0.9745,
+     "model_seconds_vs_A": 1.0489
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.025,
+     "accuracy": 0.408,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.067,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.025,
+     "accuracy": 0.608,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.033,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.033,
+     "accuracy": 0.796,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.004,
+     "accuracy": 0.821,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  },
+  "explore 0.3 (as live arm E)": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.5931,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0528,
+     "difference_min": -0.075,
+     "difference_max": -0.0333,
+     "small_share": 0.1313,
+     "small_share_min": 0.1208,
+     "small_share_max": 0.1458,
+     "small_model_accuracy_on_its_turns": 0.3149,
+     "own_model_tokens_vs_A": 0.8678,
+     "price_vs_A": 0.8973,
+     "model_seconds_vs_A": 1.1561
+    },
+    {
+     "accuracy": 0.6056,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0069,
+     "difference_min": -0.0167,
+     "difference_max": 0.0042,
+     "small_share": 0.0243,
+     "small_share_min": 0.0083,
+     "small_share_max": 0.0417,
+     "small_model_accuracy_on_its_turns": 0.3528,
+     "own_model_tokens_vs_A": 0.9749,
+     "price_vs_A": 0.9807,
+     "model_seconds_vs_A": 1.0329
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.0,
+     "accuracy": 0.425,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.021,
+     "accuracy": 0.492,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.033,
+     "accuracy": 0.621,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.008,
+     "accuracy": 0.496,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.071,
+     "accuracy": 0.787,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.013,
+     "accuracy": 0.812,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  },
+  "boost 3": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.609,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0368,
+     "difference_min": -0.05,
+     "difference_max": -0.0292,
+     "small_share": 0.0694,
+     "small_share_min": 0.0542,
+     "small_share_max": 0.0917,
+     "small_model_accuracy_on_its_turns": 0.2161,
+     "own_model_tokens_vs_A": 0.9296,
+     "price_vs_A": 0.9452,
+     "model_seconds_vs_A": 1.0799
+    },
+    {
+     "accuracy": 0.6069,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0056,
+     "difference_min": -0.0125,
+     "difference_max": 0.0,
+     "small_share": 0.025,
+     "small_share_min": 0.0167,
+     "small_share_max": 0.0333,
+     "small_model_accuracy_on_its_turns": 0.3536,
+     "own_model_tokens_vs_A": 0.974,
+     "price_vs_A": 0.9799,
+     "model_seconds_vs_A": 1.0315
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.017,
+     "accuracy": 0.417,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.05,
+     "accuracy": 0.504,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.021,
+     "accuracy": 0.621,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.021,
+     "accuracy": 0.492,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.029,
+     "accuracy": 0.787,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.013,
+     "accuracy": 0.821,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  },
+  "boost 5": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.6153,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0306,
+     "difference_min": -0.0375,
+     "difference_max": -0.0208,
+     "small_share": 0.059,
+     "small_share_min": 0.0417,
+     "small_share_max": 0.0708,
+     "small_model_accuracy_on_its_turns": 0.2073,
+     "own_model_tokens_vs_A": 0.94,
+     "price_vs_A": 0.9533,
+     "model_seconds_vs_A": 1.0685
+    },
+    {
+     "accuracy": 0.6069,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0056,
+     "difference_min": -0.0125,
+     "difference_max": 0.0,
+     "small_share": 0.0243,
+     "small_share_min": 0.0125,
+     "small_share_max": 0.0375,
+     "small_model_accuracy_on_its_turns": 0.3565,
+     "own_model_tokens_vs_A": 0.9751,
+     "price_vs_A": 0.9805,
+     "model_seconds_vs_A": 1.0223
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.013,
+     "accuracy": 0.421,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.046,
+     "accuracy": 0.508,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.029,
+     "accuracy": 0.617,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.013,
+     "accuracy": 0.496,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.037,
+     "accuracy": 0.779,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.008,
+     "accuracy": 0.821,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  },
+  "boost 5, max share 0.8": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.616,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0299,
+     "difference_min": -0.0458,
+     "difference_max": -0.0167,
+     "small_share": 0.0563,
+     "small_share_min": 0.0417,
+     "small_share_max": 0.0708,
+     "small_model_accuracy_on_its_turns": 0.1871,
+     "own_model_tokens_vs_A": 0.9431,
+     "price_vs_A": 0.9556,
+     "model_seconds_vs_A": 1.0613
+    },
+    {
+     "accuracy": 0.609,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0035,
+     "difference_min": -0.0125,
+     "difference_max": 0.0042,
+     "small_share": 0.0215,
+     "small_share_min": 0.0083,
+     "small_share_max": 0.0333,
+     "small_model_accuracy_on_its_turns": 0.4,
+     "own_model_tokens_vs_A": 0.9778,
+     "price_vs_A": 0.9827,
+     "model_seconds_vs_A": 1.0208
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.013,
+     "accuracy": 0.421,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.029,
+     "accuracy": 0.512,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.029,
+     "accuracy": 0.617,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.008,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.042,
+     "accuracy": 0.783,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.008,
+     "accuracy": 0.821,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  },
+  "boost 5, evidence 2": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.6069,
+     "own_model_accuracy": 0.6458,
+     "difference": -0.0389,
+     "difference_min": -0.05,
+     "difference_max": -0.025,
+     "small_share": 0.0743,
+     "small_share_min": 0.0542,
+     "small_share_max": 0.0958,
+     "small_model_accuracy_on_its_turns": 0.2431,
+     "own_model_tokens_vs_A": 0.925,
+     "price_vs_A": 0.9417,
+     "model_seconds_vs_A": 1.0857
+    },
+    {
+     "accuracy": 0.6069,
+     "own_model_accuracy": 0.6125,
+     "difference": -0.0056,
+     "difference_min": -0.0083,
+     "difference_max": 0.0,
+     "small_share": 0.0257,
+     "small_share_min": 0.0083,
+     "small_share_max": 0.0417,
+     "small_model_accuracy_on_its_turns": 0.2537,
+     "own_model_tokens_vs_A": 0.9729,
+     "price_vs_A": 0.9796,
+     "model_seconds_vs_A": 1.0503
+    }
+   ],
+   "test_kinds": {
+    "arithmetic-expression": {
+     "small_share": 0.025,
+     "accuracy": 0.412,
+     "own_model": 0.425,
+     "small_model": 0.075
+    },
+    "date-choice": {
+     "small_share": 0.046,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.275
+    },
+    "object-counting": {
+     "small_share": 0.025,
+     "accuracy": 0.617,
+     "own_model": 0.625,
+     "small_model": 0.1
+    },
+    "tracking-choice": {
+     "small_share": 0.025,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.175
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.029,
+     "accuracy": 0.792,
+     "own_model": 0.8,
+     "small_model": 0.575
+    },
+    "word-problem-one-step": {
+     "small_share": 0.004,
+     "accuracy": 0.821,
+     "own_model": 0.825,
+     "small_model": 0.45
+    }
+   }
+  }
+ }
+}

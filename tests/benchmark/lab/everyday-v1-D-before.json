@@ -1,0 +1,192 @@
+{
+ "what": "REPLAY of recorded answers through the plugin's engine; not a live run",
+ "run": "everyday-v1",
+ "items": "items/everyday-two-phase.jsonl",
+ "seeds": 6,
+ "shuffle": true,
+ "price_ratio": 0.2,
+ "plugin": "../continuum",
+ "feedback": "check",
+ "judge": "0.979,0.826",
+ "seconds": 224.5,
+ "grid": {
+  "as live arm D (check every cheaper answer)": {
+   "settings": {
+    "check_share": 1.0
+   }
+  },
+  "default checks (check_share 0.3)": {
+   "settings": {
+    "check_share": 0.3
+   }
+  }
+ },
+ "settings": {
+  "as live arm D (check every cheaper answer)": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.7542,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0875,
+     "difference_min": -0.1583,
+     "difference_max": -0.0167,
+     "small_share": 0.2632,
+     "small_share_min": 0.0792,
+     "small_share_max": 0.4542,
+     "small_model_accuracy_on_its_turns": 0.5282,
+     "own_model_tokens_vs_A": 0.739,
+     "price_vs_A": 0.797,
+     "model_seconds_vs_A": 1.2373
+    },
+    {
+     "accuracy": 0.675,
+     "own_model_accuracy": 0.8,
+     "difference": -0.125,
+     "difference_min": -0.2375,
+     "difference_max": -0.0458,
+     "small_share": 0.4444,
+     "small_share_min": 0.225,
+     "small_share_max": 0.6875,
+     "small_model_accuracy_on_its_turns": 0.5307,
+     "own_model_tokens_vs_A": 0.5549,
+     "price_vs_A": 0.6498,
+     "model_seconds_vs_A": 1.271
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.55,
+     "accuracy": 0.917,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.517,
+     "accuracy": 0.411,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.3,
+     "accuracy": 0.672,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.278,
+     "accuracy": 0.772,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.494,
+     "accuracy": 0.467,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.461,
+     "accuracy": 0.833,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.483,
+     "accuracy": 0.656,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.472,
+     "accuracy": 0.672,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "default checks (check_share 0.3)": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8035,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0382,
+     "difference_min": -0.0583,
+     "difference_max": -0.0125,
+     "small_share": 0.1076,
+     "small_share_min": 0.0875,
+     "small_share_max": 0.125,
+     "small_model_accuracy_on_its_turns": 0.5142,
+     "own_model_tokens_vs_A": 0.892,
+     "price_vs_A": 0.9153,
+     "model_seconds_vs_A": 1.0733
+    },
+    {
+     "accuracy": 0.759,
+     "own_model_accuracy": 0.8,
+     "difference": -0.041,
+     "difference_min": -0.1208,
+     "difference_max": -0.0208,
+     "small_share": 0.1389,
+     "small_share_min": 0.0833,
+     "small_share_max": 0.3167,
+     "small_model_accuracy_on_its_turns": 0.4909,
+     "own_model_tokens_vs_A": 0.8611,
+     "price_vs_A": 0.8893,
+     "model_seconds_vs_A": 1.0386
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.106,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.111,
+     "accuracy": 0.522,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.083,
+     "accuracy": 0.806,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.128,
+     "accuracy": 0.806,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.089,
+     "accuracy": 0.644,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.217,
+     "accuracy": 0.906,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.178,
+     "accuracy": 0.739,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.2,
+     "accuracy": 0.789,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  }
+ }
+}

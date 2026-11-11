@@ -1,13 +1,13 @@
 {
   "name": "continuum",
   "label": "Continuum",
-  "description": "OmniNode-encased unified self-improving agent engine: 30 cybernetic engines (112 sub-engines), 18 tools, >> // | @ shape composition, CARD lockfiles & grid/1 cell receipts, Latent Mind SAE/ELK probing, Nullspace steering, and 9-target compilation.",
-  "icon": "Cpu",
-  "version": "1.3.0",
+  "description": "Hermes sizes itself to each Task: see what Continuum chose for each turn, how it went, and what it learned. Read-only view of the records on this machine.",
+  "icon": "Activity",
+  "version": "2.0.0",
   "entry": "bundle.js",
   "api": "plugin_api.py",
   "tab": {
     "path": "/continuum",
-    "position": "end"
+    "position": "after:skills"
   }
 }

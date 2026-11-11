@@ -1,0 +1,79 @@
+{
+  "schema": "continuum.bench/1",
+  "about": "Settings of the Hermes on/off benchmark. Nothing here is a result. bench_hermes.py reads this file; a run copies it into its folder.",
+  "endpoint": "http://127.0.0.1:11434/v1",
+  "reference_model": "coder-7b-bench",
+  "small_model": "meta-3b-bench",
+  "declared_context": 64000,
+  "real_context": 16384,
+  "toolsets": [],
+  "max_iterations": 6,
+  "prompt_suffix": "\n\nWork through it step by step. Then end your reply with one last line in this form: Answer: <the number, or the letter of the option>",
+  "phases": [
+    {
+      "title": "Learning phase",
+      "items": "hermes-learn.jsonl",
+      "from": 0,
+      "to": 240,
+      "about": "240 public Tasks. Continuum starts with an empty record file."
+    },
+    {
+      "title": "Test phase",
+      "items": "hermes-v1.jsonl",
+      "from": 240,
+      "to": 480,
+      "about": "240 other public Tasks of the same six kinds. Continuum keeps the records of the learning phase. This phase carries the headline figures."
+    }
+  ],
+  "arms": {
+    "A-own-model": {
+      "about": "Hermes with the user's own (larger) model for every Task. Continuum is not loaded.",
+      "model": "reference",
+      "plugin": false
+    },
+    "B-small-model": {
+      "about": "Hermes with the small model for every Task. Continuum is not loaded.",
+      "model": "small",
+      "plugin": false
+    },
+    "C-marked": {
+      "about": "Continuum on, default settings. After every turn the harness marks the answer good or bad with the plugin's own /continuum command, from the answer key. This stands for a user who marks every turn.",
+      "model": "reference",
+      "plugin": true,
+      "grants": [
+        "llm.model_override"
+      ],
+      "settings": {
+        "check_share": 0.0
+      },
+      "feedback": "answer_key"
+    },
+    "D-self-checked": {
+      "about": "Continuum on, nobody marks anything. The user's own model checks every turn that the small model answered (one PASS or FAIL question). The answer key is used only to score the run afterwards.",
+      "model": "reference",
+      "plugin": true,
+      "grants": [
+        "llm.model_override",
+        "llm.side_question"
+      ],
+      "settings": {
+        "check_share": 1.0
+      },
+      "feedback": "none"
+    },
+    "E-marked-fast": {
+      "about": "As C, with a larger share of trial turns (explore_share 0.3), so the store fills faster.",
+      "model": "reference",
+      "plugin": true,
+      "grants": [
+        "llm.model_override"
+      ],
+      "settings": {
+        "check_share": 0.0,
+        "explore_share": 0.3
+      },
+      "feedback": "answer_key"
+    }
+  },
+  "temperature_in_model_alias": 0.2
+}

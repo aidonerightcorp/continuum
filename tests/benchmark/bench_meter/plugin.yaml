@@ -1,0 +1,8 @@
+name: bench_meter
+version: "0.1.0"
+description: "Benchmark meter for the Continuum harness. Writes one line per model call (model, tokens, seconds) to a local file. Not part of the Continuum plugin."
+author: "Continuum benchmark harness"
+provides_hooks:
+  - post_api_request
+  - api_request_error
+  - post_auxiliary_call

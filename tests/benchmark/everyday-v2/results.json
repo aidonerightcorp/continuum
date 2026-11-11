@@ -1,0 +1,246 @@
+{
+  "run": "everyday-v2",
+  "n": 480,
+  "arms": {
+    "A-own-model": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.7791666666666667,
+        "small_share": 0.0,
+        "sec": 617.774,
+        "tok_ref": 184170,
+        "tok_small": 0,
+        "price": 184170.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.725,
+          0.8291666666666667
+        ]
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.8041666666666667,
+        "small_share": 0.0,
+        "sec": 623.929,
+        "tok_ref": 184198,
+        "tok_small": 0,
+        "price": 184198.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7541666666666667,
+          0.85
+        ]
+      }
+    },
+    "A2-own-model-repeat": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.8125,
+        "small_share": 0.0,
+        "sec": 605.043,
+        "tok_ref": 182962,
+        "tok_small": 0,
+        "price": 182962.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7625,
+          0.8583333333333333
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": 0.03333333333333333,
+        "interval": [
+          -0.020833333333333332,
+          0.09166666666666666
+        ],
+        "sec_ratio": 0.9793921401677637,
+        "tok_ref_ratio": 0.9934408426996797,
+        "price_ratio": 0.9934408426996797
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.8041666666666667,
+        "small_share": 0.0,
+        "sec": 588.518,
+        "tok_ref": 185468,
+        "tok_small": 0,
+        "price": 185468.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.75,
+          0.85
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": 0.0,
+        "interval": [
+          -0.058333333333333334,
+          0.058333333333333334
+        ],
+        "sec_ratio": 0.9432451448802669,
+        "tok_ref_ratio": 1.0068947545575957,
+        "price_ratio": 1.0068947545575957
+      }
+    },
+    "B-small-model": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.525,
+        "small_share": 1.0,
+        "sec": 591.541,
+        "tok_ref": 0,
+        "tok_small": 193740,
+        "price": 38748.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.4625,
+          0.5875
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": -0.25416666666666665,
+        "interval": [
+          -0.325,
+          -0.18333333333333332
+        ],
+        "sec_ratio": 0.9575362511209602,
+        "tok_ref_ratio": 0.0,
+        "price_ratio": 0.21039257208014334
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.475,
+        "small_share": 1.0,
+        "sec": 462.936,
+        "tok_ref": 0,
+        "tok_small": 191636,
+        "price": 38327.200000000004,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.4125,
+          0.5375
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.32916666666666666,
+        "interval": [
+          -0.4,
+          -0.2625
+        ],
+        "sec_ratio": 0.7419690381437631,
+        "tok_ref_ratio": 0.0,
+        "price_ratio": 0.208076092031401
+      }
+    },
+    "C-marked": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.7916666666666666,
+        "small_share": 0.07083333333333333,
+        "sec": 636.366,
+        "tok_ref": 169147,
+        "tok_small": 13730,
+        "price": 171893.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7375,
+          0.8416666666666667
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": 0.0125,
+        "interval": [
+          -0.04583333333333333,
+          0.07083333333333333
+        ],
+        "sec_ratio": 1.030095148063855,
+        "tok_ref_ratio": 0.9184286257262312,
+        "price_ratio": 0.9333387630993104
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.7833333333333333,
+        "small_share": 0.041666666666666664,
+        "sec": 642.16,
+        "tok_ref": 175599,
+        "tok_small": 8602,
+        "price": 177319.4,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7291666666666666,
+          0.8333333333333334
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.020833333333333332,
+        "interval": [
+          -0.07916666666666666,
+          0.041666666666666664
+        ],
+        "sec_ratio": 1.0292196708279306,
+        "tok_ref_ratio": 0.9533165398104214,
+        "price_ratio": 0.962656489212695
+      }
+    },
+    "D-self-checked": {
+      "Learning phase": {
+        "n": 240,
+        "right": 0.8125,
+        "small_share": 0.0,
+        "sec": 578.934,
+        "tok_ref": 182286,
+        "tok_small": 0,
+        "price": 182286.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7625,
+          0.8625
+        ]
+      },
+      "Learning phase vs base": {
+        "right_diff": 0.03333333333333333,
+        "interval": [
+          -0.020833333333333332,
+          0.09166666666666666
+        ],
+        "sec_ratio": 0.9371291119406125,
+        "tok_ref_ratio": 0.9897703208991693,
+        "price_ratio": 0.9897703208991693
+      },
+      "Test phase": {
+        "n": 240,
+        "right": 0.7875,
+        "small_share": 0.0,
+        "sec": 616.543,
+        "tok_ref": 184764,
+        "tok_small": 0,
+        "price": 184764.0,
+        "checks": 0,
+        "errors": 0,
+        "right_interval": [
+          0.7333333333333333,
+          0.8375
+        ]
+      },
+      "Test phase vs base": {
+        "right_diff": -0.016666666666666666,
+        "interval": [
+          -0.07083333333333333,
+          0.03333333333333333
+        ],
+        "sec_ratio": 0.9881621145995779,
+        "tok_ref_ratio": 1.0030727803776371,
+        "price_ratio": 1.0030727803776371
+      }
+    }
+  }
+}

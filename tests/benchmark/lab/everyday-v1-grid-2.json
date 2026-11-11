@@ -1,0 +1,550 @@
+{
+ "what": "REPLAY of recorded answers through the plugin's engine; not a live run",
+ "run": "everyday-v1",
+ "items": "items/everyday-two-phase.jsonl",
+ "seeds": 6,
+ "shuffle": true,
+ "price_ratio": 0.2,
+ "plugin": "../continuum",
+ "seconds": 448.1,
+ "grid": {
+  "default": {},
+  "boost-3": {
+   "config": {
+    "chooser": {
+     "promising_boost": 3.0,
+     "promising_max_share": 0.45
+    }
+   }
+  },
+  "boost-5": {
+   "config": {
+    "chooser": {
+     "promising_boost": 5.0,
+     "promising_max_share": 0.5
+    }
+   }
+  },
+  "boost-5-ev2": {
+   "config": {
+    "chooser": {
+     "promising_boost": 5.0,
+     "promising_max_share": 0.5,
+     "min_evidence": 2.0
+    }
+   }
+  },
+  "ev-2": {
+   "config": {
+    "chooser": {
+     "min_evidence": 2.0
+    }
+   }
+  },
+  "exp-20": {
+   "settings": {
+    "explore_share": 0.2
+   }
+  }
+ },
+ "settings": {
+  "default": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.816,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0257,
+     "difference_min": -0.0417,
+     "difference_max": -0.0083,
+     "small_share": 0.0778,
+     "small_share_min": 0.0625,
+     "small_share_max": 0.0917,
+     "small_model_accuracy_on_its_turns": 0.503,
+     "own_model_tokens_vs_A": 0.9214,
+     "price_vs_A": 0.9386,
+     "model_seconds_vs_A": 1.0621
+    },
+    {
+     "accuracy": 0.7937,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0063,
+     "difference_min": -0.0083,
+     "difference_max": -0.0042,
+     "small_share": 0.0535,
+     "small_share_min": 0.025,
+     "small_share_max": 0.1,
+     "small_model_accuracy_on_its_turns": 0.4521,
+     "own_model_tokens_vs_A": 0.9459,
+     "price_vs_A": 0.9571,
+     "model_seconds_vs_A": 1.0232
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.122,
+     "accuracy": 0.867,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.089,
+     "accuracy": 0.528,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.028,
+     "accuracy": 0.85,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.028,
+     "accuracy": 0.828,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.044,
+     "accuracy": 0.656,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.011,
+     "accuracy": 0.989,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.061,
+     "accuracy": 0.783,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.044,
+     "accuracy": 0.85,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "boost-3": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8187,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0229,
+     "difference_min": -0.0375,
+     "difference_max": -0.0125,
+     "small_share": 0.0667,
+     "small_share_min": 0.0625,
+     "small_share_max": 0.075,
+     "small_model_accuracy_on_its_turns": 0.4694,
+     "own_model_tokens_vs_A": 0.9329,
+     "price_vs_A": 0.9475,
+     "model_seconds_vs_A": 1.0471
+    },
+    {
+     "accuracy": 0.7917,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0083,
+     "difference_min": -0.0125,
+     "difference_max": 0.0,
+     "small_share": 0.0361,
+     "small_share_min": 0.0167,
+     "small_share_max": 0.0875,
+     "small_model_accuracy_on_its_turns": 0.4198,
+     "own_model_tokens_vs_A": 0.9639,
+     "price_vs_A": 0.9715,
+     "model_seconds_vs_A": 1.0209
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.1,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.044,
+     "accuracy": 0.506,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.017,
+     "accuracy": 0.85,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.028,
+     "accuracy": 0.822,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.033,
+     "accuracy": 0.661,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.011,
+     "accuracy": 0.994,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.033,
+     "accuracy": 0.783,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.022,
+     "accuracy": 0.856,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "boost-5": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8153,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0264,
+     "difference_min": -0.0458,
+     "difference_max": -0.0083,
+     "small_share": 0.0701,
+     "small_share_min": 0.0542,
+     "small_share_max": 0.1083,
+     "small_model_accuracy_on_its_turns": 0.4302,
+     "own_model_tokens_vs_A": 0.9286,
+     "price_vs_A": 0.9443,
+     "model_seconds_vs_A": 1.0564
+    },
+    {
+     "accuracy": 0.7931,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0069,
+     "difference_min": -0.0125,
+     "difference_max": 0.0,
+     "small_share": 0.034,
+     "small_share_min": 0.0125,
+     "small_share_max": 0.0833,
+     "small_model_accuracy_on_its_turns": 0.3889,
+     "own_model_tokens_vs_A": 0.9659,
+     "price_vs_A": 0.9732,
+     "model_seconds_vs_A": 1.0213
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.1,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.039,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.022,
+     "accuracy": 0.844,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.006,
+     "accuracy": 0.833,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.033,
+     "accuracy": 0.667,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.011,
+     "accuracy": 0.994,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.05,
+     "accuracy": 0.778,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.011,
+     "accuracy": 0.867,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "boost-5-ev2": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8174,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0243,
+     "difference_min": -0.0375,
+     "difference_max": -0.0083,
+     "small_share": 0.0667,
+     "small_share_min": 0.05,
+     "small_share_max": 0.1,
+     "small_model_accuracy_on_its_turns": 0.4444,
+     "own_model_tokens_vs_A": 0.9326,
+     "price_vs_A": 0.9474,
+     "model_seconds_vs_A": 1.0562
+    },
+    {
+     "accuracy": 0.7944,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0056,
+     "difference_min": -0.0125,
+     "difference_max": 0.0,
+     "small_share": 0.0187,
+     "small_share_min": 0.0125,
+     "small_share_max": 0.0208,
+     "small_model_accuracy_on_its_turns": 0.4111,
+     "own_model_tokens_vs_A": 0.9809,
+     "price_vs_A": 0.985,
+     "model_seconds_vs_A": 1.0134
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.022,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.039,
+     "accuracy": 0.5,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.022,
+     "accuracy": 0.85,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.006,
+     "accuracy": 0.833,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.022,
+     "accuracy": 0.667,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.0,
+     "accuracy": 1.0,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.028,
+     "accuracy": 0.789,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.011,
+     "accuracy": 0.856,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "ev-2": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8201,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.0215,
+     "difference_min": -0.0333,
+     "difference_max": -0.0042,
+     "small_share": 0.0653,
+     "small_share_min": 0.0458,
+     "small_share_max": 0.0833,
+     "small_model_accuracy_on_its_turns": 0.5054,
+     "own_model_tokens_vs_A": 0.9341,
+     "price_vs_A": 0.9485,
+     "model_seconds_vs_A": 1.0512
+    },
+    {
+     "accuracy": 0.7958,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0042,
+     "difference_min": -0.0083,
+     "difference_max": 0.0,
+     "small_share": 0.0417,
+     "small_share_min": 0.0167,
+     "small_share_max": 0.0625,
+     "small_model_accuracy_on_its_turns": 0.5157,
+     "own_model_tokens_vs_A": 0.9572,
+     "price_vs_A": 0.9659,
+     "model_seconds_vs_A": 1.0146
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.056,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.072,
+     "accuracy": 0.522,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.028,
+     "accuracy": 0.844,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.028,
+     "accuracy": 0.839,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.039,
+     "accuracy": 0.661,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.011,
+     "accuracy": 1.0,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.067,
+     "accuracy": 0.778,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.033,
+     "accuracy": 0.861,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  },
+  "exp-20": {
+   "seeds": 6,
+   "phases": [
+    {
+     "accuracy": 0.8007,
+     "own_model_accuracy": 0.8417,
+     "difference": -0.041,
+     "difference_min": -0.0542,
+     "difference_max": -0.0292,
+     "small_share": 0.1118,
+     "small_share_min": 0.0875,
+     "small_share_max": 0.1375,
+     "small_model_accuracy_on_its_turns": 0.4356,
+     "own_model_tokens_vs_A": 0.8858,
+     "price_vs_A": 0.9111,
+     "model_seconds_vs_A": 1.0979
+    },
+    {
+     "accuracy": 0.7868,
+     "own_model_accuracy": 0.8,
+     "difference": -0.0132,
+     "difference_min": -0.025,
+     "difference_max": -0.0083,
+     "small_share": 0.0694,
+     "small_share_min": 0.0167,
+     "small_share_max": 0.125,
+     "small_model_accuracy_on_its_turns": 0.4328,
+     "own_model_tokens_vs_A": 0.9304,
+     "price_vs_A": 0.9449,
+     "model_seconds_vs_A": 1.0318
+    }
+   ],
+   "test_kinds": {
+    "category-choice": {
+     "small_share": 0.222,
+     "accuracy": 0.867,
+     "own_model": 0.867,
+     "small_model": 0.967
+    },
+    "date-choice": {
+     "small_share": 0.083,
+     "accuracy": 0.506,
+     "own_model": 0.5,
+     "small_model": 0.367
+    },
+    "largest-number": {
+     "small_share": 0.044,
+     "accuracy": 0.833,
+     "own_model": 0.867,
+     "small_model": 0.167
+    },
+    "sum-of-two": {
+     "small_share": 0.022,
+     "accuracy": 0.839,
+     "own_model": 0.833,
+     "small_model": 0.567
+    },
+    "tracking-choice": {
+     "small_share": 0.033,
+     "accuracy": 0.661,
+     "own_model": 0.667,
+     "small_model": 0.267
+    },
+    "unit-conversion": {
+     "small_share": 0.022,
+     "accuracy": 0.983,
+     "own_model": 1.0,
+     "small_model": 0.6
+    },
+    "word-problem-multi-step": {
+     "small_share": 0.1,
+     "accuracy": 0.756,
+     "own_model": 0.8,
+     "small_model": 0.5
+    },
+    "word-problem-one-step": {
+     "small_share": 0.028,
+     "accuracy": 0.85,
+     "own_model": 0.867,
+     "small_model": 0.433
+    }
+   }
+  }
+ }
+}

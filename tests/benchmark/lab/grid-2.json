@@ -1,0 +1,8 @@
+{
+  "default": {},
+  "boost-3":     {"config": {"chooser": {"promising_boost": 3.0, "promising_max_share": 0.45}}},
+  "boost-5":     {"config": {"chooser": {"promising_boost": 5.0, "promising_max_share": 0.50}}},
+  "boost-5-ev2": {"config": {"chooser": {"promising_boost": 5.0, "promising_max_share": 0.50, "min_evidence": 2.0}}},
+  "ev-2":        {"config": {"chooser": {"min_evidence": 2.0}}},
+  "exp-20":      {"settings": {"explore_share": 0.20}}
+}

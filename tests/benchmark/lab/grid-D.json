@@ -1,0 +1,4 @@
+{
+ "as live arm D (check every cheaper answer)": {"settings": {"check_share": 1.0}},
+ "default checks (check_share 0.3)": {"settings": {"check_share": 0.3}}
+}

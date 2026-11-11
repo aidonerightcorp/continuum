@@ -1,0 +1,8 @@
+{
+ "default (as live arm C)": {},
+ "explore 0.3 (as live arm E)": {"settings": {"explore_share": 0.3}},
+ "boost 3": {"config": {"chooser": {"promising_boost": 3.0}}},
+ "boost 5": {"config": {"chooser": {"promising_boost": 5.0}}},
+ "boost 5, max share 0.8": {"config": {"chooser": {"promising_boost": 8.0, "promising_max_share": 0.8}}},
+ "boost 5, evidence 2": {"config": {"chooser": {"promising_boost": 5.0, "promising_evidence": 2.0}}}
+}

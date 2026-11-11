@@ -1,162 +1,125 @@
-import { atom, cn, host, ListRow, SegmentedControl, Tip, ToggleRow, useValue } from '@hermes/plugin-sdk'
+// Continuum in the Hermes desktop app: a status chip and a pane that show what the right-sizing loop chose and
+// how it went. Reads this plugin's own backend route /api/plugins/continuum/rightsize (read-only).
+// It shows counts, choices and outcomes: no Task text and no reply text.
+import { atom, cn, ListRow, Tip, ToggleRow, useValue } from '@hermes/plugin-sdk'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
-const PAPER_INK_STYLE = {
-  backgroundColor: '#f5f2ea',
-  color: '#141413',
-  colorScheme: 'only light',
-  border: '1px solid #cfc8b8',
-  borderRadius: '8px',
-  padding: '14px',
-  fontFamily: 'ui-sans-serif, system-ui, sans-serif'
+const VERSION = '2.0.0'
+const REFRESH_MS = 5000
+const DEFAULTS = { showStatusChip: true }
+const EMPTY = { present: false, turns: 0, scored: 0, escalated: 0, by_model: [], by_mode: [], recent: [], policy: {} }
+const CHEAPER_MODES = ['exploit', 'explore']
+
+const num = x => Number(x || 0).toLocaleString()
+const pct = x => (x === null || x === undefined ? 'no outcome yet' : `${Math.round(100 * x)}%`)
+const cheaperTurns = snap =>
+  (snap.by_mode || []).filter(m => CHEAPER_MODES.includes(m.mode)).reduce((sum, m) => sum + m.turns, 0)
+
+function outcome(row) {
+  if (row.score === null || row.score === undefined) {
+    return 'open'
+  }
+  return `${row.score >= 0.5 ? 'good' : 'not good'} · ${row.source || ''}${row.weight >= 0.5 ? '' : ' (weak)'}`
 }
 
-const CARD_STYLE = {
-  backgroundColor: '#faf8f3',
-  color: '#141413',
-  border: '1px solid #cfc8b8',
-  borderRadius: '6px',
-  padding: '10px',
-  marginTop: '8px'
-}
-
-const DEFAULTS = {
-  showStatusChip: true,
-  embeddingSlice: '64'
-}
-
-const INITIAL_TELEMETRY = {
-  version: '1.3.0',
-  engine_count: 30,
-  sub_engine_count: 112,
-  hypergrid_total_dimensions: 172,
-  supported_targets: ['rust', 'glsl', 'js', 'python', 'sql', 'c99', 'wasm', 'wat', 'wgsl'],
-  matryoshka_spaces: ['task2vec', 'config2vec', 'weight2vec', 'trace2vec'],
-  matryoshka_prefix_dims: [16, 32, 64, 128],
-  omninode: {
-    encased: true,
-    lockfile_verified: true,
-    lockfile_sha256: 'verified-cas-lockfile',
-    total_cards: 78,
-    grid1_format: 'grid/1',
-    active_grid1_cell: 'canonical-grid1-sha256',
-    supported_operators: ['@', '>>', '|', '//']
-  },
-  persisted_tasks: 0,
-  persisted_verifications: 0,
-  persisted_attractors: 0
-}
-
-function ContinuumStatusChip({ prefs, telemetry }) {
-  const gateway = useValue(host.state.gateway)
-  const { showStatusChip, embeddingSlice } = useValue(prefs)
-  const snap = useValue(telemetry)
-  const omni = snap.omninode || {}
-  const lockLabel = omni.lockfile_verified ? 'CAS✓' : 'CAS!'
+function ContinuumStatusChip({ prefs, records }) {
+  const { showStatusChip } = useValue(prefs)
+  const snap = useValue(records)
 
   if (!showStatusChip) {
     return null
   }
 
+  const cheaper = cheaperTurns(snap)
+
   return jsx(Tip, {
-    label: `Continuum v${snap.version} • ${snap.engine_count} engines / ${snap.sub_engine_count} sub-engines • OmniNode ${lockLabel} • gateway: ${gateway}`,
+    label: `Continuum ${VERSION}: ${num(snap.turns)} turns recorded, ${num(cheaper)} sent to a cheaper model, ${num(snap.escalated)} returned to your model`,
     children: jsxs('span', {
       className: cn('inline-flex h-full items-center gap-1.5 px-2 text-[0.6875rem]'),
-      style: {
-        backgroundColor: '#f5f2ea',
-        color: '#141413',
-        colorScheme: 'only light',
-        borderLeft: '1px solid #cfc8b8'
-      },
       children: [
         jsx('span', { 'aria-hidden': true, children: '◈' }),
-        jsx('span', { children: `Continuum ${snap.engine_count}x${snap.sub_engine_count} · ${lockLabel} · ${embeddingSlice}d` })
+        jsx('span', { children: `Continuum ${num(cheaper)}/${num(snap.turns)}` })
       ]
     })
   })
 }
 
-function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
-  const { embeddingSlice } = useValue(prefs)
-  const snap = useValue(telemetry)
-  const targets = snap.supported_targets || []
-  const omni = snap.omninode || {}
-  const lockHash = String(omni.lockfile_sha256 || '').slice(0, 16) || 'pending'
-  const cellHash = String(omni.active_grid1_cell || '').slice(0, 16) || 'pending'
-  const ops = (omni.supported_operators || ['@', '>>', '|', '//']).join(' ')
+function Row({ label, value }) {
+  return jsxs('div', {
+    className: 'flex items-baseline justify-between gap-3',
+    children: [
+      jsx('span', { className: 'text-(--ui-text-tertiary)', children: label }),
+      jsx('span', { className: 'tabular-nums', children: value })
+    ]
+  })
+}
+
+function ContinuumPane({ records, onRefresh }) {
+  const snap = useValue(records)
+  const policy = snap.policy || {}
+
+  if (!snap.present || !snap.turns) {
+    return jsxs('div', {
+      className: 'flex h-full flex-col gap-2 p-3 text-sm',
+      children: [
+        jsx('div', { className: 'font-medium', children: 'Continuum' }),
+        jsx('div', {
+          className: 'text-(--ui-text-tertiary)',
+          children:
+            'No turns are recorded yet. Use Hermes as usual. To let Continuum send easy Tasks to a cheaper model, set small_model in the plugin settings and accept llm.model_override.'
+        })
+      ]
+    })
+  }
 
   return jsxs('div', {
-    style: PAPER_INK_STYLE,
+    className: 'flex h-full flex-col gap-3 overflow-y-auto p-3 text-sm',
     children: [
       jsxs('div', {
-        style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+        className: 'flex items-center justify-between',
         children: [
-          jsxs('div', {
-            children: [
-              jsx('div', {
-                style: { fontSize: '15px', fontWeight: 700, color: '#141413' },
-                children: 'Continuum — OmniNode-Encased Self-Improving Agent Engine'
-              }),
-              jsx('div', {
-                style: { fontSize: '12px', color: '#4a4843', marginTop: '2px' },
-                children: `v${snap.version} • 8 Layers • ${snap.engine_count} Engines • ${snap.sub_engine_count} Sub-Engines • 18 Tools • ${snap.hypergrid_total_dimensions}-Axis TT-Cross Grid`
-              })
-            ]
-          }),
+          jsx('div', { className: 'font-medium', children: 'Continuum: right-sizing' }),
           jsx('button', {
             type: 'button',
+            className: 'text-xs text-(--ui-text-tertiary) underline',
             onClick: onRefresh,
-            style: {
-              backgroundColor: '#ebe6da',
-              color: '#141413',
-              border: '1px solid #cfc8b8',
-              borderRadius: '4px',
-              padding: '4px 10px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            },
-            children: 'Sync State'
+            children: 'Refresh'
           })
         ]
       }),
       jsxs('div', {
-        style: CARD_STYLE,
+        className: 'flex flex-col gap-1',
         children: [
-          jsx('div', {
-            style: { fontSize: '12px', fontWeight: 600, color: '#8c5a2b' },
-            children: 'OmniNode CARD Lockfile & Canonical grid/1 Cell Receipt'
-          }),
-          jsx('div', {
-            style: { fontSize: '12px', color: '#141413', marginTop: '4px' },
-            children: `CARD Lockfile: ${omni.lockfile_verified ? 'VERIFIED' : 'UNVERIFIED'} (${lockHash}) • Cards: ${omni.total_cards || 0} • Active grid/1 Cell: ${cellHash} • Operators: ${ops}`
+          jsx(Row, { label: 'Turns recorded', value: num(snap.turns) }),
+          jsx(Row, { label: 'With an outcome', value: num(snap.scored) }),
+          jsx(Row, { label: 'Sent to a cheaper model', value: num(cheaperTurns(snap)) }),
+          jsx(Row, { label: 'Returned to your model inside the turn', value: num(snap.escalated) }),
+          jsx(Row, { label: 'Checks by your own model', value: `${num(snap.checks)} (${num(snap.checks_failed)} FAIL)` }),
+          jsx(Row, {
+            label: 'Policy',
+            value: `floor ${policy.floor || 'default'} · evidence ${policy.min_evidence || 'default'}`
           })
         ]
       }),
-      jsxs('div', {
-        style: CARD_STYLE,
-        children: [
-          jsx('div', {
-            style: { fontSize: '12px', fontWeight: 600, color: '#2f5d50' },
-            children: 'Latent Mind SAE Probing, Nullspace Steering & 9 Portable Runtimes'
-          }),
-          jsx('div', {
-            style: { fontSize: '12px', color: '#141413', marginTop: '4px' },
-            children: `Spaces: ${(snap.matryoshka_spaces || []).join(' · ')} | Slice: ${embeddingSlice}d | Targets (${targets.length}): ${targets.join(', ')}`
-          })
-        ]
+      jsx('div', { className: 'font-medium', children: 'By model' }),
+      jsx('div', {
+        className: 'flex flex-col gap-1',
+        children: (snap.by_model || []).map(m =>
+          jsx(Row, {
+            label: m.model,
+            value: `${num(m.turns)} turns · ${pct(m.pass_rate)} good · ${num((m.tok_in || 0) + (m.tok_out || 0))} tokens`
+          }, m.model)
+        )
       }),
-      jsxs('div', {
-        style: CARD_STYLE,
-        children: [
-          jsx('div', {
-            style: { fontSize: '12px', fontWeight: 600, color: '#354f6b' },
-            children: 'Profile-Scoped SQLite WAL State (Read-Only)'
-          }),
-          jsx('div', {
-            style: { fontSize: '12px', color: '#141413', marginTop: '4px' },
-            children: `Leased Tasks: ${snap.persisted_tasks} • Verified Records: ${snap.persisted_verifications} • Saved Memories: ${snap.persisted_attractors}`
-          })
-        ]
+      jsx('div', { className: 'font-medium', children: 'Latest turns' }),
+      jsx('div', {
+        className: 'flex flex-col gap-1',
+        children: (snap.recent || []).map((r, i) =>
+          jsx(Row, {
+            label: `${r.model || ''} · ${r.mode || ''}${r.escalated ? ' → your model' : ''}`,
+            value: outcome(r)
+          }, i)
+        )
       })
     ]
   })
@@ -165,44 +128,47 @@ function ContinuumInspectorPane({ prefs, telemetry, onRefresh }) {
 export default {
   id: 'continuum',
   name: 'Continuum',
-  description: 'OmniNode-encased unified self-improving agent engine for Hermes: 30 cybernetic engines (112 sub-engines), 18 tools, >> // | @ shape composition, grid/1 cell receipts, SAE/ELK probing, Nullspace steering, and 9-target skill compilation.',
+  description:
+    'Hermes sizes itself to each Task: see what Continuum chose for each turn, how it went, and what it learned.',
   register(ctx) {
     const prefs = atom({ ...DEFAULTS, ...ctx.storage.get('prefs', {}) })
-    const telemetry = atom(INITIAL_TELEMETRY)
+    const records = atom(EMPTY)
 
     const updatePrefs = patch => {
       prefs.set({ ...prefs.get(), ...patch })
       ctx.storage.set('prefs', prefs.get())
     }
 
-    const refreshTelemetry = () => {
+    const refresh = () => {
       if (typeof ctx.rest !== 'function') {
         return
       }
-      Promise.resolve(ctx.rest('/status'))
+      Promise.resolve(ctx.rest('/rightsize'))
         .then(data => {
           if (data && typeof data === 'object') {
-            telemetry.set({ ...telemetry.get(), ...data })
+            records.set({ ...EMPTY, ...data })
           }
         })
         .catch(() => {})
     }
 
-    refreshTelemetry()
+    refresh()
+    ctx.setInterval(refresh, REFRESH_MS) // a scoped timer: Hermes clears it with the plugin
 
     ctx.register({
       id: 'continuum-chip',
       area: 'statusBar.right',
       order: 105,
-      render: () => jsx(ContinuumStatusChip, { prefs, telemetry })
+      render: () => jsx(ContinuumStatusChip, { prefs, records })
     })
 
     ctx.register({
       id: 'continuum-pane',
       area: 'panes',
-      title: 'Continuum Engine',
+      title: 'Continuum',
       icon: 'cpu',
-      render: () => jsx(ContinuumInspectorPane, { prefs, telemetry, onRefresh: refreshTelemetry })
+      data: { placement: 'right', width: '320px' },
+      render: () => jsx(ContinuumPane, { records, onRefresh: refresh })
     })
 
     ctx.registerSettingsPage?.({
@@ -210,29 +176,19 @@ export default {
       title: 'Continuum',
       icon: 'cpu',
       render: function GeneralSettings() {
-        const { showStatusChip, embeddingSlice } = useValue(prefs)
+        const { showStatusChip } = useValue(prefs)
         return jsxs('div', {
-          style: { colorScheme: 'only light' },
           children: [
             jsx(ToggleRow, {
               checked: showStatusChip,
-              description: 'Display live 30x112 OmniNode lockfile and embedding slice indicator in the status bar.',
+              description: 'Show how many turns Continuum sent to a cheaper model in the status bar.',
               label: 'Show Continuum status chip',
               onChange: enabled => updatePrefs({ showStatusChip: enabled })
             }),
             jsx(ListRow, {
-              action: jsx(SegmentedControl, {
-                onChange: value => updatePrefs({ embeddingSlice: value }),
-                options: [
-                  { id: '16', label: '16d' },
-                  { id: '32', label: '32d' },
-                  { id: '64', label: '64d' },
-                  { id: '128', label: '128d' }
-                ],
-                value: embeddingSlice
-              }),
-              description: 'Select default nested embedding slice width for fast retrieval and inspection.',
-              title: 'Default embedding slice width'
+              description:
+                'Model, tool and check settings live in config.yaml under plugins.entries.continuum.settings. Run /continuum in a session for the full status.',
+              title: 'Right-sizing settings'
             })
           ]
         })

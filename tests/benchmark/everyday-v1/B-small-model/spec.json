@@ -1,0 +1,41 @@
+{
+  "schema": "continuum.bench/1",
+  "about": "Settings of the 'everyday mix' run of the Hermes on/off benchmark: four easy kinds and four harder kinds. Nothing here is a result. Same arms, models and prompt as bench_spec.json.",
+  "endpoint": "http://127.0.0.1:11434/v1",
+  "reference_model": "coder-7b-bench",
+  "small_model": "meta-3b-bench",
+  "declared_context": 64000,
+  "real_context": 16384,
+  "toolsets": [],
+  "max_iterations": 6,
+  "prompt_suffix": "\n\nWork through it step by step. Then end your reply with one last line in this form: Answer: <the number, or the letter of the option>",
+  "phases": [
+    {
+      "title": "Learning phase",
+      "items": "everyday-learn.jsonl",
+      "from": 0,
+      "to": 240,
+      "about": "240 Tasks, 30 of each of eight kinds. Continuum starts with an empty record file and is never told a kind."
+    },
+    {
+      "title": "Test phase",
+      "items": "everyday-test.jsonl",
+      "from": 240,
+      "to": 480,
+      "about": "240 other Tasks of the same eight kinds. Continuum keeps the records of the learning phase. This phase carries the headline figures."
+    }
+  ],
+  "arms": {
+    "B-small-model": {
+      "about": "Hermes with the small model for every Task. Continuum is not loaded.",
+      "model": "small",
+      "plugin": false
+    }
+  },
+  "temperature_in_model_alias": 0.2,
+  "tasks_are": "checkable Tasks (half are four easy kinds written by `make_everyday_items.py` from a fixed seed, half are four harder kinds from public sets)",
+  "answer_key_is": "the answer key (from the generating code for the easy kinds, from the public set for the others)",
+  "model": "meta-3b-bench",
+  "hermes_version": "0.23.0",
+  "items": "runs/everyday-v1/B-small-model/items/everyday-two-phase.jsonl"
+}

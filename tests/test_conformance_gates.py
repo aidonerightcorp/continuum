@@ -37,6 +37,8 @@ class _RecordingContext:
     def __init__(self) -> None:
         self.tools: list[str] = []
         self.hooks: list[str] = []
+        self.middleware: list[str] = []
+        self.hidden: list[str] = []
         self.commands: list[str] = []
         self.skills: list[str] = []
         self.context_engine = None
@@ -55,8 +57,14 @@ class _RecordingContext:
     def register_delegation_provider(self, prov) -> None:
         self.delegation_provider = prov
 
+    def register_middleware(self, kind: str, callback, **kwargs) -> None:
+        self.middleware.append(kind)
+
     def register_tool(self, name: str, **kwargs) -> None:
         self.tools.append(name)
+        check = kwargs.get("check_fn")
+        if check is not None and not check():
+            self.hidden.append(name)
 
     def register_hook(self, hook_name: str, callback, **kwargs) -> None:
         self.hooks.append(hook_name)
@@ -140,14 +148,11 @@ def test_desktop_plugin_surface_sdk_conformance() -> None:
     src = desktop_js.read_text(encoding="utf-8")
     assert "from '@hermes/plugin-sdk'" in src
     assert "from 'react/jsx-runtime'" in src
-    assert "#f5f2ea" in src
-    assert "#141413" in src
-    assert "only light" in src
-    assert "1.3.0" in src
-    assert "engine_count: 30" in src
-    assert "sub_engine_count: 112" in src
-    assert "hypergrid_total_dimensions: 172" in src
-    assert "omninode" in src
+    assert "2.0.0" in src
+    assert "ctx.rest('/rightsize')" in src  # the pane shows the plugin's own records, read-only
+    assert "ctx.setInterval(" in src  # a scoped timer, cleared by Hermes with the plugin
+    for stale in ("1.3.0", "engine_count", "lockfile_verified", "VERIFIED"):  # no fixed figures in the surface
+        assert stale not in src
     for forbidden in (
         "eval(",
         "new Function(",
@@ -183,33 +188,37 @@ def test_manifest_and_registration_exact_parity(
     )
     manifest_text = (REPO_ROOT / "plugin.yaml").read_text(encoding="utf-8")
     assert "name: continuum" in manifest_text
-    assert 'version: "1.3.0"' in manifest_text
+    assert 'version: "2.0.0"' in manifest_text
     assert "kind: standalone" in manifest_text
     assert "manifest_version: 2" in manifest_text
     assert 'requires_hermes: ">=0.23.0"' in manifest_text
 
     ctx = _RecordingContext()
     continuum_plugin.register(ctx)
-    assert len(ctx.tools) == 18
-    assert len(set(ctx.tools)) == 18
-    assert "continuum_compose_omninode" in ctx.tools
+    assert len(ctx.tools) == 19
+    assert len(set(ctx.tools)) == 19
+    assert "continuum_recall" in ctx.tools and "continuum_recall" not in ctx.hidden
+    assert len(ctx.hidden) == 18  # the lab tools stay hidden from the model by default
     for t_name in ctx.tools:
         assert t_name.startswith("continuum_")
         assert f"- {t_name}" in manifest_text
-    assert set(ctx.hooks) == {
-        "on_session_start",
-        "pre_tool_call",
+    declared_hooks = {
+        "pre_llm_call",
+        "post_llm_call",
+        "post_api_request",
+        "api_request_error",
         "post_tool_call",
         "on_session_end",
+        "on_session_finalize",
     }
+    assert set(ctx.hooks) == declared_hooks
+    for hook in declared_hooks:
+        assert f"- {hook}" in manifest_text
+    assert ctx.middleware == ["llm_request"] and "provides_middleware:\n  - llm_request" in manifest_text
     assert ctx.commands == ["continuum"]
     assert ctx.skills == ["continuum"]
-    assert ctx.context_engine is not None and ctx.context_engine.name == "continuum"
-    assert ctx.memory_provider is not None and ctx.memory_provider.name == "continuum"
-    assert (
-        ctx.delegation_provider is not None
-        and ctx.delegation_provider.name == "continuum"
-    )
+    # The lab's providers are registered only when enable_lab_tools is on.
+    assert ctx.context_engine is None and ctx.memory_provider is None and ctx.delegation_provider is None
 
 
 def test_thirty_engines_one_hundred_twelve_subengines_one_seventy_two_hypergrid_dims() -> None:

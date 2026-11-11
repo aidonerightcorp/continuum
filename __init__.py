@@ -1,4 +1,4 @@
-"""Continuum — Unified Self-Improving Agent Engine for Hermes Agent."""
+"""Continuum: Hermes sizes itself to each Task, and learns from its own records."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ CARD = {
     "role": "surface",
     "stratum": "omninode_shell_and_shape_composition",
     "contract": "hermes.tools_hooks_cli/v1",
-    "describes": "Hermes v0.23.0+ plugin entrypoint unifying ContextEngine, MemoryProvider, DelegationProvider, 18 OmniNode-encased continuum_* tools, 4 hooks, /continuum, and skill.",
+    "describes": "Hermes plugin entry point: the right-sizing loop (hooks, request middleware, continuum_recall, /continuum) and, behind a setting, the experimental engines.",
     "keywords": ["continuum", "hermes", "plugin", "omninode", "tools", "hooks", "cli"],
 }
 
@@ -838,73 +838,106 @@ def _build_tool_definitions(
     ]
 
 
-def register(ctx: Any) -> ContinuumRuntime:
-    """Hermes v0.23.0+ entry point registering native providers, 17 tools, 4 hooks, /continuum, and skill."""
-    rt = ContinuumRuntime()
-    default_headroom = float(
-        ctx.get_config(
-            "compute_headroom_ratio",
-            rt.spec.section("hypergrid_fluid_interpolation")[
-                "opportunistic_exploration"
-            ]["default_compute_headroom"],
-        )
-    )
-    idle_explore = bool(ctx.get_config("enable_idle_exploration", True))
+RIGHTSIZE_SETTINGS = ("mode", "small_model", "small_model_cost_ratio", "small_model_max_context", "rungs",
+                      "size_tools", "recall", "store_text", "text_days", "explore_share", "self_tune", "check_share")
 
-    # Surface 1, 2, 3 — Native ContextEngine, MemoryProvider, DelegationProvider
-    ctx.register_context_engine(rt.context_engine)
-    ctx.register_memory_provider(rt.memory_provider)
-    ctx.register_delegation_provider(rt.delegation_provider)
 
-    # Surface 4a — 15 Agent Tools
-    for tool_name, desc, schema, handler in _build_tool_definitions(rt):
+class _LabRuntime:
+    """Builds the experimental engines only when something asks for them."""
+
+    def __init__(self) -> None:
+        self._rt: ContinuumRuntime | None = None
+
+    def get(self) -> ContinuumRuntime:
+        if self._rt is None:
+            self._rt = ContinuumRuntime()
+        return self._rt
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.get(), name)
+
+
+def register(ctx: Any) -> Any:
+    """Hermes entry point.
+
+    Always on: the right-sizing loop (7 hooks, 1 request middleware, the continuum_recall tool, /continuum).
+    Behind the setting enable_lab_tools: the 18 tools of the experimental engines of version 1. The plugin
+    registers nothing that its manifest does not declare: the context, memory and delegation providers of
+    version 1 stay in the package as research code and are not registered with Hermes.
+    """
+    from continuum_core import storage as _storage
+    from continuum_core.rightsize import RightSizer
+    from continuum_core.rightsize import hermes as _wiring
+    from continuum_core.rightsize.engine import _flag
+
+    # A yes/no setting typed as text ("false", "no", "off") is a no; a value that is neither is a no too.
+    lab_on = _flag(ctx.get_config("enable_lab_tools", False), False)
+    rt = _LabRuntime()
+
+    # ---- the right-sizing loop ----
+    data_dir = Path(_storage.resolve_continuum_db_path()).parent
+    settings = {key: ctx.get_config(key, None) for key in RIGHTSIZE_SETTINGS}
+    no_home = data_dir.name == "continuum-standalone"
+    if no_home:  # Hermes gave no data folder: the shared temp folder is no place for a user's messages
+        settings["mode"] = "off"
+    # With no data folder no file is opened at all, also not one that an earlier run left in the temp folder.
+    sizer = RightSizer(":memory:" if no_home else data_dir / "rightsize.db", settings=settings)
+    if no_home:
+        sizer.store_note = "Hermes gave no plugin data folder, so Continuum is off and stores nothing"
+        try:
+            data_dir.rmdir()  # the lookup made this temp folder; it is removed again when it is empty
+        except OSError:
+            pass
+    _wiring.install(ctx, sizer, data_dir)
+    rt.sizer = sizer
+
+    # ---- the experimental engines (hidden from the model unless enable_lab_tools is on) ----
+    def _lab_ok() -> bool:
+        # The lab keeps its own file: its tools exist for the model only when the user turned the lab on,
+        # Continuum is not off, and Hermes gave the plugin a data folder.
+        return bool(lab_on and not no_home and sizer.mode != "off")
+
+    def _gated(handler: Any) -> Any:
+        # The host can call a tool that it listed a moment ago, so each handler asks again before it runs.
+        def run(args: dict[str, Any], **kw: Any) -> str:
+            if not _lab_ok():
+                return json.dumps({"error": "The experimental engines of Continuum version 1 are off. "
+                                            "Nothing was run and nothing was stored."})
+            return handler(args, **kw)
+        return run
+
+    for tool_name, desc, schema, handler in _build_tool_definitions(rt):  # type: ignore[arg-type]
         ctx.register_tool(
             name=tool_name,
             toolset="continuum",
             schema=schema,
-            handler=handler,
+            handler=_gated(handler),
             description=desc,
+            check_fn=_lab_ok,
         )
 
-    # Surface 4b — 4 Lifecycle Hooks
-    def _on_session_start(*args: Any, **kwargs: Any) -> None:
-        sid = str(kwargs.get("session_id", "default") or "default")
-        rt.context_engine.on_session_start(session_id=sid)
+    try:  # a setting typed by a person: a wrong value falls back to the spec's own default, it never stops the load
+        default_headroom = float(ctx.get_config("compute_headroom_ratio", 0.0) or 0.0) if lab_on else 0.0
+    except (TypeError, ValueError):
+        default_headroom = 0.0
+    if not 0.0 <= default_headroom <= 1.0:
+        default_headroom = 0.0
 
-    def _pre_tool_call(*args: Any, **kwargs: Any) -> None:
-        rt.tool_invocations += 1
-
-    def _post_tool_call(*args: Any, **kwargs: Any) -> None:
-        rt.persist_status_snapshot()
-
-    def _on_session_end(*args: Any, **kwargs: Any) -> None:
-        if idle_explore:
-            replays = rt.store.recent_verified_records()
-            rt.bus.coupling_step(
-                compute_headroom_ratio=default_headroom,
-                replay_records=replays,
-            )
-        rt.persist_status_snapshot()
-
-    ctx.register_hook("on_session_start", _on_session_start)
-    ctx.register_hook("pre_tool_call", _pre_tool_call)
-    ctx.register_hook("post_tool_call", _post_tool_call)
-    ctx.register_hook("on_session_end", _on_session_end)
-
-    # Surface 4c — /continuum Slash Command
-    def _slash_command_handler(raw_args: str = "", **_: Any) -> str:
-        arg = (raw_args or "").strip().lower()
+    # ---- /continuum ----
+    def _lab_command(arg: str) -> str:
         short_n = rt.spec.c_int("uid_digest_chars")
+        headroom = default_headroom or float(
+            rt.spec.section("hypergrid_fluid_interpolation")["opportunistic_exploration"]["default_compute_headroom"])
         if arg.startswith("step"):
             step_res = rt.bus.coupling_step(
-                compute_headroom_ratio=default_headroom,
+                compute_headroom_ratio=headroom,
                 replay_records=rt.store.recent_verified_records(),
             )
             rt.persist_status_snapshot()
             return (
-                f"Continuum adaptation step #{step_res['coupling_step']} complete | "
+                f"Continuum lab: adaptation step #{step_res['coupling_step']} complete | "
                 f"stability delta={step_res['lyapunov_delta']:.6f} | "
-                f"configs tested (0 tokens)={step_res['opportunistic_exploration']['candidates_generated']}"
+                f"configs tested (no model call)={step_res['opportunistic_exploration']['candidates_generated']}"
             )
         if arg.startswith("omninode"):
             comp_res = rt.bus.compose_omninode(goal="slash command omninode check")
@@ -912,46 +945,80 @@ def register(ctx: Any) -> ContinuumRuntime:
             cell_short = str(comp_res["grid1_receipt"]["cell"])[:short_n]
             lock_short = str(comp_res["lockfile"]["lockfile_sha256"])[:short_n]
             return (
-                f"Continuum OmniNode run ok={comp_res['ok']} | "
+                f"Continuum lab: OmniNode run ok={comp_res['ok']} | "
                 f"shape='{comp_res['shape']}' | "
-                f"lockfile={lock_short} (verified={comp_res['lockfile']['verified']}) | "
+                f"lockfile={lock_short} (matches={comp_res['lockfile']['verified']}) | "
                 f"grid/1 cell={cell_short}"
             )
         snap = rt.persist_status_snapshot()
-        ledger = snap["grid_ledger_counts"]
-        cost = snap["cost_ledger"]
-        targets_n = len(snap.get("supported_targets", []))
         omni = snap.get("omninode", {})
-        lock_status = "verified" if omni.get("lockfile_verified") else "unverified"
-        lock_short = str(omni.get("lockfile_sha256", ""))[:short_n]
-        cell_short = str(omni.get("active_grid1_cell", ""))[:short_n]
         return (
-            f"Continuum v{snap['version']} (OmniNode-Encased) | "
-            f"{snap['engine_count']} engines ({snap['sub_engine_count']} sub-engines) | "
-            f"18 tools | {snap['hypergrid_total_dimensions']} tunable params | "
-            f"{targets_n} targets | "
-            f"OmniNode CARD lockfile={lock_status}:{lock_short} | "
-            f"grid/1 cell={cell_short} | "
-            f"verified/promoted={ledger.get('verified', 0)}/{ledger.get('promoted', 0)} | "
-            f"zero-token probes={cost['sha_zero_token_probes']}"
+            f"Continuum lab v{snap['version']} (experimental engines; "
+            f"{'on' if lab_on else 'off: set enable_lab_tools to show its tools to the model'}) | "
+            f"{snap['engine_count']} engine modules | 18 lab tools | "
+            f"{snap['hypergrid_total_dimensions']} settings | "
+            f"lockfile={str(omni.get('lockfile_sha256', ''))[:short_n]} | "
+            f"grid/1 cell={str(omni.get('active_grid1_cell', ''))[:short_n]}"
         )
+
+    def _slash_command_handler(raw_args: str = "", session_id: str = "", platform: Any = "", **_: Any) -> str:
+        try:
+            platform = str(getattr(platform, "value", platform) or "")
+            text = _wiring.command(sizer, data_dir, raw_args, session_id=str(session_id or ""), platform=platform)
+            if text is not None:
+                return text
+            arg = (raw_args or "").strip().lower()
+            if arg.startswith(("lab", "step", "omninode")):
+                # The experimental engines keep their own file. They run only when the user turned them on,
+                # Continuum is not off, and Hermes gave the plugin a data folder.
+                if not lab_on or no_home or sizer.mode == "off":
+                    return ("The experimental engines of version 1 are off, and this command stored nothing. "
+                            "To use them, set enable_lab_tools: true (with mode auto or observe) and start "
+                            "Hermes again.")
+                if platform not in sizer.cfg["recall"].get("single_user_platforms", []):
+                    return ("The lab commands run only for the local user. On the machine that runs Hermes, "
+                            "type: hermes continuum " + arg)
+                return _lab_command(arg.removeprefix("lab").strip())
+            return _wiring.HELP
+        except Exception as exc:  # a command must always answer
+            return f"Continuum could not run that command ({type(exc).__name__}: {exc})."
 
     ctx.register_command(
         "continuum",
         _slash_command_handler,
-        description="View Continuum 30-engine OmniNode status, CARD lockfile & grid/1 cell, or run '/continuum [step|omninode]'.",
-        args_hint="[status|step|omninode]",
+        description="Right-sizing status, the reason for the last choice, and outcome feedback.",
+        args_hint="[status|why|good|bad|pin|unpin|unblock|audit|tune|export|import FILE|forget-text|compact|lab|help]",
     )
 
-    # Surface 4d — Bundled Continuum Skill
-    skill_path = (
-        Path(__file__).resolve().parent / "skills" / "continuum" / "SKILL.md"
-    )
+    # ---- `hermes continuum …` in a terminal: the same commands, with no session open ----
+    def _cli_setup(parser: Any) -> None:
+        parser.add_argument("words", nargs="*", metavar="COMMAND",
+                            help="status, why, good, bad, unblock, audit, tune, export, import FILE, forget-text, compact, help")
+
+    def _cli_handler(args: Any) -> int:
+        words = [str(w) for w in (getattr(args, "words", None) or [])]
+        if words and words[0].lower() in ("pin", "unpin"):
+            print("pin and unpin belong to one session: type /continuum pin inside that session.")
+            return 0
+        print(_slash_command_handler(" ".join(words), session_id="", platform="cli"))
+        return 0
+
+    if hasattr(ctx, "register_cli_command"):
+        ctx.register_cli_command(
+            name="continuum",
+            help="Continuum right-sizing: status, the reason for the last choice, audit, export",
+            setup_fn=_cli_setup,
+            handler_fn=_cli_handler,
+            description="The /continuum commands from a terminal. `why`, `good` and `bad` act on the newest turn.",
+        )
+
+    # ---- bundled skill ----
+    skill_path = Path(__file__).resolve().parent / "skills" / "continuum" / "SKILL.md"
     if skill_path.is_file() and hasattr(ctx, "register_skill"):
         ctx.register_skill(
             "continuum",
             skill_path,
-            description="Workflow guide for Continuum task planning, Sheaf & Conformal verification, and 9-target skill compilation.",
+            description="How to read Continuum's right-sizing records and give it outcome feedback.",
         )
 
     return rt
